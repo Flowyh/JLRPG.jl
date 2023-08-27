@@ -1,0 +1,13 @@
+name = "JLPG"
+uuid = "d62874f1-7ad4-4ec3-9165-79520fb67797"
+authors = ["Maciej Bazela"]
+version = "0.0.1-DEV"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
