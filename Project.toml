@@ -3,6 +3,12 @@ uuid = "d62874f1-7ad4-4ec3-9165-79520fb67797"
 authors = ["Maciej Bazela"]
 version = "0.0.1-DEV"
 
+[deps]
+Mustache = "ffc61752-8dc7-55ee-8c37-f3e9cdd09e70"
+Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+
 [compat]
 julia = "1"
 
