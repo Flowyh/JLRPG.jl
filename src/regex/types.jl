@@ -4,7 +4,7 @@ abstract type RegexNode end
 
 @consts begin
   RegexNodeOrNothing = Union{RegexNode, Nothing}
-  doNothing::Function = () -> nothing
+  doNothing = () -> nothing
 end
 
 @kwdef struct End <: RegexNode
@@ -50,3 +50,7 @@ struct Optional <: RegexNode
   parent::RegexNodeOrNothing
   child::RegexNode
 end
+
+# TODO: Add {} duplication
+# TODO: Anchoring (line_start, line_end)
+# TODO: Look at Flex: https://westes.github.io/flex/manual/Patterns.html
