@@ -5,23 +5,23 @@
 
   @testset "Characters" begin
     @test tokenize("a")   == [(character, "a")]
-    @test tokenize("ab")  == [(character, "a"), (concat, ""), (character, "b")]
+    @test tokenize("ab")  == [(character, "a"), (operator, ""), (character, "b")]
     @test tokenize("abc") == [
       (character, "a"),
-      (concat, ""),
+      (operator, ""),
       (character, "b"),
-      (concat, ""), 
+      (operator, ""), 
       (character, "c")
     ]
     @test tokenize("a b c") == [
       (character, "a"),
-      (concat, ""), 
+      (operator, ""), 
       (character, " "),
-      (concat, ""),
+      (operator, ""),
       (character, "b"),
-      (concat, ""), 
+      (operator, ""), 
       (character, " "),
-      (concat, ""), 
+      (operator, ""), 
       (character, "c")
     ]
   end
@@ -32,13 +32,13 @@
     @test tokenize(raw"\$") == [(escaped_character, raw"\$")]
     @test tokenize(raw"\a \b \c") == [
       (escaped_character, raw"\a"),
-      (concat, ""), 
+      (operator, ""), 
       (character, " "),
-      (concat, ""),
+      (operator, ""),
       (escaped_character, raw"\b"), 
-      (concat, ""),
+      (operator, ""),
       (character, " "),
-      (concat, ""),
+      (operator, ""),
       (escaped_character, raw"\c")
     ]
   end
@@ -54,11 +54,11 @@
     @test tokenize(raw"^test$") == [
       (operator, "^"),
       (character, "t"),
-      (concat, ""), 
+      (operator, ""), 
       (character, "e"),
-      (concat, ""),
+      (operator, ""),
       (character, "s"),
-      (concat, ""),
+      (operator, ""),
       (character, "t"),
       (operator, raw"$")
     ]
@@ -84,11 +84,11 @@
       (left_paren,  "("), 
       (character,   "a"), 
       (right_paren, ")"),
-      (concat, ""),
+      (operator, ""),
       (character,   " "),
       (operator,    "|"), 
       (character,   " "),
-      (concat, ""),
+      (operator, ""),
       (left_paren,  "("), 
       (character,   "b"), 
       (right_paren, ")"),
@@ -110,7 +110,7 @@
       (character,   "a"), 
       (right_paren, ")"),
       (right_paren, ")"),
-      (concat, ""),
+      (operator, ""),
       (left_paren,  "("), 
       (left_paren,  "("), 
       (character,   "b"), 
@@ -134,65 +134,65 @@
   @testset "Concatenation" begin
     @test tokenize(raw"ab") == [
       (character, "a"),
-      (concat, ""),
+      (operator, ""),
       (character, "b")
     ]
     @test tokenize("a b") == [
       (character, "a"),
-      (concat, ""),
+      (operator, ""),
       (character, " "),
-      (concat, ""),
+      (operator, ""),
       (character, "b")
     ]
     @test tokenize("a[a-z]") == [
       (character, "a"),
-      (concat, ""),
+      (operator, ""),
       (character_class, "[a-z]")
     ]
     @test tokenize("a(bc)") == [
       (character, "a"),
-      (concat, ""),
+      (operator, ""),
       (left_paren, "("),
       (character, "b"),
-      (concat, ""),
+      (operator, ""),
       (character, "c"),
       (right_paren, ")")
     ]
     @test tokenize("(ab)c") == [
       (left_paren, "("),
       (character, "a"),
-      (concat, ""),
+      (operator, ""),
       (character, "b"),
       (right_paren, ")"),
-      (concat, ""),
+      (operator, ""),
       (character, "c")
     ]
     @test tokenize("(ab)[a-z]") == [
       (left_paren, "("),
       (character, "a"),
-      (concat, ""),
+      (operator, ""),
       (character, "b"),
       (right_paren, ")"),
-      (concat, ""),
+      (operator, ""),
       (character_class, "[a-z]")
     ]
     @test tokenize("(ab)(cd)") == [
       (left_paren, "("),
       (character, "a"),
-      (concat, ""),
+      (operator, ""),
       (character, "b"),
       (right_paren, ")"),
-      (concat, ""),
+      (operator, ""),
       (left_paren, "("),
       (character, "c"),
-      (concat, ""),
+      (operator, ""),
       (character, "d"),
       (right_paren, ")")
     ]
     @test tokenize("a*b") == [
       (character, "a"),
       (operator, "*"),
-      (concat, ""),
+      (operator, ""),
       (character, "b")
     ]
     @test tokenize("a|b") == [
@@ -215,104 +215,104 @@
     @test tokenize("a*[a-z]") == [
       (character, "a"),
       (operator, "*"),
-      (concat, ""),
+      (operator, ""),
       (character_class, "[a-z]")
     ]
     @test tokenize("a*(bc)") == [
       (character, "a"),
       (operator, "*"),
-      (concat, ""),
+      (operator, ""),
       (left_paren, "("),
       (character, "b"),
-      (concat, ""),
+      (operator, ""),
       (character, "c"),
       (right_paren, ")")
     ]
     @test tokenize("(ab)*c") == [
       (left_paren, "("),
       (character, "a"),
-      (concat, ""),
+      (operator, ""),
       (character, "b"),
       (right_paren, ")"),
       (operator, "*"),
-      (concat, ""),
+      (operator, ""),
       (character, "c")
     ]
     @test tokenize("[a-z]a") == [
       (character_class, "[a-z]"),
-      (concat, ""),
+      (operator, ""),
       (character, "a")
     ]
     @test tokenize("[a-z][A-Z]") == [
       (character_class, "[a-z]"),
-      (concat, ""),
+      (operator, ""),
       (character_class, "[A-Z]")
     ]
     @test tokenize("[a-z]*[A-Z]") == [
       (character_class, "[a-z]"),
       (operator, "*"),
-      (concat, ""),
+      (operator, ""),
       (character_class, "[A-Z]")
     ]
     @test tokenize("[a-z](bc)") == [
       (character_class, "[a-z]"),
-      (concat, ""),
+      (operator, ""),
       (left_paren, "("),
       (character, "b"),
-      (concat, ""),
+      (operator, ""),
       (character, "c"),
       (right_paren, ")")
     ]
     @test tokenize(raw"a\$") == [
       (character, "a"),
-      (concat, ""),
+      (operator, ""),
       (escaped_character, raw"\$")
     ]
     @test tokenize(raw"\$a") == [
       (escaped_character, raw"\$"),
-      (concat, ""),
+      (operator, ""),
       (character, "a")
     ]
     @test tokenize(raw"\$[a-z]") == [
       (escaped_character, raw"\$"),
-      (concat, ""),
+      (operator, ""),
       (character_class, "[a-z]")
     ]
     @test tokenize(raw"\$(bc)") == [
       (escaped_character, raw"\$"),
-      (concat, ""),
+      (operator, ""),
       (left_paren, "("),
       (character, "b"),
-      (concat, ""),
+      (operator, ""),
       (character, "c"),
       (right_paren, ")")
     ]
     @test tokenize(raw"(ab)\$") == [
       (left_paren, "("),
       (character, "a"),
-      (concat, ""),
+      (operator, ""),
       (character, "b"),
       (right_paren, ")"),
-      (concat, ""),
+      (operator, ""),
       (escaped_character, raw"\$")
     ]
     @test tokenize(raw"a*\$") == [
       (character, "a"),
       (operator, "*"),
-      (concat, ""),
+      (operator, ""),
       (escaped_character, raw"\$")
     ]
     @test tokenize(raw"a*\$[a-z]") == [
       (character, "a"),
       (operator, "*"),
-      (concat, ""),
+      (operator, ""),
       (escaped_character, raw"\$"),
-      (concat, ""),
+      (operator, ""),
       (character_class, "[a-z]")
     ]
     @test tokenize(raw"[a-z]\$") == [
       (character_class, "[a-z]"),
-      (concat, ""),
+      (operator, ""),
       (escaped_character, raw"\$")
     ]
   end

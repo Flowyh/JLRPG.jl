@@ -2,7 +2,7 @@ using Parameters: @consts
 
 @enum Assoc left right
 @enum Operator star plus question_mark alternation concatenation line_start line_end
-@enum Token escaped_character operator character_class character left_paren right_paren concat
+@enum Token escaped_character operator character_class character left_paren right_paren
 
 struct OperatorPrecedenceEntry
   prec::Int
@@ -35,7 +35,8 @@ end
     "?" => question_mark,
     "|" => alternation,
     "^" => line_start,
-    raw"$" => line_end
+    raw"$" => line_end,
+    "" => concatenation
   )
 
   TokenPatterns::Vector{Pair{Token, Regex}} = [
@@ -108,7 +109,7 @@ function tokenize(regex::String)
        !(right_token == operator && right_lexem in NotToConcatenateOps) &&
        (left_token, right_token) in ConcatenationPairs
     # end of if
-      insert!(tokens, insert_index, (concat, ""))
+      insert!(tokens, insert_index, (operator, ""))
       insert_index += 1
     end
     insert_index += 1
