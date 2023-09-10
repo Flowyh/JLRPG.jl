@@ -3,54 +3,49 @@ using Parameters: @consts
 abstract type RegexNode end
 
 @consts begin
-  RegexNodeOrNothing = Union{RegexNode, Nothing}
-  doNothing = () -> nothing
+  doNothing = :DoNothing
 end
 
+# Augmented regex end (#)
 @kwdef struct End <: RegexNode
-  parent::RegexNodeOrNothing
   pattern::String
   token::Symbol
-  action::Function = doNothing
+  action::Symbol = doNothing
 end
 
 struct Character <: RegexNode
-  parent::RegexNodeOrNothing
   char::Char
 end
 
 struct CharacterClass <: RegexNode
-  parent::RegexNodeOrNothing
-  chars::Set{Char}
+  chars::Vector{Char}
 end
 
+# === Operators ===
+
 struct Concatenation <: RegexNode
-  parent::RegexNodeOrNothing
   left::RegexNode
   right::RegexNode
 end
 
 struct Alternation <: RegexNode
-  parent::RegexNodeOrNothing
   left::RegexNode
   right::RegexNode
 end
 
 struct KleeneStar <: RegexNode
-  parent::RegexNodeOrNothing
   child::RegexNode
 end
 
 struct AtLeastOne <: RegexNode
-  parent::RegexNodeOrNothing
   child::RegexNode
 end
 
 struct Optional <: RegexNode
-  parent::RegexNodeOrNothing
   child::RegexNode
 end
 
+# TODO: Any char
 # TODO: Add {} duplication
 # TODO: Anchoring (line_start, line_end)
 # TODO: Look at Flex: https://westes.github.io/flex/manual/Patterns.html

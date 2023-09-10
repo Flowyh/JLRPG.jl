@@ -1,44 +1,8 @@
 using Parameters: @consts
 
-@enum Assoc left right
-@enum Operator star plus question_mark alternation concatenation line_start line_end
 @enum Token escaped_character operator character_class character left_paren right_paren
 
-struct OperatorPrecedenceEntry
-  prec::Int
-  assoc::Assoc
-end
-
 @consts begin
-  # See: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html#tag_09_04_08
-  OperatorsPrecedenceTable::Dict{Operator, OperatorPrecedenceEntry} = Dict(
-    # Escaped characters (6) (unary) handled by espaced char token
-    # Brackets (5) handled by character class token
-    # Grouping (4) handled by evaluate loop
-    # Duplication (*, +, ?, {})
-    star => OperatorPrecedenceEntry(3, left),
-    plus => OperatorPrecedenceEntry(3, left),
-    question_mark => OperatorPrecedenceEntry(3, left),
-    # TODO: Add {} duplication
-    # Concatenation
-    concatenation => OperatorPrecedenceEntry(2, left),
-    # Anchoring
-    line_start => OperatorPrecedenceEntry(1, right),
-    line_end => OperatorPrecedenceEntry(1, left),
-    # Alternation
-    alternation => OperatorPrecedenceEntry(0, left)
-  )
-
-  StringToOperator::Dict{String, Operator} = Dict(
-    "*" => star,
-    "+" => plus,
-    "?" => question_mark,
-    "|" => alternation,
-    "^" => line_start,
-    raw"$" => line_end,
-    "" => concatenation
-  )
-
   TokenPatterns::Vector{Pair{Token, Regex}} = [
     character => r"[^*+?|^$\\\(\)\[\]]",
     operator => r"[*+?|^$]",
@@ -90,7 +54,7 @@ function tokenize(regex::String)
       end
     end
     if !match
-      @error "No token matched"
+      error("No token matched")
     end
   end
 
