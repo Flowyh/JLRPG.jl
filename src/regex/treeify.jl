@@ -56,19 +56,19 @@ end
 
 function regexOperatorToASTNode!(
   op::Operator, 
-  output_queue::Vector{RegexNode}
+  output_stack::Vector{RegexNode}
 )::RegexNode
   if op == star
-    return KleeneStar(pop!(output_queue))
+    return KleeneStar(pop!(output_stack))
   elseif op == plus
-    return AtLeastOne(pop!(output_queue))
+    return AtLeastOne(pop!(output_stack))
   elseif op == question_mark
-    return Optional(pop!(output_queue))
+    return Optional(pop!(output_stack))
   elseif op == alternation
-    right, left = (pop!(output_queue), pop!(output_queue))
+    right, left = (pop!(output_stack), pop!(output_stack))
     return Alternation(left, right)
   elseif op == concatenation
-    right, left = (pop!(output_queue), pop!(output_queue))
+    right, left = (pop!(output_stack), pop!(output_stack))
     return Concatenation(left, right)
   else
     error("Unknown regex operator")
@@ -112,18 +112,18 @@ function _treeify_regex(
   end
 
   operator_stack::Vector{Operator} = []
-  output_queue::Vector{RegexNode} = []
+  output_stack::Vector{RegexNode} = []
 
   while !isempty(regex_tokens)
     (token, lexem) = popfirst!(regex_tokens)
     if token == character
-      push!(output_queue, Character(only(lexem[1])))
+      push!(output_stack, Character(only(lexem[1])))
     elseif token == escaped_character
-      push!(output_queue, Character(only(lexem[2])))
+      push!(output_stack, Character(only(lexem[2])))
     elseif token == any_character
-      push!(output_queue, CharsetToAllPossibleCharacters[charset])
+      push!(output_stack, CharsetToAllPossibleCharacters[charset])
     elseif token == character_class
-      push!(output_queue, PossibleCharacters(characterClassToSet(lexem, charset)))
+      push!(output_stack, PossibleCharacters(characterClassToSet(lexem, charset)))
     elseif token == operator
       if !isempty(operator_stack)
         op_1 = StringToOperator[lexem]
@@ -136,8 +136,8 @@ function _treeify_regex(
 
         while op_2 != group_start && 
               (prec_2 > prec_1 || (prec_2 == prec_1 && assoc_1 == left))
-          op_node = regexOperatorToASTNode!(op_2, output_queue)
-          push!(output_queue, op_node)
+          op_node = regexOperatorToASTNode!(op_2, output_stack)
+          push!(output_stack, op_node)
           pop!(operator_stack)
 
           if isempty(operator_stack)
@@ -161,8 +161,8 @@ function _treeify_regex(
           error("Mismatched parentheses")
         end
 
-        op_node = regexOperatorToASTNode!(op, output_queue)
-        push!(output_queue, op_node)
+        op_node = regexOperatorToASTNode!(op, output_stack)
+        push!(output_stack, op_node)
         pop!(operator_stack)
 
         if isempty(operator_stack)
@@ -189,15 +189,15 @@ function _treeify_regex(
       error("Mismatched parentheses")
     end
 
-    op_node = regexOperatorToASTNode!(op, output_queue)
-    push!(output_queue, op_node)
+    op_node = regexOperatorToASTNode!(op, output_stack)
+    push!(output_stack, op_node)
     pop!(operator_stack)
   end
 
-  if length(output_queue) != 1
+  if length(output_stack) != 1
     error("Invalid regex")
     return
   end
 
-  return Concatenation(output_queue[1], End(pattern, lexing_token, action))
+  return Concatenation(output_stack[1], End(pattern, lexing_token, action))
 end
