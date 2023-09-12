@@ -1,39 +1,36 @@
 using Parameters: @consts
 
-@enum Token escaped_character operator character_class character left_paren right_paren
+@enum Token escaped_character operator character_class character any_character left_paren right_paren
 
 @consts begin
   TokenPatterns::Vector{Pair{Token, Regex}} = [
-    character => r"[^*+?|^$\\\(\)\[\]]",
+    character => r"[^*+?|^$\\\(\)\[\].]",
     operator => r"[*+?|^$]",
     left_paren => r"\(",
     right_paren => r"\)",
     character_class => r"\[[^\]]+\]",
     escaped_character => r"\\[^ \t\n\r]",
+    any_character => r"\."
   ]
 
+  Charlike::Vector{Token} = [character, escaped_character, any_character]
   ConcatenationPairs::Set{Tuple{Token, Token}} = Set([
-    (character, character),
-    (character, character_class),
-    (character, left_paren),
-    (right_paren, character),
+    # Characters/Escaped chars/Any chars concatenated with each other
+    [(i, j) for i in Charlike
+            for j in Charlike]...,
+    # Operators
     (right_paren, character_class),
     (right_paren, left_paren),
-    (operator, character),
     (operator, character_class),
     (operator, left_paren),
-    (character_class, character),
     (character_class, character_class),
     (character_class, left_paren),
-    # Escaped Chars also count as characters
-    (character, escaped_character),
-    (escaped_character, character),
-    (escaped_character, escaped_character),
-    (escaped_character, character_class),
-    (escaped_character, left_paren),
-    (right_paren, escaped_character),
-    (operator, escaped_character),
-    (character_class, escaped_character),
+    ### Left-side concat with classes/left parens
+    [(i, j) for i in Charlike
+            for j in [character_class, left_paren]]...,
+    # Right-side concat with right parens, operators, classes
+    [(i, j) for i in [right_paren, operator, character_class]
+            for j in Charlike]...,
   ])
 
   NotToConcatenateOps::Set{String} = Set(["|", "^", raw"$"])
@@ -54,7 +51,7 @@ function tokenize(regex::String)
       end
     end
     if !match
-      error("No token matched")
+      error("Invalid token, no match")
     end
   end
 

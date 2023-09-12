@@ -17,7 +17,7 @@ struct Character <: RegexNode
   char::Char
 end
 
-struct CharacterClass <: RegexNode
+struct PossibleCharacters <: RegexNode
   chars::Vector{Char}
 end
 
@@ -45,7 +45,6 @@ struct Optional <: RegexNode
   child::RegexNode
 end
 
-# TODO: Any char
 # TODO: Add {} duplication
 # TODO: Anchoring (line_start, line_end)
 # TODO: Look at Flex: https://westes.github.io/flex/manual/Patterns.html

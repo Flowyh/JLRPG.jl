@@ -42,14 +42,19 @@ end
     ")" => group_end
   )
 
+  # TODO: Load charset config from file
   Charsets::Dict{Symbol, String} = Dict(
     :ASCII => join([Char(i) for i in 0:127], ""),
     # TODO: Add Unicode, UTF-8 support
-    # TODO: Load charset config from file
+  )
+
+  CharsetToAllPossibleCharacters::Dict{Symbol, PossibleCharacters} = Dict(
+    :ASCII => PossibleCharacters([Char(i) for i in 0:127])
+    # TODO: Add Unicode, UTF-8 support
   )
 end
 
-function operatorToASTNode!(
+function regexOperatorToASTNode!(
   op::Operator, 
   output_queue::Vector{RegexNode}
 )::RegexNode
@@ -60,10 +65,10 @@ function operatorToASTNode!(
   elseif op == question_mark
     return Optional(pop!(output_queue))
   elseif op == alternation
-    left, right = (pop!(output_queue), pop!(output_queue))
+    right, left = (pop!(output_queue), pop!(output_queue))
     return Alternation(left, right)
   elseif op == concatenation
-    left, right = (pop!(output_queue), pop!(output_queue))
+    right, left = (pop!(output_queue), pop!(output_queue))
     return Concatenation(left, right)
   else
     error("Unknown regex operator")
@@ -85,19 +90,17 @@ end
 
 function treeify(
   regex::String, 
-  token::Symbol, 
+  token::Symbol;
   action::Symbol = doNothing,
   charset::Symbol = :ASCII
 )::Union{RegexNode, Nothing}
-  return _treeify(tokenize(regex), regex, token, action, charset)
+  return _treeify_regex(tokenize(regex), regex, token, action, charset)
 end
 
 # A modified version of Dijkstra's shunting yard algorithm
 # which produces an abstract syntax tree (AST) of the regex.
 # See: https://en.wikipedia.org/wiki/Shunting_yard_algorithm
-# TODO: Fix operator missing error
-# TODO: Fix operand misplacement error
-function _treeify(
+function _treeify_regex(
   regex_tokens::Vector{Tuple{Token, String}},
   pattern::String,
   lexing_token::Symbol,
@@ -114,11 +117,13 @@ function _treeify(
   while !isempty(regex_tokens)
     (token, lexem) = popfirst!(regex_tokens)
     if token == character
-      pushfirst!(output_queue, Character(only(lexem[1])))
+      push!(output_queue, Character(only(lexem[1])))
     elseif token == escaped_character
-      pushfirst!(output_queue, Character(only(lexem[2])))
+      push!(output_queue, Character(only(lexem[2])))
+    elseif token == any_character
+      push!(output_queue, CharsetToAllPossibleCharacters[charset])
     elseif token == character_class
-      pushfirst!(output_queue, CharacterClass(characterClassToSet(lexem, charset)))
+      push!(output_queue, PossibleCharacters(characterClassToSet(lexem, charset)))
     elseif token == operator
       if !isempty(operator_stack)
         op_1 = StringToOperator[lexem]
@@ -131,8 +136,8 @@ function _treeify(
 
         while op_2 != group_start && 
               (prec_2 > prec_1 || (prec_2 == prec_1 && assoc_1 == left))
-          op_node = operatorToASTNode!(op_2, output_queue)
-          pushfirst!(output_queue, op_node)
+          op_node = regexOperatorToASTNode!(op_2, output_queue)
+          push!(output_queue, op_node)
           pop!(operator_stack)
 
           if isempty(operator_stack)
@@ -146,6 +151,9 @@ function _treeify(
     elseif token == left_paren
       push!(operator_stack, group_start)
     elseif token == right_paren
+      if length(operator_stack) == 0
+        error("Mismatched parentheses")
+      end
       op = operator_stack[end]
 
       while op != group_start
@@ -153,8 +161,8 @@ function _treeify(
           error("Mismatched parentheses")
         end
 
-        op_node = operatorToASTNode!(op_2, output_queue)
-        pushfirst!(output_queue, op_node)
+        op_node = regexOperatorToASTNode!(op, output_queue)
+        push!(output_queue, op_node)
         pop!(operator_stack)
 
         if isempty(operator_stack)
@@ -164,7 +172,7 @@ function _treeify(
         op = operator_stack[end]
       end
 
-      if op[end] != group_start
+      if operator_stack[end] != group_start
         error("Mismatched parentheses")
       end
 
@@ -181,8 +189,8 @@ function _treeify(
       error("Mismatched parentheses")
     end
 
-    op_node = operatorToASTNode!(op, output_queue)
-    pushfirst!(output_queue, op_node)
+    op_node = regexOperatorToASTNode!(op, output_queue)
+    push!(output_queue, op_node)
     pop!(operator_stack)
   end
 

@@ -3,6 +3,12 @@
     @test tokenize("") == []
   end
 
+  @testset "Errors" begin
+    @test_throws "Invalid token, no match" tokenize("[")
+    @test_throws "Invalid token, no match" tokenize("]")
+    @test_throws "Invalid token, no match" tokenize("\\")
+  end
+
   @testset "Characters" begin
     @test tokenize("a")   == [(character, "a")]
     @test tokenize("ab")  == [(character, "a"), (operator, ""), (character, "b")]

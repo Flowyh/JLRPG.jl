@@ -8,8 +8,8 @@ function Base.show(io::IO, c::Character)
   print(io, "Character($(c.char))")
 end
 
-function Base.show(io::IO, c::CharacterClass)
-  print(io, "CharacterClass($(c.chars))")
+function Base.show(io::IO, c::PossibleCharacters)
+  print(io, "PossibleCharacters($(c.chars))")
 end
 
 function Base.show(io::IO, c::Concatenation)
