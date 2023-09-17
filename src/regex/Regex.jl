@@ -1,9 +1,10 @@
 module JLPG_Regex
   include("ast.jl")
+  include("pos_functions.jl")
   export RegexNode
   export End, Character, PossibleCharacters, Concatenation, Alternation, KleeneStar, AtLeastOne, Optional
   export doNothing
-  export NodeStats, firstpos, lastpos, nullable
+  export NodeStats, nullable, firstpos, lastpos, followpos
   
   include("tokenize.jl")
   for token in instances(Token)
