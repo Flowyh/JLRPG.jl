@@ -1,4 +1,6 @@
 # TODO: Add precedence tests
+# TODO: Add line_start and line_end tests 
+#       (caret and dollar can only appear at the beginning or end of regex)
 
 @testset "Treeify" begin
   @testset "Errors" begin
@@ -16,160 +18,170 @@
       @test_throws "Mismatched parentheses" treeify(")))))))))))((", :Nothing)
     end
 
+    @testset "Invalid regexes" begin
+      @test_throws "Not enough operands for operator: $star" treeify("*", :Nothing) == :Nothing
+      @test_throws "Not enough operands for operator: $plus" treeify("+", :Nothing) == :Nothing
+      @test_throws "Not enough operands for operator: $optional" treeify("?", :Nothing) == :Nothing
+      @test_throws "Not enough operands for operator: $alternation" treeify("|", :Nothing) == :Nothing
+    end
     # Invalid operators/tokens are not possible, since _treeify method is hidden from the user. You cannot call it will malformed tokens.
   end
 
   @testset "End node concatenation" begin
-    @test treeify("a", :a) == Concatenation(
-      Character('a'), 
-      End("a", :a, doNothing)
-    )
+    @test repr(treeify("a", :a)) == repr(Concatenation(
+      Character('a', 1), 
+      End("a", :a, 2)
+    ))
   end
 
   @testset "Characters" begin
-    @test treeify("a", :a) == Concatenation(
-      Character('a'), 
-      End("a", :a, doNothing)
-    )
-    @test treeify(raw"\$", :dollar) == Concatenation(
-      Character('\$'), 
-      End(raw"\$", :dollar, doNothing)
-    )
-    @test treeify(".", :any; charset=:ASCII) == Concatenation(
-      CharsetToAllPossibleCharacters[:ASCII], 
-      End(".", :any, doNothing)
-    )
+    @test repr(treeify("a", :a)) == repr(Concatenation(
+      Character('a', 1), 
+      End("a", :a, 2)
+    ))
+    @test repr(treeify(raw"\$", :dollar)) == repr(Concatenation(
+      Character('\$', 1), 
+      End(raw"\$", :dollar, 2)
+    ))
+    @test repr(treeify(".", :any; charset=:ASCII)) == repr(Concatenation(
+      PossibleCharacters(
+        CharsetToAllCharacters[:ASCII], 
+        1
+      ),
+      End(".", :any, 2)
+    ))
   end
 
   @testset "Basic concatenation" begin
-    @test treeify("ab", :ab) == Concatenation(
+    @test repr(treeify("ab", :ab)) == repr(Concatenation(
       Concatenation(
-        Character('a'),
-        Character('b')
+        Character('a', 1),
+        Character('b', 2)
       ),
-      End("ab", :ab, doNothing)
-    )
+      End("ab", :ab, 3)
+    ))
 
-    @test treeify("abc", :abc) == Concatenation(
+    @test repr(treeify("abc", :abc)) == repr(Concatenation(
       Concatenation(
         Concatenation(
-          Character('a'),
-          Character('b')
+          Character('a', 1),
+          Character('b', 2)
         ),
-        Character('c')
+        Character('c', 3)
       ),
-      End("abc", :abc, doNothing)
-    )
+      End("abc", :abc, 4)
+    ))
   end
 
   @testset "Operators" begin
-    @test treeify("a*", :zero_or_more_a) == Concatenation(
-      KleeneStar(Character('a')),
-      End("a*", :zero_or_more_a, doNothing)
-    )
+    @test repr(treeify("a*", :zero_or_more_a)) == repr(Concatenation(
+      KleeneStar(Character('a', 1)),
+      End("a*", :zero_or_more_a, 2)
+    ))
 
-    @test treeify("a+", :one_or_more_a) == Concatenation(
-      AtLeastOne(Character('a')),
-      End("a+", :one_or_more_a, doNothing)
-    )
+    @test repr(treeify("a+", :one_or_more_a)) == repr(Concatenation(
+      AtLeastOne(Character('a', 1)),
+      End("a+", :one_or_more_a, 2)
+    ))
 
-    @test treeify("a?", :zero_or_one_a) == Concatenation(
-      Optional(Character('a')),
-      End("a?", :zero_or_one_a, doNothing)
-    )
+    @test repr(treeify("a?", :zero_or_one_a)) == repr(Concatenation(
+      Optional(Character('a', 1)),
+      End("a?", :zero_or_one_a, 2)
+    ))
 
-    @test treeify("a|b", :a_or_b) == Concatenation(
+    @test repr(treeify("a|b", :a_or_b)) == repr(Concatenation(
       Alternation(
-        Character('a'),
-        Character('b')
+        Character('a', 1),
+        Character('b', 2)
       ),
-      End("a|b", :a_or_b, doNothing)
-    )
+      End("a|b", :a_or_b, 3)
+    ))
   end
 
   @testset "Parantheses" begin
     @testset "Unnecessary parantheses" begin
-      @test treeify("(a)", :a) == Concatenation(
-        Character('a'), 
-        End("(a)", :a, :DoNothing)
-      )
+      @test repr(treeify("(a)", :a)) == repr(Concatenation(
+        Character('a', 1), 
+        End("(a)", :a, 2)
+      ))
 
-      @test treeify("(a)(b)(c)", :abc) == Concatenation(
+      @test repr(treeify("(a)(b)(c)", :abc)) == repr(Concatenation(
         Concatenation(
           Concatenation(
-            Character('a'),
-            Character('b')
+            Character('a', 1),
+            Character('b', 2)
           ),
-          Character('c')
+          Character('c', 3)
         ),
-        End("(a)(b)(c)", :abc, :DoNothing)
-      )
+        End("(a)(b)(c)", :abc, 4)
+      ))
 
-      @test treeify("(((a))((b))(c))", :abc) == Concatenation(
+      @test repr(treeify("(((a))((b))(c))", :abc)) == repr(Concatenation(
         Concatenation(
           Concatenation(
-            Character('a'),
-            Character('b')
+            Character('a', 1),
+            Character('b', 2)
           ),
-          Character('c')
+          Character('c', 3)
         ),
-        End("(((a))((b))(c))", :abc, :DoNothing)
-      )
+        End("(((a))((b))(c))", :abc, 4)
+      ))
     end
 
     @testset "Grouping of regexes" begin
-      @test treeify("(ab)*", :ab_star) == Concatenation(
+      @test repr(treeify("(ab)*", :ab_star)) == repr(Concatenation(
         KleeneStar(
           Concatenation(
-            Character('a'),
-            Character('b')
+            Character('a', 1),
+            Character('b', 2)
           )
         ),
-        End("(ab)*", :ab_star, :DoNothing)
-      )
-      @test treeify("(ab)+(cd)*", :ab_plus_cd_star) == Concatenation(
+        End("(ab)*", :ab_star, 3)
+      ))
+
+      @test repr(treeify("(ab)+(cd)*", :ab_plus_cd_star)) == repr(Concatenation(
         Concatenation(
           AtLeastOne(
             Concatenation(
-              Character('a'),
-              Character('b')
+              Character('a', 1),
+              Character('b', 2)
             )
           ),
           KleeneStar(
             Concatenation(
-              Character('c'),
-              Character('d')
+              Character('c', 3),
+              Character('d', 4)
             )
           )
         ),
-        End("(ab)+(cd)*", :ab_plus_cd_star, :DoNothing)
-      )
+        End("(ab)+(cd)*", :ab_plus_cd_star, 5)
+      ))
     end
 
     @testset "Nesting" begin 
-      @test treeify("((a*b)*c)+", :nested) == Concatenation(
+      @test repr(treeify("((a*b)*c)+", :nested)) == repr(Concatenation(
         AtLeastOne(
           Concatenation(
             KleeneStar(
               Concatenation(
                 KleeneStar(
-                  Character('a'),
+                  Character('a', 1),
                 ),
-                Character('b')
+                Character('b', 2)
               )
             ),
-            Character('c')
+            Character('c', 3)
           )
         ),
-        End("((a*b)*c)+", :nested, :DoNothing)
-      )
+        End("((a*b)*c)+", :nested, 4)
+      ))
 
       @test repr(treeify("(a*([a-z]+c)|bc)*", :nested)) == repr(Concatenation(
         KleeneStar(
           Alternation(
             Concatenation(
               KleeneStar(
-                Character('a')
+                Character('a', 1)
               ),
               Concatenation(
                 AtLeastOne(
@@ -177,26 +189,26 @@
                     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 
                     'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 
                     'u', 'v', 'w', 'x', 'y', 'z'
-                  ])
+                  ], 2)
                 ),
-                Character('c')
+                Character('c', 3)
               )
             ),
             Concatenation(
-              Character('b'),
-              Character('c')
+              Character('b', 4),
+              Character('c', 5)
             )
           )
         ),
-        End("(a*([a-z]+c)|bc)*", :nested, :DoNothing)
+        End("(a*([a-z]+c)|bc)*", :nested, 6)
       ))
     end
   end
 
   @testset "Character classes" begin
     @test repr(treeify("[a]", :a)) == repr(Concatenation(
-      PossibleCharacters(['a']), 
-      End("[a]", :a, :DoNothing)
+      PossibleCharacters(['a'], 1), 
+      End("[a]", :a, 2)
     ))
 
     @test repr(treeify("[a-z]", :a_to_z)) == repr(Concatenation(
@@ -204,13 +216,13 @@
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 
         'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 
         'u', 'v', 'w', 'x', 'y', 'z'
-      ]), 
-      End("[a-z]", :a_to_z, :DoNothing)
+      ], 1), 
+      End("[a-z]", :a_to_z, 2)
     ))
 
     @test repr(treeify("[0-9]", :zero_to_nine)) == repr(Concatenation(
-      PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']), 
-      End("[0-9]", :zero_to_nine, :DoNothing)
+      PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 1), 
+      End("[0-9]", :zero_to_nine, 2)
     ))
 
     @test repr(treeify("[a-zA-Z0-9]", :alphanumeric)) == repr(Concatenation(
@@ -222,13 +234,13 @@
         'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 
         'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 
         'y', 'z'
-      ]), 
-      End("[a-zA-Z0-9]", :alphanumeric, :DoNothing)
+      ], 1), 
+      End("[a-zA-Z0-9]", :alphanumeric, 2)
     ))
 
     @test repr(treeify(raw"[$|^+-. \n\t\r]", :special_chars)) == repr(Concatenation(
-      PossibleCharacters(['\t', '\n', '\r', ' ', '\$', '+', ',', '-', '.', '^', '|']), 
-      End(raw"[$|^+-. \n\t\r]", :special_chars, :DoNothing)
+      PossibleCharacters(['\t', '\n', '\r', ' ', '\$', '+', ',', '-', '.', '^', '|'], 1), 
+      End(raw"[$|^+-. \n\t\r]", :special_chars, 2)
     ))
   end
 
@@ -236,9 +248,9 @@
     @testset "Random number (at least one digit)" begin
       @test repr(treeify("[0-9]+", :one_number)) == repr(Concatenation(
         AtLeastOne(
-          PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+          PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 1)
         ),
-        End("[0-9]+", :one_number, :DoNothing)
+        End("[0-9]+", :one_number, 2)
       ))
     end
 
@@ -247,15 +259,15 @@
         Concatenation(
           Concatenation(
             AtLeastOne(
-              PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+              PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 1)
             ),
-            Character('-')
+            Character('-', 2)
           ),
           AtLeastOne(
-            PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+            PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 3)
           )
         ),
-        End("[0-9]+-[0-9]+", :two_numbers, :DoNothing)
+        End("[0-9]+-[0-9]+", :two_numbers, 4)
       ))
     end
 
@@ -264,15 +276,15 @@
         Concatenation(
           Concatenation(
             AtLeastOne(
-              PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+              PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 1)
             ),
-            Character('.')
+            Character('.', 2)
           ),
           AtLeastOne(
-            PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+            PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 3)
           )
         ),
-        End(raw"[0-9]+\.[0-9]+", :floating_point, :DoNothing)
+        End(raw"[0-9]+\.[0-9]+", :floating_point, 4)
       ))
     end
 
@@ -286,7 +298,7 @@
             'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
             'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 
             'x', 'y', 'z'
-          ]), 
+          ], 1), 
           KleeneStar(
             PossibleCharacters([
               '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
@@ -296,10 +308,10 @@
               'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
               'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 
               'x', 'y', 'z'
-            ])
+            ], 2)
           )
         ),
-        End("[a-zA-Z_][_a-zA-Z0-9]*", :identifier, :DoNothing)
+        End("[a-zA-Z_][_a-zA-Z0-9]*", :identifier, 3)
       ))
     end
 
@@ -307,13 +319,13 @@
       @test repr(treeify("[1-9]+[0-9]*", :number)) == repr(Concatenation(
         Concatenation(
           AtLeastOne(
-            PossibleCharacters(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
+            PossibleCharacters(['1', '2', '3', '4', '5', '6', '7', '8', '9'], 1)
           ),
           KleeneStar(
-            PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+            PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 2)
           )
         ),
-        End("[1-9]+[0-9]*", :number, :DoNothing)
+        End("[1-9]+[0-9]*", :number, 3)
       ))
     end
 
@@ -329,7 +341,7 @@
                 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
                 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 
                 'x', 'y', 'z'
-              ]), 
+              ], 1), 
               KleeneStar(
                 PossibleCharacters([
                   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
@@ -339,14 +351,14 @@
                   'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
                   'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 
                   'x', 'y', 'z'
-                ])
+                ], 2)
               )
             ), 
-            Character('(')
+            Character('(', 3)
           ), 
-          Character(')')
+          Character(')', 4)
         ), 
-        End(raw"[a-zA-Z_][a-zA-Z0-9_]*\(\)", :function_call, :DoNothing)
+        End(raw"[a-zA-Z_][a-zA-Z0-9_]*\(\)", :function_call, 5)
       ))
     end
 
@@ -365,28 +377,28 @@
                         Concatenation(
                           Concatenation(
                             Concatenation(
-                              PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']),
-                              PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+                              PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 1),
+                              PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 2)
                             ),
-                            PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+                            PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 3)
                           ),
-                          Character('-')
+                          Character('-', 4)
                         ),
-                        PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+                        PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 5)
                       ),
-                      PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+                      PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 6)
                     ),
-                    PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+                    PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 7)
                   ),
-                  Character('-')
+                  Character('-', 8)
                 ),
-                PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+                PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 9)
               ),
-              PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+              PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 10)
             ),
-            PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+            PossibleCharacters(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 11)
           ),
-          End("[0-9][0-9][0-9]-[0-9][0-9][0-9]-[0-9][0-9][0-9]", :phone_number, :DoNothing)
+          End("[0-9][0-9][0-9]-[0-9][0-9][0-9]-[0-9][0-9][0-9]", :phone_number, 12)
         )
       )
     end

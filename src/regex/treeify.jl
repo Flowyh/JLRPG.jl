@@ -1,7 +1,8 @@
 using Parameters: @consts
+using Base: ImmutableDict
 
 @enum Assoc left right
-@enum Operator star plus question_mark alternation concatenation line_start line_end group_start group_end
+@enum Operator star plus optional alternation concatenation line_start line_end group_start group_end
 
 struct OperatorPrecedenceEntry
   prec::Int
@@ -10,7 +11,7 @@ end
 
 @consts begin
   # See: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html#tag_09_04_08
-  OperatorsPrecedenceTable::Dict{Operator, OperatorPrecedenceEntry} = Dict(
+  OperatorsPrecedenceTable::ImmutableDict{Operator, OperatorPrecedenceEntry} = ImmutableDict(
     # Escaped characters (6) (unary) handled by espaced char token
     # Brackets (5) handled by character class token
     # Grouping
@@ -19,7 +20,7 @@ end
     # Duplication (*, +, ?, {})
     star => OperatorPrecedenceEntry(3, left),
     plus => OperatorPrecedenceEntry(3, left),
-    question_mark => OperatorPrecedenceEntry(3, left),
+    optional => OperatorPrecedenceEntry(3, left),
     # TODO: Add {} duplication
     # Concatenation
     concatenation => OperatorPrecedenceEntry(2, left),
@@ -30,10 +31,10 @@ end
     alternation => OperatorPrecedenceEntry(0, left)
   )
 
-  StringToOperator::Dict{String, Operator} = Dict(
+  StringToOperator::ImmutableDict{String, Operator} = ImmutableDict(
     "*" => star,
     "+" => plus,
-    "?" => question_mark,
+    "?" => optional,
     "|" => alternation,
     "^" => line_start,
     raw"$" => line_end,
@@ -42,14 +43,17 @@ end
     ")" => group_end
   )
 
+  UnaryOperators::Set{Operator} = Set([star, plus, optional])
+  BinaryOperators::Set{Operator} = Set([alternation, concatenation])
+
   # TODO: Load charset config from file
-  Charsets::Dict{Symbol, String} = Dict(
+  Charsets::ImmutableDict{Symbol, String} = ImmutableDict(
     :ASCII => join([Char(i) for i in 0:127], ""),
     # TODO: Add Unicode, UTF-8 support
   )
 
-  CharsetToAllPossibleCharacters::Dict{Symbol, PossibleCharacters} = Dict(
-    :ASCII => PossibleCharacters([Char(i) for i in 0:127])
+  CharsetToAllCharacters::ImmutableDict{Symbol, Vector{Char}} = ImmutableDict(
+    :ASCII => [Char(i) for i in 0:127]
     # TODO: Add Unicode, UTF-8 support
   )
 end
@@ -58,11 +62,17 @@ function regexOperatorToASTNode!(
   op::Operator, 
   output_stack::Vector{RegexNode}
 )::RegexNode
+  if op in UnaryOperators && length(output_stack) < 1
+    error("Not enough operands for operator: $op")
+  elseif op in BinaryOperators && length(output_stack) < 2
+    error("Not enough operands for operator: $op")
+  end
+
   if op == star
     return KleeneStar(pop!(output_stack))
   elseif op == plus
     return AtLeastOne(pop!(output_stack))
-  elseif op == question_mark
+  elseif op == optional
     return Optional(pop!(output_stack))
   elseif op == alternation
     right, left = (pop!(output_stack), pop!(output_stack))
@@ -114,16 +124,34 @@ function _treeify_regex(
   operator_stack::Vector{Operator} = []
   output_stack::Vector{RegexNode} = []
 
+  position::Int = 1
+
   while !isempty(regex_tokens)
     (token, lexem) = popfirst!(regex_tokens)
     if token == character
-      push!(output_stack, Character(only(lexem[1])))
+      push!(output_stack, Character(only(lexem[1]), position))
+      position += 1
     elseif token == escaped_character
-      push!(output_stack, Character(only(lexem[2])))
+      push!(output_stack, Character(only(lexem[2]), position))
+      position += 1
     elseif token == any_character
-      push!(output_stack, CharsetToAllPossibleCharacters[charset])
+      push!(
+        output_stack, 
+        PossibleCharacters(
+          CharsetToAllCharacters[charset],
+          position
+        )
+      )
+      position += 1
     elseif token == character_class
-      push!(output_stack, PossibleCharacters(characterClassToSet(lexem, charset)))
+      push!(
+        output_stack, 
+        PossibleCharacters(
+          characterClassToSet(lexem, charset),
+          position
+        )
+      )
+      position += 1
     elseif token == operator
       if !isempty(operator_stack)
         op_1 = StringToOperator[lexem]
@@ -199,5 +227,5 @@ function _treeify_regex(
     return
   end
 
-  return Concatenation(output_stack[1], End(pattern, lexing_token, action))
+  return Concatenation(output_stack[1], End(pattern, lexing_token, position, action))
 end

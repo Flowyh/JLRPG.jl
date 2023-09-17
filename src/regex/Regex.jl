@@ -1,7 +1,9 @@
 module JLPG_Regex
   include("ast.jl")
-  export NothingNode, End, Character, PossibleCharacters, Concatenation, Alternation, KleeneStar, AtLeastOne, Optional
+  export RegexNode
+  export End, Character, PossibleCharacters, Concatenation, Alternation, KleeneStar, AtLeastOne, Optional
   export doNothing
+  export NodeStats, firstpos, lastpos, nullable
   
   include("tokenize.jl")
   for token in instances(Token)
@@ -14,7 +16,7 @@ module JLPG_Regex
     @eval export $(Symbol(op))
   end
   export treeify
-  export CharsetToAllPossibleCharacters
+  export CharsetToAllCharacters
 
   include("show.jl")
 end
