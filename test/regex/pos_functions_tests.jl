@@ -146,3 +146,28 @@ end
     @test lastpos(treeify("(a?|b?)?", :a_question_or_b_question_question).left) == [1, 2]
   end
 end
+
+# TODO: More basic tests
+# TODO: Test with more complex regexes
+# TODO: Test depending on firstpos/lastpos
+@testset "Followpos" begin
+  @test followpos(treeify("(a|b)*abb", :dragonbook_example)) == Dict(
+    1 => [1, 2, 3],
+    2 => [1, 2, 3],
+    3 => [4],
+    4 => [5],
+    5 => [6] # Points to End position
+    # I specifically omitted End position => followpos entry, because it's empty by definition
+  )
+  @test followpos(treeify(raw"[0-9]+\.[0-9]+", :my_example)) == Dict(
+    1 => [1, 2],
+    2 => [3],
+    3 => [3, 4]
+  )
+  @test followpos(treeify("(a|b)(a|b)", :my_example)) == Dict(
+    1 => [3, 4],
+    2 => [3, 4],
+    3 => [5],
+    4 => [5]
+  )
+end
