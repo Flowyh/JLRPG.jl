@@ -26,3 +26,11 @@ Manifest.toml
 # Dev scripts
 dev/
 TODO
+
+# DISCONTINUED UNTIL I FINISH MY BACHELOR DEGREE
+src/dfa
+
+src/regex
+
+src/lexer/*
+!src/lexer/simple

@@ -1,0 +1,14 @@
+WHITESPACE [ \t\r]+
+NUM        [0-9]
+IDENTIFIER [_a-zA-Z]([_a-zA-Z]|{NUM})+
+
+%%
+
+{IDENTIFIER} { return Id($$) }
+{NUM}+ { return Number($$) }
+"HELLO"{WHITESPACE}"WORLD" { return Hello() }
+.* { return Error() }
+"a"              "b" { return AB() }
+
+%%
+

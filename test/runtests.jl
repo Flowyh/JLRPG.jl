@@ -1,5 +1,10 @@
 using JLPG
 using Test
+using Logging
+
+# Enable debug logging
+debuglogger = ConsoleLogger(stderr, Logging.Debug)
+global_logger(debuglogger)
 
 @testset "JLPG.jl" begin
   for directory in filter(isdir, readdir(@__DIR__))

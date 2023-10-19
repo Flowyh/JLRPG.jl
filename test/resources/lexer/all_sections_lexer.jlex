@@ -1,0 +1,31 @@
+%{
+  include("test")
+
+  test::Int = 5
+  test2::Vector{String} = ["abc", "def"]
+%}
+
+WHITESPACE [ \t\r]+
+NUM        [0-9]+
+IDENTIFIER [_a-z]+
+
+%%
+
+%{
+  println("Code in actions :o")
+%}
+
+{WHITESPACE} { test += 1 }
+{NUM} { 
+  test += 2
+  return Num(5) 
+}
+"text"{NUM} { test += 3 }
+"+" { return Operator("+") }
+.* { return Error() }
+
+%%
+
+function factorial(n::Int)::Int
+  return n * factorial(n - 1)
+end
