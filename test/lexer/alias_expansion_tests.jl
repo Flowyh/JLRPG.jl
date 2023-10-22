@@ -4,7 +4,7 @@
       lexer = read_definition_file(from_current_path("resources/lexer/alias_expansion/invalid_order_regex_aliases.jlex"))
       @test_throws "Invalid definition file, alias for NUM was referenced before it was defined" expand_regex_aliases_in_lexer(lexer)
     end
-    
+
     @testset "Detect non-existent aliases in actions" begin
       lexer = read_definition_file(from_current_path("resources/lexer/alias_expansion/invalid_alias_in_actions.jlex"))
       expanded_aliases = expand_regex_aliases_in_aliases(lexer.aliases)

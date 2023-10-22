@@ -1,6 +1,6 @@
 @testset "Token retrevial from lexer actions" begin
   @testset "Throws errors for invalid tokens returned in lexer actions" begin
-    
+
   end
 
   @testset "Correctly retrieves tokens from actions" begin
@@ -85,14 +85,14 @@
         TokenDefinition(:Digit, Dict(:value => (:String, raw"$$"))),
         TokenDefinition(:Number, Dict(:value => (:Int, raw"$$"))),
         TokenDefinition(
-          :Identifier, 
+          :Identifier,
           Dict(
             :name => (:String, raw"$$"),
             :line => (:Int, "15")
           )
         ),
         TokenDefinition(:Error, Dict((:match => (:String, raw"$$"))))
-      ] 
+      ]
     end
   end
 end

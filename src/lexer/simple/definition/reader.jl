@@ -27,11 +27,11 @@ using Parameters: @consts
 end
 
 # Structure of a definition file:
-# 
+#
 # definitions/flags/regex aliases
 # %%
 # regexes
-# %% 
+# %%
 # user code
 #
 # Blocks enclosed with %{ and %} are copied to the output file (in the same order).
@@ -81,7 +81,7 @@ function _read_definition_file(
 
   text::String = read(file, String)
   cursor::Int = 1
-  
+
   while cursor <= length(text)
     did_match::Bool = false
 
@@ -90,7 +90,7 @@ function _read_definition_file(
       if matched === nothing || matched.start != cursor
         continue
       end
-      
+
       if definition == section
         current_section = _next_section(current_section)
       elseif definition == code_block
@@ -101,7 +101,7 @@ function _read_definition_file(
         # TODO: Fill options if needed
       elseif definition == regex_alias
         _section_guard(current_section, definitions, "Regex alias $(text[matched]) outside of definitions section")
-        
+
         m = match(pattern, text[matched])
         push!(aliases, RegexAlias(
           Symbol(m[:name]),
@@ -109,19 +109,19 @@ function _read_definition_file(
         ))
       elseif definition == action
         _section_guard(current_section, actions, "Action $(text[matched]) outside of actions section")
-          
+
         m = match(pattern, text[matched])
           push!(lexer_actions, Action(
           m[:pattern],
           m[:body]
         ))
       end
-      
+
       cursor += length(text[matched])
       did_match = true
       break
     end
-    
+
     if current_section == code && !isempty(strip(text[cursor:end]))
       to_copy = text[cursor:end]
       # Remove comments
@@ -142,7 +142,7 @@ function _read_definition_file(
       else
         throw("Invalid characters in definition file, $(text[cursor]), $cursor, $(text[cursor:end]))")
       end
-    end  
+    end
   end
 
   if current_section != code

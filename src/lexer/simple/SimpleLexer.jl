@@ -12,6 +12,6 @@ module JLPG_SimpleLexer
 
   include("definition/retrieve_tokens.jl")
   export retrieve_tokens_from_actions, retrieve_tokens_from_lexer
-  
+
   include("show.jl")
 end
