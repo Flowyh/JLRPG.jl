@@ -1,0 +1,10 @@
+%%
+
+"5.0"     { return Five(::Float64=5.0) }
+"123"     { return OneTwoThree(::Int=1, ::Float32=2, ::Int16=3) }
+[0-9]     { return Digit(::Int=$$) }
+"def"     { return Function(::String=func($$)) }
+[a-zA-Z]+ { return Message(::String=$$) }
+.*        { return Error() }
+
+%%

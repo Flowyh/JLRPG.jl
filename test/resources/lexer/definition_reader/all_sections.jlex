@@ -1,3 +1,4 @@
+#= Definitions section =#
 %{
   include("test")
 
@@ -5,11 +6,13 @@
   test2::Vector{String} = ["abc", "def"]
 %}
 
+#= Regex aliases =#
 WHITESPACE [ \t\r]+
 NUM        [0-9]+
 IDENTIFIER [_a-z]+
 
 %%
+#= Actions section =#
 
 %{
   println("Code in actions :o")
