@@ -18,7 +18,7 @@ end
 # Currently, you have to specify the type of each named argument, but I might change that in the future
 # By default, if a token has only one argument, it will be named "value"
 function retrieve_tokens_from_actions(actions::Vector{Action})::Vector{TokenDefinition}
-  defined_tokens::Dict{Symbol, Dict} = Dict()
+  defined_tokens::Dict{Symbol, Set} = Dict()
   returned_tokens::Vector{TokenDefinition} = []
 
   for action in actions
@@ -33,9 +33,10 @@ function retrieve_tokens_from_actions(actions::Vector{Action})::Vector{TokenDefi
     no_arguments = length(arguments)
 
     if !haskey(defined_tokens, tag)
-      defined_tokens[tag] = Dict()
+      defined_tokens[tag] = Set()
     end
 
+    token_args::Vector{NamedTuple} = []
     for (i, argument) in enumerate(arguments)
       argname = Symbol(argument[:argname])
       type = Symbol(argument[:type])
@@ -46,16 +47,14 @@ function retrieve_tokens_from_actions(actions::Vector{Action})::Vector{TokenDefi
       if type === :nothing # TODO: Support no type at all
         type = :String
       end
-      if haskey(defined_tokens[tag], argname) && defined_tokens[tag][argname] !== type
-        error(
-          "Argument $argname of token $tag has already been " *
-          "defined with type $(defined_tokens[tag][argname])"
-        )
+      if argname in defined_tokens[tag]
+        error("Argument $argname of token $tag has already been defined")
       end
-      defined_tokens[tag][argname] = (type, value)
+      push!(defined_tokens[tag], argname)
+      push!(token_args, (name=argname, type=type, value=value))
     end
 
-    push!(returned_tokens, TokenDefinition(tag, defined_tokens[tag]))
+    push!(returned_tokens, TokenDefinition(tag, token_args))
   end
   return returned_tokens
 end

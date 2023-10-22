@@ -10,14 +10,21 @@ global_logger(debuglogger)
 
 @testset "JLPG.jl" begin
   t = @elapsed for directory in filter(isdir, readdir(@__DIR__))
+    if directory == "resources"
+      continue
+    end
     @testset "$(uppercasefirst(directory)) module" begin
-      @info "[?] Testing $(directory) module"
-      for file in filter(x -> endswith(x, ".jl"), readdir(joinpath(@__DIR__, directory)))
-        @info "  [?] Testing $(file)"
+      @info "Testing $(directory) module"
+      files = filter(x -> endswith(x, ".jl"), readdir(joinpath(@__DIR__, directory)))
+      for (i, file) in enumerate(files)
+        file_prefix = (i == length(files) ? "└─" : "├─")
+        test_result_prefix = (i == length(files) ? "  └─" : "│ └─")
+        @info "$(file_prefix)Testing $(file)"
         include(joinpath(@__DIR__, directory, file))
-        @info "  [+] Tests passed successfully!"
+        @info "$(test_result_prefix)Tests finished!"
       end
-      @info "[+] $(uppercasefirst(directory)) tests passed successfully!"
+      @info "$(uppercasefirst(directory)) tests finshed!"
+      @info ""
     end
   end
   @info "Finished testing JLPG.jl"

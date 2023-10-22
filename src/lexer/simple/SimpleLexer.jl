@@ -13,5 +13,8 @@ module JLPG_SimpleLexer
   include("definition/retrieve_tokens.jl")
   export retrieve_tokens_from_actions, retrieve_tokens_from_lexer
 
+  include("definition/replace_token_args.jl")
+  export replace_token_args_in_actions, replace_token_args_in_lexer
+
   include("show.jl")
 end

@@ -15,20 +15,19 @@
       lexer = read_definition_file(from_current_path("resources/lexer/token_retrieval/simple_tokens.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
-
       @test returned_tokens == [
-        TokenDefinition(:Five, Dict(:value => (:String, "5"))),
+        TokenDefinition(:Five, [(name=:value, type=:String, value="5")]),
         TokenDefinition(
           :OneTwoThree,
-          Dict(
-            :value1 => (:String, "1"),
-            :value2 => (:String, "2"),
-            :value3 => (:String, "3")
-          )
+          [
+            (name=:value1, type=:String, value="1"),
+            (name=:value2, type=:String, value="2"),
+            (name=:value3, type=:String, value="3")
+          ]
         ),
-        TokenDefinition(:Digit, Dict(:value => (:String, raw"$$"))),
-        TokenDefinition(:Function, Dict(:value => (:String, raw"func($$)"))),
-        TokenDefinition(:Error, Dict())
+        TokenDefinition(:Digit, [(name=:value, type=:String, value=raw"$$")]),
+        TokenDefinition(:Function, [(name=:value, type=:String, value=raw"func($$)")]),
+        TokenDefinition(:Error, [])
       ]
     end
 
@@ -36,21 +35,20 @@
       lexer = read_definition_file(from_current_path("resources/lexer/token_retrieval/typed_tokens.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
-
       @test returned_tokens == [
-        TokenDefinition(:Five, Dict(:value => (:Float64, "5.0"))),
+        TokenDefinition(:Five, [(name=:value, type=:Float64, value="5.0")]),
         TokenDefinition(
           :OneTwoThree,
-          Dict(
-            :value1 => (:Int, "1"),
-            :value2 => (:Float32, "2"),
-            :value3 => (:Int16, "3")
-          )
+          [
+            (name=:value1, type=:Int, value="1"),
+            (name=:value2, type=:Float32, value="2"),
+            (name=:value3, type=:Int16, value="3")
+          ]
         ),
-        TokenDefinition(:Digit, Dict(:value => (:Int, raw"$$"))),
-        TokenDefinition(:Function, Dict(:value => (:String, raw"func($$)"))),
-        TokenDefinition(:Message, Dict(:value => (:String, raw"$$"))),
-        TokenDefinition(:Error, Dict())
+        TokenDefinition(:Digit, [(name=:value, type=:Int, value=raw"$$")]),
+        TokenDefinition(:Function, [(name=:value, type=:String, value=raw"func($$)")]),
+        TokenDefinition(:Message, [(name=:value, type=:String, value=raw"$$")]),
+        TokenDefinition(:Error, [])
       ]
     end
 
@@ -58,21 +56,20 @@
       lexer = read_definition_file(from_current_path("resources/lexer/token_retrieval/typed_named_tokens.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
-
       @test returned_tokens == [
-        TokenDefinition(:Five, Dict(:five => (:Float64, "5.0"))),
+        TokenDefinition(:Five, [(name=:five, type=:Float64, value="5.0")]),
         TokenDefinition(
           :OneTwoThree,
-          Dict(
-            :one => (:Int, "1"),
-            :two => (:Float32, "2"),
-            :three => (:Int16, "3")
-          )
+          [
+            (name=:one, type=:Int, value="1"),
+            (name=:two, type=:Float32, value="2"),
+            (name=:three, type=:Int16, value="3")
+          ]
         ),
-        TokenDefinition(:Digit, Dict(:value => (:Int, raw"$$"))),
-        TokenDefinition(:Function, Dict(:func_call => (:String, raw"func($$)"))),
-        TokenDefinition(:Message, Dict(:msg => (:String, raw"$$"))),
-        TokenDefinition(:Error, Dict())
+        TokenDefinition(:Digit, [(name=:value, type=:Int, value=raw"$$")]),
+        TokenDefinition(:Function, [(name=:func_call, type=:String, value=raw"func($$)")]),
+        TokenDefinition(:Message, [(name=:msg, type=:String, value=raw"$$")]),
+        TokenDefinition(:Error, [])
       ]
     end
 
@@ -80,18 +77,17 @@
       lexer = read_definition_file(from_current_path("resources/lexer/token_retrieval/all_tokens.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
-
       @test returned_tokens == [
-        TokenDefinition(:Digit, Dict(:value => (:String, raw"$$"))),
-        TokenDefinition(:Number, Dict(:value => (:Int, raw"$$"))),
+        TokenDefinition(:Digit, [(name=:value, type=:String, value=raw"$$")]),
+        TokenDefinition(:Number, [(name=:value, type=:Int, value=raw"$$")]),
         TokenDefinition(
           :Identifier,
-          Dict(
-            :name => (:String, raw"$$"),
-            :line => (:Int, "15")
-          )
+          [
+            (name=:name, type=:String, value=raw"$$"),
+            (name=:line, type=:Int, value="15")
+          ]
         ),
-        TokenDefinition(:Error, Dict((:match => (:String, raw"$$"))))
+        TokenDefinition(:Error, [(name=:match, type=:String, value=raw"$$")])
       ]
     end
   end

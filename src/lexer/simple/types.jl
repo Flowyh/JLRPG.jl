@@ -25,7 +25,7 @@ end
 
 struct TokenDefinition <: Comparable
   name::Symbol
-  arguments::Dict
+  arguments::Vector{NamedTuple}
 end
 
 # By default, all LexerTokens will inherit this type and have some default members

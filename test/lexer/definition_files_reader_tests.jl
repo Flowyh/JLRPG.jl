@@ -1,7 +1,7 @@
 @testset "Definition files reader" begin
   @testset "Throws errors for invalid definition files" begin
     @testset "Empty file" begin
-      @test_throws "Invalid definition file, not enough sections" read_definition_file(from_current_path("resources/lexer/empty_file.jlex"))
+      @test_throws "Invalid definition file, not enough sections" read_definition_file(from_current_path("resources/lexer/definition_reader/empty_file.jlex"))
     end
   end
 
@@ -31,7 +31,7 @@
       lexer = read_definition_file(from_current_path("resources/lexer/definition_reader/all_sections.jlex"))
       @test lexer.actions == [
         Action("{WHITESPACE}", " test += 1 "),
-        Action("{NUM}", " \n  test += 2\n  return Num(5) \n"),
+        Action("{NUM}", "\n  test += 2\n  return Num(5)\n"),
         Action("\"text\"{NUM}", " test += 3 "),
         Action("\"+\"", " return Operator(\"+\") "),
         Action(".*", " return Error() ")
