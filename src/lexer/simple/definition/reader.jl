@@ -1,20 +1,28 @@
 using Parameters: @consts
 
 @enum Section definitions actions code
-@enum SpecialDefinition section code_block option regex_alias action
+@enum SpecialDefinition section code_block option regex_alias action comment
 
 @consts begin
   SectionDelimiter::String = "%%"
   CodeBlockStart::String = "%{"
   CodeBlockEnd::String = "%}"
 
+  SECTION_REGEX = r"%%"
+  CODE_BLOCK_REGEX = r"%{((?s:.)*?)%}"
+  OPTION_REGEX = r"%option ((?:\w+ ?)+)"
+  REGEX_ALIAS_REGEX = r"(?<name>[A-Z0-9_-]+)\s+(?<pattern>.+)"
+  ACTION_REGEX = r"(?<pattern>.+?)\s+{(?<body>(?s:.)+?)}"
+  COMMENT_REGEX = r"#=[^\n]*=#\n?"
+
   SpecialDefinitionPatterns::Vector{Pair{SpecialDefinition, Regex}} = [
-    section => r"%%",
-    code_block => r"%{((?s:.)*?)%}",
-    option => r"%option ((?:\w+ ?)+)",
-    regex_alias => r"(?<name>[A-Z0-9_-]+)\s+(?<pattern>.+)",
+    section => SECTION_REGEX,
+    code_block => CODE_BLOCK_REGEX,
+    option => OPTION_REGEX,
+    regex_alias => REGEX_ALIAS_REGEX,
     # action => r"(?<pattern>{[A-Z0-9_-]+}|\".+?\"|[^\s]+?)\s+{(?<body>(?s:.)+?)}",
-    action => r"(?<pattern>.+?)\s+{(?<body>(?s:.)+?)}"
+    action => ACTION_REGEX,
+    comment => COMMENT_REGEX
   ]
 end
 
@@ -98,13 +106,13 @@ function _read_definition_file(
         push!(aliases, RegexAlias(
           Symbol(m[:name]),
           m[:pattern]
-          ))
-        elseif definition == action
-          _section_guard(current_section, actions, "Action $(text[matched]) outside of actions section")
+        ))
+      elseif definition == action
+        _section_guard(current_section, actions, "Action $(text[matched]) outside of actions section")
           
-          m = match(pattern, text[matched])
+        m = match(pattern, text[matched])
           push!(lexer_actions, Action(
-            m[:pattern],
+          m[:pattern],
           m[:body]
         ))
       end
@@ -115,8 +123,14 @@ function _read_definition_file(
     end
     
     if current_section == code && !isempty(strip(text[cursor:end]))
+      to_copy = text[cursor:end]
+      # Remove comments
+      for m in eachmatch(COMMENT_REGEX, to_copy)
+        to_copy = replace(to_copy, m.match => "")
+      end
+
       # Copy everything
-      push!(code_blocks, text[cursor:end])
+      push!(code_blocks, to_copy)
       break
     end
 
@@ -126,7 +140,7 @@ function _read_definition_file(
       if whitespace !== nothing && whitespace.start == cursor
         cursor += length(text[whitespace])
       else
-        throw("Invalid characters in definition file, $(text[cursor]), $cursor")
+        throw("Invalid characters in definition file, $(text[cursor]), $cursor, $(text[cursor:end]))")
       end
     end  
   end
