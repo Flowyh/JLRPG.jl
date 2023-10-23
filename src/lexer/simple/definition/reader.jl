@@ -81,7 +81,6 @@ function _read_definition_file(
 
   text::String = read(file, String)
   cursor::Int = 1
-
   while cursor <= length(text)
     did_match::Bool = false
 
@@ -95,7 +94,7 @@ function _read_definition_file(
         current_section = _next_section(current_section)
       elseif definition == code_block
         code_block_txt = text[matched]
-        push!(code_blocks, code_block_txt[4:end-2]) # Omit %{\n and %}
+        push!(code_blocks, strip(code_block_txt[4:end-2])) # Omit %{\n and %}
       elseif definition == option
         _section_guard(current_section, definitions, "Option $(text[matched]) outside of definitions section")
         # TODO: Fill options if needed
@@ -130,7 +129,7 @@ function _read_definition_file(
       end
 
       # Copy everything
-      push!(code_blocks, to_copy)
+      push!(code_blocks, strip(to_copy))
       break
     end
 

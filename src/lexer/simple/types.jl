@@ -53,3 +53,9 @@ end
 function values(token::LexerToken)::Dict
   return getfield(token, values)
 end
+
+#=== Mustache helpers ===#
+# Generate convert method for each struct that will be used during mustache rendering
+for _struct in (:Action, :TokenDefinition)
+  @eval Base.convert(::Type{String}, _s::$_struct)::String = repr(_s)
+end

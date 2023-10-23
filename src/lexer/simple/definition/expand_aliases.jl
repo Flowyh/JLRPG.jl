@@ -3,13 +3,14 @@ using Parameters: @consts
 @enum PatternPart alias string regex
 
 @consts begin
-  PatternParts::Vector{Pair{PatternPart, Regex}} = [
-    alias => r"{(?<name>[A-Z0-9_-]+)}",
-    string => r"\"(?<pattern>.+?)\"",
-    regex => r"(?<pattern>.+?)"
-  ]
   ALIAS_PATTERN::Regex = r"{(?<name>[A-Z0-9_-]+)}"
-  RAW_STRING::Regex = r"\"(?<pattern>.+?)\""
+  ANYTHING_PATTERN::Regex = r"(?<pattern>.+?)"
+  RAW_STRING_PATTERN::Regex = r"\"(?<pattern>.+?)\""
+  PatternParts::Vector{Pair{PatternPart, Regex}} = [
+    alias => ALIAS_PATTERN,
+    string => RAW_STRING_PATTERN,
+    regex => ANYTHING_PATTERN
+  ]
 end
 
 function expand_regex_aliases_in_aliases(aliases::Vector{RegexAlias})::Vector{RegexAlias}
@@ -50,6 +51,7 @@ function expand_regex_aliases_in_actions(
   # Expand action patterns into proper regexes
   # Go through the pattern, split it into parts, and expand the aliases in each part
   expanded_actions::Vector{Action} = []
+  defined_patterns::Set{String} = Set()
   for action in actions
     pattern, body = action.pattern, action.body
     new_pattern::String = ""
@@ -58,22 +60,23 @@ function expand_regex_aliases_in_actions(
       did_match::Bool = false
       for (part_type, part_pattern) in PatternParts
         matched = findnext(part_pattern, pattern, cursor)
-        if matched !== nothing && matched.start == cursor
-          m = match(part_pattern, pattern[matched])
-          if part_type == alias
-            alias_name = Symbol(m[:name])
-            if !haskey(visited_aliases, alias_name)
-              throw("Invalid definition file, alias for $(alias_name) is not defined")
-            end
-            new_pattern *= visited_aliases[alias_name]
-          else
-            new_pattern *= m[:pattern]
-          end
-
-          cursor += length(matched)
-          did_match = true
-          break
+        if matched === nothing || matched.start != cursor
+          continue
         end
+        m = match(part_pattern, pattern[matched])
+        if part_type == alias
+          alias_name = Symbol(m[:name])
+          if !haskey(visited_aliases, alias_name)
+            throw("Invalid definition file, alias for $(alias_name) is not defined")
+          end
+          new_pattern *= visited_aliases[alias_name]
+        else
+          new_pattern *= m[:pattern]
+        end
+
+        cursor += length(matched)
+        did_match = true
+        break
       end
 
       if !did_match
@@ -81,6 +84,10 @@ function expand_regex_aliases_in_actions(
       end
     end
 
+    if new_pattern in defined_patterns
+      throw("Invalid definition file, pattern $(new_pattern) has already been defined")
+    end
+    push!(defined_patterns, new_pattern)
     push!(expanded_actions, Action(new_pattern, body))
   end
 

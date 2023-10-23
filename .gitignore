@@ -23,7 +23,7 @@ docs/site/
 # environment.
 Manifest.toml
 
-# Dev scripts
+# Dev files
 dev/
 TODO
 

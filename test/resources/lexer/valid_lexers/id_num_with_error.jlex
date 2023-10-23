@@ -1,0 +1,23 @@
+WHITESPACE [ \t\r\n]+
+NUM        [0-9]
+CHAR       '[a-zA-Z]'
+IDENTIFIER [_a-zA-Z]([_a-zA-Z]|{NUM})+
+
+%%
+
+{WHITESPACE}               { # Ignore }
+{CHAR}                     {
+  println("Got a Char! ", $$)
+  return Char(char::AbstractChar=$$[2])
+}
+{IDENTIFIER}               {
+  println("Got an Id! ", $$)
+  return Id($$)
+}
+{NUM}+                     {
+  println("Got a Number! ", $$)
+  return Number(val::Int=$$)
+}
+.                          { return Error(char::Char=$$) }
+
+%%

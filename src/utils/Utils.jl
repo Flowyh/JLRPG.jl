@@ -4,4 +4,7 @@ module JLPG_Utils
 
   include("comparable.jl")
   export Comparable
+
+  include("convert_type.jl")
+  export convert_type
 end

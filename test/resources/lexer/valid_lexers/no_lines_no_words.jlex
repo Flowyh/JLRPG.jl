@@ -1,0 +1,21 @@
+%{
+no_lines::Int = 1
+no_words::Int = 0
+%}
+
+INDENT      [ \t]
+WHITESPACE  [ \t\n]
+
+%%
+
+{INDENT}+                           { print(" ") }
+\n                                  { println(); global no_lines += 1 }
+[a-zA-Z0-9_-]+                      { print($$); global no_words += 1 }
+
+%%
+
+function at_end()
+  println("Number of lines: ", no_lines)
+  println("Number of words: ", no_words)
+  return 0
+end

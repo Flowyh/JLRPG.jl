@@ -1,12 +1,11 @@
 using Parameters: @consts
 
 @consts begin
-  RETURNED_TOKEN_PATTERN = r"return (?<tag>\w+)\((?<args>.*)\)"
-  CONVERSION_FUNCTION = (type, value) -> "convert_type(::$type, $value)"
+  CONVERSION_FUNCTION = (type, value) -> "convert_type($type, $value)"
 end
 
 function replace_token_args_in_actions(
-  actions::Vector{Action}, 
+  actions::Vector{Action},
   defined_tokens::Dict{Symbol, Vector}
 )::Vector{Action}
   replaced_actions::Vector{Action} = []
@@ -27,7 +26,7 @@ function replace_token_args_in_actions(
     end
 
     new_args = [
-      "$name::$type=$(CONVERSION_FUNCTION(type, value))" 
+      "$name=$(CONVERSION_FUNCTION(type, value))"
       for (name, type, value) in defined_tokens[tag]
     ]
     new_return = replace(m.match, args => ";$(join(new_args, ", "))")
@@ -42,7 +41,7 @@ function replace_token_args_in_actions(
 end
 
 function replace_token_args_in_lexer(
-  lexer::Lexer, 
+  lexer::Lexer,
   defined_tokens::Vector{TokenDefinition}
 )::Lexer
   defined_tokens_args = Dict{Symbol, Vector}(

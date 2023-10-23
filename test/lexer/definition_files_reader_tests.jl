@@ -42,9 +42,9 @@
         RegexAlias(:IDENTIFIER, "[_a-z]+")
       ]
       @test lexer.code_blocks == [
-        "  include(\"test\")\n\n  test::Int = 5\n  test2::Vector{String} = [\"abc\", \"def\"]\n",
-        "  println(\"Code in actions :o\")\n",
-        "\n\nfunction factorial(n::Int)::Int\n  return n * factorial(n - 1)\nend\n"
+        "include(\"test\")\n\n  test::Int = 5\n  test2::Vector{String} = [\"abc\", \"def\"]",
+        "println(\"Code in actions :o\")",
+        "function factorial(n::Int)::Int\n  return n * factorial(n - 1)\nend"
       ]
       @test lexer.options == Options()
     end
