@@ -1,6 +1,14 @@
 @testset "Token retrevial from lexer actions" begin
   @testset "Throws errors for invalid tokens returned in lexer actions" begin
+    @testset "Redefined arguments in tokens" begin
+      lexer = read_definition_file(from_current_path("resources/lexer/token_retrieval/redefined_args_tokens.jlex"))
+      @test_throws "Token OneTwoThree has duplicate arguments: [:one, :one, :one]" retrieve_tokens_from_lexer(lexer)
+    end
 
+    @testset "Redefined token with different arguments" begin
+      lexer = read_definition_file(from_current_path("resources/lexer/token_retrieval/redefined_token_with_different_args.jlex"))
+      @test_throws "Token OneTwoThree has been redefined with different arguments" retrieve_tokens_from_lexer(lexer)
+    end
   end
 
   @testset "Correctly retrieves tokens from actions" begin

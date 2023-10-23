@@ -1,0 +1,9 @@
+%%
+
+"5"   { return Five(5) }
+"123" { return OneTwoThree(one::Int=1, one::String="2", one::Float32=3.0) }
+[0-9] { return Digit($$) }
+"def" { return Function(func($$)) }
+.*    { return Error() }
+
+%%

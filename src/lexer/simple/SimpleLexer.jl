@@ -8,7 +8,9 @@ module JLPG_SimpleLexer
   export read_definition_file
 
   include("definition/expand_aliases.jl")
-  export expand_regex_aliases_in_lexer, expand_regex_aliases_in_actions, expand_regex_aliases_in_aliases
+  export expand_regex_aliases_in_lexer
+  export expand_regex_aliases_in_actions
+  export expand_regex_aliases_in_aliases
 
   include("definition/retrieve_tokens.jl")
   export retrieve_tokens_from_actions, retrieve_tokens_from_lexer
@@ -22,6 +24,7 @@ module JLPG_SimpleLexer
   include("codegen/special_replacements.jl")
   export replace_special_variables_in_generated_lexer
   export replace_overloaded_functions_in_generated_lexer
+  export full_function_pattern
 
   include("generate_lexer.jl")
   export generate_lexer

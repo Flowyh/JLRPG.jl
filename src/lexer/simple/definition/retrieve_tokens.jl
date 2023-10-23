@@ -18,7 +18,7 @@ end
 # Currently, you have to specify the type of each named argument, but I might change that in the future
 # By default, if a token has only one argument, it will be named "value"
 function retrieve_tokens_from_actions(actions::Vector{Action})::Vector{TokenDefinition}
-  defined_tokens::Dict{Symbol, Set} = Dict()
+  defined_tokens::Dict{Symbol, Vector} = Dict()
   returned_tokens::Vector{TokenDefinition} = []
 
   for action in actions
@@ -32,10 +32,6 @@ function retrieve_tokens_from_actions(actions::Vector{Action})::Vector{TokenDefi
     arguments = eachmatch(TOKEN_ARGUMENT_PATTERN, m[:args]) |> collect
     no_arguments = length(arguments)
 
-    if !haskey(defined_tokens, tag)
-      defined_tokens[tag] = Set()
-    end
-
     token_args::Vector{NamedTuple} = []
     for (i, argument) in enumerate(arguments)
       argname = Symbol(argument[:argname])
@@ -47,11 +43,23 @@ function retrieve_tokens_from_actions(actions::Vector{Action})::Vector{TokenDefi
       if type === :nothing # TODO: Support no type at all
         type = :String
       end
-      if argname in defined_tokens[tag]
-        error("Argument $argname of token $tag has already been defined")
-      end
-      push!(defined_tokens[tag], argname)
       push!(token_args, (name=argname, type=type, value=value))
+    end
+
+    if !haskey(defined_tokens, tag)
+      defined_tokens[tag] = token_args
+    else
+      # Check if the arguments are the same in both vectors
+      if sort(defined_tokens[tag], by=x->x.name) != sort(token_args, by=x->x.name)
+        error("Token $tag has been redefined with different arguments")
+      end
+    end
+
+    # Check for duplicate arguments
+    argnames = [t.name for t in token_args]
+    not_unique = [a for a in argnames if count(x->x==a, argnames) > 1]
+    if length(not_unique) != 0
+      error("Token $tag has duplicate arguments: $not_unique")
     end
 
     push!(returned_tokens, TokenDefinition(tag, token_args))

@@ -1,0 +1,8 @@
+#= Definitions =#
+
+%%
+#= Actions =#
+WHITESPACE [ \t\r\n]+
+
+%%
+#= User code =#

@@ -1,29 +1,5 @@
 #=== START OF ENVIRONEMNT SETUP ===#
-using JLPG
-
-mutable struct __LEX__vars
-  current_match::String
-  line::Int
-  column::Int
-end
-
-__LEX__ = __LEX__vars("", -1, -1)
-
-function current_match(new_match)
-  __LEX__.current_match = new_match
-end
-
-function line(new_line)
-  __LEX__.line = new_line
-end
-
-function column(new_column)
-  __LEX__.column = new_column
-end
-
-function at_end()
-  return __LEX__.current_match == ""
-end
+{{{:env}}}
 #===   END OF ENVIRONEMNT SETUP ===#
 
 #=== START OF CODE BLOCKS DEFINED IN LEXER (INSERTED IN ORDER OF DEFINITION)===#
@@ -90,7 +66,7 @@ function tokenize(txt::String)::Vector{LexerToken}
         continue
       end
       @debug "New match of length $(length(matched)) found: $(txt[matched])"
-      current_match(txt[matched])
+      __LEX__at_endcurrent_match(txt[matched])
 
       token = PATTERN_TO_ACTION[pattern]()
       if token isa LexerToken
@@ -104,7 +80,7 @@ function tokenize(txt::String)::Vector{LexerToken}
     end
 
     if !did_match
-      throw("Syntax error, cannot match remaining text: $(txt[cursor:end])")
+      error("Syntax error, cannot match remaining text: $(txt[cursor:end])")
     end
   end
 
@@ -124,7 +100,7 @@ function main()
   elseif ARGS[1] == "-h" || ARGS[1] == "--help"
     println("Usage: $(PROGRAM_FILE) [path]")
   elseif !isfile(ARGS[1])
-    throw("File \"$(ARGS[1])\" does not exist")
+    error("File \"$(ARGS[1])\" does not exist")
   else
     txt = ""
     open(ARGS[1]) do file
@@ -135,7 +111,7 @@ function main()
   @debug "<<<<<: LEXER OUTPUT :>>>>>"
   @debug "Output tokens: $tokens"
 
-  return at_end()
+  return __LEX__at_end()
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__

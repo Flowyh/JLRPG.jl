@@ -54,8 +54,6 @@ function _next_section(
     return actions
   elseif current == actions
     return code
-  elseif current == code
-    throw("Invalid definition file, too many sections")
   end
 end
 
@@ -65,7 +63,7 @@ function _section_guard(
   err_msg::String
 )
   if current != expected
-    throw(err_msg)
+    error(err_msg)
   end
 end
 
@@ -135,17 +133,18 @@ function _read_definition_file(
 
     if !did_match
       # Omit whitespace (only one line at a time)
-      whitespace = findnext(r"[\r\t\f\v ]*\n", text, cursor)
+      whitespace = findnext(r"[\r\t\f\v\n ]+", text, cursor)
+      # @debug text[cursor:end]
       if whitespace !== nothing && whitespace.start == cursor
         cursor += length(text[whitespace])
       else
-        throw("Invalid characters in definition file, $(text[cursor]), $cursor, $(text[cursor:end]))")
+        error("Invalid characters in definition file, $(text[cursor]), at $cursor)")
       end
     end
   end
 
   if current_section != code
-    throw("Invalid definition file, not enough sections")
+    error("Invalid definition file, not enough sections")
   end
 
   return Lexer(

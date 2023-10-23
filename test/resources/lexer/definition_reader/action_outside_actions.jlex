@@ -1,0 +1,8 @@
+#= Definitions =#
+
+"test" { return Test($$) }
+%%
+#= Actions =#
+
+%%
+#= User code =#

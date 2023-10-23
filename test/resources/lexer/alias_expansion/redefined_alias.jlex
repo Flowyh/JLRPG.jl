@@ -1,0 +1,7 @@
+WHITESPACE [ \t\r\n\f\v]+
+WHITESPACE [ \t\r\n\f\v]+
+NUM        [0-9]+
+
+%%
+
+%%

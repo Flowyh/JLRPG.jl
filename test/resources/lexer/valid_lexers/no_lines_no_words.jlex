@@ -14,7 +14,7 @@ WHITESPACE  [ \t\n]
 
 %%
 
-function at_end()
+function __LEX__at_end()
   println("Number of lines: ", no_lines)
   println("Number of words: ", no_words)
   return 0

@@ -16,6 +16,7 @@ end
 function expand_regex_aliases_in_aliases(aliases::Vector{RegexAlias})::Vector{RegexAlias}
   # Aliases are expanded in-place of {ALIAS_NAME} in the patterns
   expanded_aliases::Vector{RegexAlias} = []
+  defined_aliases::Set{Symbol} = Set()
   visited_aliases::Dict{Symbol, String} = Dict()
 
   # Order of aliases is important, so for each analyzed alias we will mark it as visited
@@ -27,11 +28,16 @@ function expand_regex_aliases_in_aliases(aliases::Vector{RegexAlias})::Vector{Re
         m = match(ALIAS_PATTERN, pattern[alias_match])
         alias_name = Symbol(m[:name])
         if !haskey(visited_aliases, alias_name) # Alias referenced before it was defined
-          throw("Invalid definition file, alias for $(alias_name) was referenced before it was defined")
+          error("Invalid definition file, alias for $(alias_name) was referenced before it was defined")
         end
         pattern = replace(pattern, pattern[alias_match] => visited_aliases[alias_name])
       end
     end
+
+    if name in defined_aliases
+      error("Invalid definition file, alias $(name) has already been defined")
+    end
+    push!(defined_aliases, name)
     push!(expanded_aliases, RegexAlias(name, pattern))
     push!(visited_aliases, name => pattern)
   end
@@ -57,7 +63,6 @@ function expand_regex_aliases_in_actions(
     new_pattern::String = ""
     cursor::Int = 1
     while cursor <= length(pattern)
-      did_match::Bool = false
       for (part_type, part_pattern) in PatternParts
         matched = findnext(part_pattern, pattern, cursor)
         if matched === nothing || matched.start != cursor
@@ -67,7 +72,7 @@ function expand_regex_aliases_in_actions(
         if part_type == alias
           alias_name = Symbol(m[:name])
           if !haskey(visited_aliases, alias_name)
-            throw("Invalid definition file, alias for $(alias_name) is not defined")
+            error("Invalid definition file, alias for $(alias_name) is not defined")
           end
           new_pattern *= visited_aliases[alias_name]
         else
@@ -75,18 +80,10 @@ function expand_regex_aliases_in_actions(
         end
 
         cursor += length(matched)
-        did_match = true
         break
       end
-
-      if !did_match
-        throw("Invalid definition file, invalid pattern $(pattern[cursor])")
-      end
     end
 
-    if new_pattern in defined_patterns
-      throw("Invalid definition file, pattern $(new_pattern) has already been defined")
-    end
     push!(defined_patterns, new_pattern)
     push!(expanded_actions, Action(new_pattern, body))
   end

@@ -6,8 +6,9 @@ IDENTIFIER [_a-zA-Z]([_a-zA-Z]|{NUM})+
 
 {IDENTIFIER}               { return Id($$) }
 {NUM}+                     { return Number($$) }
-"HELLO"{WHITESPACE}"WORLD" { return Hello() }
+\".*\"                     { return Hello() }
 .*                         { return Error() }
+{NON_EXISTENT}             { return nothing }
 "a"              "b"       { return AB() }
 
 %%

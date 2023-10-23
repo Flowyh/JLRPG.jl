@@ -6,7 +6,7 @@
     end
 
     @testset "Detect non-existent aliases in actions" begin
-      lexer = read_definition_file(from_current_path("resources/lexer/alias_expansion/invalid_alias_in_actions.jlex"))
+      lexer = read_definition_file(from_current_path("resources/lexer/alias_expansion/non_existent_alias_in_actions.jlex"))
       expanded_aliases = expand_regex_aliases_in_aliases(lexer.aliases)
       @test expanded_aliases == [
         RegexAlias(:WHITESPACE, raw"[ \t\r]+"),
@@ -15,6 +15,11 @@
       ]
 
       @test_throws "Invalid definition file, alias for NON_EXISTENT is not defined" expand_regex_aliases_in_actions(lexer.actions, expanded_aliases)
+    end
+
+    @testset "Detect redefinition of aliases" begin
+      lexer = read_definition_file("resources/lexer/alias_expansion/redefined_alias.jlex")
+      @test_throws "Invalid definition file, alias WHITESPACE has already been defined" expand_regex_aliases_in_lexer(lexer)
     end
   end
 

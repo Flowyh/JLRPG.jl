@@ -3,6 +3,30 @@
     @testset "Empty file" begin
       @test_throws "Invalid definition file, not enough sections" read_definition_file(from_current_path("resources/lexer/definition_reader/empty_file.jlex"))
     end
+
+    @testset "Not enough sections" begin
+      @test_throws "Invalid definition file, not enough sections" read_definition_file(from_current_path("resources/lexer/definition_reader/not_enough_sections.jlex"))
+    end
+
+    @testset "Option outside definitions" begin
+      @test_throws "Option %option misplaced outside of definitions section" read_definition_file(from_current_path("resources/lexer/definition_reader/option_outside_definitions.jlex"))
+    end
+
+    @testset "Regex alias outside definitions" begin
+      @test_throws raw"Regex alias WHITESPACE [ \t\r\n]+ outside of definitions section" read_definition_file(from_current_path("resources/lexer/definition_reader/regex_alias_outside_definitions.jlex"))
+    end
+
+    @testset "Action outside actions" begin
+      @test_throws raw"Action \"test\" { return Test($$) } outside of actions section" read_definition_file(from_current_path("resources/lexer/definition_reader/action_outside_actions.jlex"))
+    end
+
+    @testset "Invalid char/s inside definition file" begin
+      @test_throws "Invalid characters in definition file, /, at 47)" read_definition_file(from_current_path("resources/lexer/definition_reader/invalid_chars.jlex"))
+    end
+
+    @testset "Actions with empty patterns are invalid" begin
+      @test_throws "Invalid characters in definition file, {, at 66)" read_definition_file(from_current_path("resources/lexer/definition_reader/empty_action_pattern.jlex"))
+    end
   end
 
   @testset "Correctly parses definition files" begin
@@ -20,7 +44,6 @@
         Action("\"Test\"", " return \"Test\" "),
         Action("[0-9]+", " return Number(\$\$) "),
         Action(".*", " return Error() "),
-        Action(" ", " return AlsoValid() ")
       ]
       @test lexer.aliases == []
       @test lexer.code_blocks == []

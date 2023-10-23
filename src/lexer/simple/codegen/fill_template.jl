@@ -12,12 +12,14 @@ function fill_lexer_template(
   actions::Vector{Action}
 )::String
   mustache_tokens = Mustache.load(TEMPLATE_PATH)
+  env_setup = read(joinpath(@__DIR__, "environment_setup.jl"), String)
   rendered = Mustache.render(mustache_tokens,
     tokens = tokens,
     codeblocks = codeblocks,
     actions = actions,
     counter = counter,
-    reset_counter = reset_counter
+    reset_counter = reset_counter,
+    env = env_setup
   )
   reset_counter()
   return rendered

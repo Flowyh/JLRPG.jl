@@ -1,16 +1,16 @@
 using Parameters: @consts
 
 @consts begin
-  SPECIAL_VARIABLES_REPLACEMENTS = Dict(
-    raw"$$" => "__LEX__.current_match",
+  SPECIAL_VARIABLES_REPLACEMENTS::Vector{Pair} = [
     raw"$$line" => "__LEX__.line",
-    raw"$$col" => "__LEX__.column"
-  )
-
-  SPECIAL_FUNCTIONS_PATTERNS = [
-    r"at_end"
+    raw"$$col" => "__LEX__.column",
+    raw"$$" => "__LEX__.current_match"
   ]
-  full_function_pattern(fn) = r"function\s+" * fn * r"(?:.|\s)*?end"
+
+  SPECIAL_FUNCTIONS_PATTERNS = [r"__LEX__" * fn for fn in [
+    r"at_end"
+  ]]
+  full_function_pattern(fn) = r"function\s+" * fn * r"(?:.|\s)*?end\n*"
 end
 
 function replace_special_variables_in_generated_lexer(
@@ -27,7 +27,7 @@ function replace_overloaded_functions_in_generated_lexer(
 )::String
   for special_function in SPECIAL_FUNCTIONS_PATTERNS
     found_overloads = findall(full_function_pattern(special_function), generated_lexer)
-    if length(found_overloads) == 1
+    if length(found_overloads) <= 1
       continue
     end
     # Only last overload applies
