@@ -5,25 +5,25 @@ struct RegexAlias
   pattern::String
 end
 
-struct Action
+struct LexerAction
   pattern::String
   body::String
 end
 
-struct Options
+struct LexerOptions
   # TODO: Fill if needed
 end
 
 struct Lexer <: Comparable
-  actions::Vector{Action}
+  actions::Vector{LexerAction}
   aliases::Vector{RegexAlias}
   code_blocks::Vector{String} # TODO: Add some more context to code blocks (origin file, line number etc.)
-  options::Options
+  options::LexerOptions
 end
 
-# === Lexer ===
+# === Generated lexer tokens ===
 
-struct TokenDefinition <: Comparable
+struct LexerTokenDefinition <: Comparable
   name::Symbol
   arguments::Vector{NamedTuple}
 end
@@ -56,6 +56,6 @@ end
 
 #=== Mustache helpers ===#
 # Generate convert method for each struct that will be used during mustache rendering
-for _struct in (:Action, :TokenDefinition)
+for _struct in (:LexerAction, :LexerTokenDefinition)
   @eval Base.convert(::Type{String}, _s::$_struct)::String = repr(_s)
 end

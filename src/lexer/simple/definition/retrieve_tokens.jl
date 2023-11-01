@@ -17,9 +17,9 @@ end
 # {ID}  { return ID(first::String="hello", second::String="world", num::Int=4)} -> ID has 3 arguments, all of which will be retrieveable by using token.first, token.second, token.num
 # Currently, you have to specify the type of each named argument, but I might change that in the future
 # By default, if a token has only one argument, it will be named "value"
-function retrieve_tokens_from_actions(actions::Vector{Action})::Vector{TokenDefinition}
+function retrieve_tokens_from_actions(actions::Vector{LexerAction})::Vector{LexerTokenDefinition}
   defined_tokens::Dict{Symbol, Vector} = Dict()
-  returned_tokens::Vector{TokenDefinition} = []
+  returned_tokens::Vector{LexerTokenDefinition} = []
 
   for action in actions
     body = action.body
@@ -62,11 +62,11 @@ function retrieve_tokens_from_actions(actions::Vector{Action})::Vector{TokenDefi
       error("Token $tag has duplicate arguments: $not_unique")
     end
 
-    push!(returned_tokens, TokenDefinition(tag, token_args))
+    push!(returned_tokens, LexerTokenDefinition(tag, token_args))
   end
   return returned_tokens
 end
 
-function retrieve_tokens_from_lexer(lexer::Lexer)::Vector{TokenDefinition}
+function retrieve_tokens_from_lexer(lexer::Lexer)::Vector{LexerTokenDefinition}
   return retrieve_tokens_from_actions(lexer.actions)
 end

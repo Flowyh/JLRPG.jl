@@ -46,9 +46,9 @@ function expand_regex_aliases_in_aliases(aliases::Vector{RegexAlias})::Vector{Re
 end
 
 function expand_regex_aliases_in_actions(
-  actions::Vector{Action},
+  actions::Vector{LexerAction},
   expanded_aliases::Vector{RegexAlias}
-)::Vector{Action}
+)::Vector{LexerAction}
   # Aliases have to be expanded beforehand, because they may contain other aliases
   visited_aliases::Dict{Symbol, String} = Dict(
     alias.name => alias.pattern for alias in expanded_aliases
@@ -56,7 +56,7 @@ function expand_regex_aliases_in_actions(
 
   # Expand action patterns into proper regexes
   # Go through the pattern, split it into parts, and expand the aliases in each part
-  expanded_actions::Vector{Action} = []
+  expanded_actions::Vector{LexerAction} = []
   defined_patterns::Set{String} = Set()
   for action in actions
     pattern, body = action.pattern, action.body
@@ -85,7 +85,7 @@ function expand_regex_aliases_in_actions(
     end
 
     push!(defined_patterns, new_pattern)
-    push!(expanded_actions, Action(new_pattern, body))
+    push!(expanded_actions, LexerAction(new_pattern, body))
   end
 
   return expanded_actions

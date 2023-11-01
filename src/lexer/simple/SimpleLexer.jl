@@ -2,10 +2,10 @@ module JLPG_SimpleLexer
   using ..JLPG: Comparable
 
   include("types.jl")
-  export Lexer, RegexAlias, Action, Options, LexerToken, TokenDefinition
+  export Lexer, RegexAlias, LexerAction, LexerOptions, LexerToken, LexerTokenDefinition
 
   include("definition/reader.jl")
-  export read_definition_file
+  export read_lexer_definition_file
 
   include("definition/expand_aliases.jl")
   export expand_regex_aliases_in_lexer

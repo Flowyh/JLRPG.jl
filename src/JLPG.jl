@@ -9,4 +9,7 @@ module JLPG
 
   include("lexer/simple/SimpleLexer.jl")
   @reexport using .JLPG_SimpleLexer
+
+  include("parser/Parser.jl")
+  @reexport using .JLPG_Parser
 end

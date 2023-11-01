@@ -1,29 +1,29 @@
 using Parameters: @consts
 
-@enum Section definitions productions code
-@enum SpecialDefinition section code_block option token type start production production_alt comment
+@enum ParserSection definitions productions code
+@enum ParserSpecialDefinition section code_block option token type start production production_alt comment
 
 @consts begin
-  SectionDelimiter::String = "%%"
-  CodeBlockStart::String = "%{"
-  CodeBlockEnd::String = "%}"
+  ParserSectionDelimiter::String = "%%"
+  ParserCodeBlockStart::String = "%{"
+  ParserCodeBlockEnd::String = "%}"
 
-  SECTION_REGEX = r"%%"
-  CODE_BLOCK_REGEX = r"%{((?s:.)*?)%}"
-  OPTION_REGEX = r"%option[ \t]+((?:\w+ ?)+)"
+  PARSER_SECTION_REGEX = r"%%"
+  PARSER_CODE_BLOCK_REGEX = r"%{((?s:.)*?)%}"
+  PARSER_OPTION_REGEX = r"%option[ \t]+((?:\w+ ?)+)"
   TOKEN_REGEX = r"%token[ \t]+(?<name>[A-Z0-9_-]+)(?:[ \t]+\"(?<alias>.+)\")?"
   TYPE_REGEX = r"%type[ \t]+<(?<type>\w+)>(?:[ \t]+(?<symbol>\w+))?"
   START_REGEX = r"%start[ \t]+(?<symbol>.+)"
-  PRODUCTION_REGEX = r"(?<lhs>[a-z0-9_-]+)\s+->\s+(?<production>[A-Za-z0-9_-\s]+?)\s+{(?<action>(?s:.)*?)}"
+  PRODUCTION_REGEX = r"(?<lhs>[a-z0-9_-]+)\s+->\s+(?<production>[A-Za-z0-9_ \t-]+?)\s+{(?<action>(?s:.)*?)}"
   EMPTY_PRODUCTION_REGEX = r"(?<lhs>[a-z0-9_-]+)\s+->\s+(?<production>.+)"
   PRODUCTION_ALT_REGEX = r"\|\s+(?<production>.+)\s+?{(?<action>(?s:.)*?)}"
   EMPTY_PRODUCTION_ALT_REGEX = r"\|\s+(?<production>.+)"
-  COMMENT_REGEX = r"#=[^\n]*=#\n?"
+  PARSER_COMMENT_REGEX = r"#=[^\n]*=#\n?"
 
-  SpecialDefinitionPatterns::Vector{Pair{SpecialDefinition, Regex}} = [
-    section => SECTION_REGEX,
-    code_block => CODE_BLOCK_REGEX,
-    option => OPTION_REGEX,
+  SpecialDefinitionPatterns::Vector{Pair{ParserSpecialDefinition, Regex}} = [
+    section => PARSER_SECTION_REGEX,
+    code_block => PARSER_CODE_BLOCK_REGEX,
+    option => PARSER_OPTION_REGEX,
     token => TOKEN_REGEX,
     type => TYPE_REGEX,
     start => START_REGEX,
@@ -31,7 +31,7 @@ using Parameters: @consts
     production => EMPTY_PRODUCTION_REGEX,
     production_alt => PRODUCTION_ALT_REGEX,
     production_alt => EMPTY_PRODUCTION_ALT_REGEX,
-    comment => COMMENT_REGEX
+    comment => PARSER_COMMENT_REGEX
   ]
 end
 
@@ -45,20 +45,20 @@ end
 #
 # Blocks enclosed with %{ and %} are copied to the output file (in the same order).
 
-function read_definition_file(
+function read_parser_definition_file(
   path::String
 )::Parser
   parser::Union{Parser, Nothing} = nothing
   open(path) do file
-    parser = _read_definition_file(file)
+    parser = _read_parser_definition_file(file)
   end
 
   return parser::Parser
 end
 
-function _next_section(
-  current::Section
-)::Section
+function _next_parser_section(
+  current::ParserSection
+)::ParserSection
   if current == definitions
     return productions
   elseif current == productions
@@ -66,9 +66,9 @@ function _next_section(
   end
 end
 
-function _section_guard(
-  current::Section,
-  expected::Section,
+function _parser_section_guard(
+  current::ParserSection,
+  expected::ParserSection,
   err_msg::String
 )
   if current != expected
@@ -99,7 +99,7 @@ function _split_production_string(
 end
 
 # TODO: Better error signaling
-function _read_definition_file(
+function _read_parser_definition_file(
   file::IOStream
 )::Parser
   current_section = definitions
@@ -107,12 +107,12 @@ function _read_definition_file(
   terminals::Set{Symbol} = Set()
   nonterminals::Set{Symbol} = Set()
   starting::Union{Symbol, Nothing} = nothing
-  productions::Dict{Symbol, Production}  = Dict()
+  productions::Dict{Symbol, ParserProduction}  = Dict()
   symbol_types::Dict{Symbol, Symbol} = Dict()
-  tokens::Set{Token} = Set()
-  token_aliases::Dict{String, Token} = Dict()
+  tokens::Set{Symbol} = Set()
+  token_aliases::Dict{Symbol, Symbol} = Dict()
   code_blocks::Vector{String} = []
-  options = Options() # TODO: Fill if needed
+  options = ParserOptions() # TODO: Fill if needed
 
   text::String = read(file, String)
   cursor::Int = 1
@@ -127,36 +127,38 @@ function _read_definition_file(
       m = match(pattern, text[matched])
 
       if definition == section
-        current_section = _next_section(current_section)
+        current_section = _next_parser_section(current_section)
       elseif definition == code_block
         code_block_txt = text[matched]
         push!(code_blocks, strip(code_block_txt[4:end-2])) # Omit %{\n and %}
       elseif definition == option
-        _section_guard(current_section, definitions, "Option $(text[matched]) outside of definitions section")
+        _parser_section_guard(current_section, definitions, "Option $(text[matched]) outside of definitions section")
         # TODO: Fill if needed
       elseif definition == token
-        _section_guard(current_section, definitions, "Token definition $(text[matched]) outside of definitions section")
-        t = Token(Symbol(m[:name]), m[:alias])
+        _parser_section_guard(current_section, definitions, "Token definition $(text[matched]) outside of definitions section")
 
-        if t in tokens
+        t, a = Symbol(m[:name]), Symbol(m[:alias])
+        if t in tokens || a in token_aliases
           error("Token $(text[matched]) already defined")
         end
         push!(tokens, t)
+        push!(tokens, a)
 
-        if t.alias !== nothing
-          token_aliases[t.alias] = t
+        if a !== nothing
+          token_aliases[a] = t
+          token_aliases[t] = a
         end
       elseif defintion == type
-        _section_guard(current_section, definitions, "Type definition $(text[matched]) outside of definitions section")
+        _parser_section_guard(current_section, definitions, "Type definition $(text[matched]) outside of definitions section")
         symbol_types[Symbol(m[:symbol])] = Symbol(m[:type])
       elseif definition == start
-        _section_guard(current_section, productions, "Start definition $(text[matched]) outside of productions section")
+        _parser_section_guard(current_section, productions, "Start definition $(text[matched]) outside of productions section")
         if starting !== nothing
           error("Start symbol already defined")
         end
         starting = Symbol(m[:symbol])
       elseif definition == production
-        _section_guard(current_section, productions, "Production $(text[matched]) outside of productions section")
+        _parser_section_guard(current_section, productions, "Production $(text[matched]) outside of productions section")
         current_production_lhs = Symbol(m[:lhs])
 
         if current_production_lhs in productions
@@ -167,6 +169,11 @@ function _read_definition_file(
           error("Production LHS has to be lowercase, because it is a nonterminal (got $(m[:lhs]))")
         end
 
+        # First production is considered as the starting production, unless specified otherwise
+        if starting === nothing
+          starting = current_production_lhs
+        end
+
         _production, _terminals, _nonterminals = _split_production_string(m[:production])
         push!(_nonterminals, current_production_lhs)
 
@@ -175,14 +182,14 @@ function _read_definition_file(
 
         return_type = get(symbol_types, current_production_lhs, Symbol("String"))
 
-        productions[current_production_lhs] = Production(
+        productions[current_production_lhs] = ParserProduction(
           current_production_lhs,
           _production,
           m[:action],
           return_type
         )
       elseif definition == production_alt
-        _section_guard(current_section, productions, "Production alternative $(text[matched]) outside of productions section")
+        _parser_section_guard(current_section, productions, "Production alternative $(text[matched]) outside of productions section")
 
         _production, _terminals, _nonterminals = _split_production_string(m[:production])
         push!(_nonterminals, current_production_lhs)
@@ -192,7 +199,7 @@ function _read_definition_file(
 get
         return_type = (symbol_types, current_production_lhs, Symbol("String"))
 
-        productions[current_production_lhs] = Production(
+        productions[current_production_lhs] = ParserProduction(
           current_production_lhs,
           _production,
           m[:action],
@@ -209,8 +216,9 @@ get
   return Parser(
     terminals,
     nonterminals,
-    starting,
+    starting::Symbol,
     productions,
+    symbol_types,
     tokens,
     token_aliases,
     code_blocks,

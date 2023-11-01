@@ -7,9 +7,9 @@ end
 
 # Read lexer_template.jl and fill mustache template
 function fill_lexer_template(
-  tokens::Vector{TokenDefinition},
+  tokens::Vector{LexerTokenDefinition},
   codeblocks::Vector{String},
-  actions::Vector{Action}
+  actions::Vector{LexerAction}
 )::String
   mustache_tokens = Mustache.load(TEMPLATE_PATH)
   env_setup = read(joinpath(@__DIR__, "environment_setup.jl"), String)

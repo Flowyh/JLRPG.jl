@@ -1,29 +1,24 @@
 # === Parser definition ===
 
-struct Parser
-  terminals::Set{Symbol}
-  nonterminals::Set{Symbol}
-  starting::Symbol
-  productions::Dict{Symbol, Production}
-  symbol_types::Dict{Symbol, Symbol}
-  tokens::Set{Token}
-  token_aliases::Dict{String, Token}
-  code_blocks::Vector{String}
-  options::Options
-end
-
-struct Options
-  # TODO: Fill if needed
-end
-
-struct Token
-  name::Symbol
-  alias::Union{Nothing, String}
-end
-
-struct Production
+struct ParserProduction
   symbol::Symbol
   production::Vector{Symbol}
   action::Union{Nothing, String}
   return_type::Symbol
+end
+
+struct ParserOptions
+  # TODO: Fill if needed
+end
+
+struct Parser
+  terminals::Set{Symbol}
+  nonterminals::Set{Symbol}
+  starting::Symbol
+  productions::Dict{Symbol, ParserProduction}
+  symbol_types::Dict{Symbol, Symbol}
+  tokens::Set{Symbol}
+  token_aliases::Dict{Symbol, Symbol}
+  code_blocks::Vector{String}
+  options::ParserOptions
 end

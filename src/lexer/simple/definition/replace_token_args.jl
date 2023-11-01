@@ -5,10 +5,10 @@ using Parameters: @consts
 end
 
 function replace_token_args_in_actions(
-  actions::Vector{Action},
+  actions::Vector{LexerAction},
   defined_tokens::Dict{Symbol, Vector}
-)::Vector{Action}
-  replaced_actions::Vector{Action} = []
+)::Vector{LexerAction}
+  replaced_actions::Vector{LexerAction} = []
 
   for action in actions
     pattern, body = action.pattern, action.body
@@ -31,7 +31,7 @@ function replace_token_args_in_actions(
     ]
     new_return = replace(m.match, args => ";$(join(new_args, ", "))")
 
-    push!(replaced_actions, Action(
+    push!(replaced_actions, LexerAction(
       pattern,
       replace(body, m.match => new_return)
     ))
@@ -42,7 +42,7 @@ end
 
 function replace_token_args_in_lexer(
   lexer::Lexer,
-  defined_tokens::Vector{TokenDefinition}
+  defined_tokens::Vector{LexerTokenDefinition}
 )::Lexer
   defined_tokens_args = Dict{Symbol, Vector}(
     token.name => token.arguments for token in defined_tokens

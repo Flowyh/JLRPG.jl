@@ -1,28 +1,28 @@
 using Parameters: @consts
 
-@enum Section definitions actions code
-@enum SpecialDefinition section code_block option regex_alias action comment
+@enum LexerSection definitions actions code
+@enum LexerSpecialDefinition section code_block option regex_alias action comment
 
 @consts begin
-  SectionDelimiter::String = "%%"
-  CodeBlockStart::String = "%{"
-  CodeBlockEnd::String = "%}"
+  LexerSectionDelimiter::String = "%%"
+  LexerCodeBlockStart::String = "%{"
+  LexerCodeBlockEnd::String = "%}"
 
-  SECTION_REGEX = r"%%"
-  CODE_BLOCK_REGEX = r"%{((?s:.)*?)%}"
-  OPTION_REGEX = r"%option[ \t]+((?:\w+ ?)+)"
+  LEXER_SECTION_REGEX = r"%%"
+  LEXER_CODE_BLOCK_REGEX = r"%{((?s:.)*?)%}"
+  LEXER_OPTION_REGEX = r"%option[ \t]+((?:\w+ ?)+)"
   REGEX_ALIAS_REGEX = r"(?<name>[A-Z0-9_-]+)\s+(?<pattern>.+)"
   ACTION_REGEX = r"(?<pattern>.+?)\s+{(?<body>(?s:.)+?)}"
-  COMMENT_REGEX = r"#=[^\n]*=#\n?"
+  LEXER_COMMENT_REGEX = r"#=[^\n]*=#\n?"
 
-  SpecialDefinitionPatterns::Vector{Pair{SpecialDefinition, Regex}} = [
-    section => SECTION_REGEX,
-    code_block => CODE_BLOCK_REGEX,
-    option => OPTION_REGEX,
+  SpecialDefinitionPatterns::Vector{Pair{LexerSpecialDefinition, Regex}} = [
+    section => LEXER_SECTION_REGEX,
+    code_block => LEXER_CODE_BLOCK_REGEX,
+    option => LEXER_OPTION_REGEX,
     regex_alias => REGEX_ALIAS_REGEX,
     # action => r"(?<pattern>{[A-Z0-9_-]+}|\".+?\"|[^\s]+?)\s+{(?<body>(?s:.)+?)}",
     action => ACTION_REGEX,
-    comment => COMMENT_REGEX
+    comment => LEXER_COMMENT_REGEX
   ]
 end
 
@@ -36,20 +36,20 @@ end
 #
 # Blocks enclosed with %{ and %} are copied to the output file (in the same order).
 
-function read_definition_file(
+function read_lexer_definition_file(
   path::String
 )::Lexer
   lexer::Union{Lexer, Nothing} = nothing
   open(path) do file
-    lexer = _read_definition_file(file)
+    lexer = _read_lexer_definition_file(file)
   end
 
   return lexer::Lexer
 end
 
-function _next_section(
-  current::Section
-)::Section
+function _next_lexer_section(
+  current::LexerSection
+)::LexerSection
   if current == definitions
     return actions
   elseif current == actions
@@ -57,9 +57,9 @@ function _next_section(
   end
 end
 
-function _section_guard(
-  current::Section,
-  expected::Section,
+function _lexer_section_guard(
+  current::LexerSection,
+  expected::LexerSection,
   err_msg::String
 )
   if current != expected
@@ -68,13 +68,13 @@ function _section_guard(
 end
 
 # TODO: Better error signaling
-function _read_definition_file(
+function _read_lexer_definition_file(
   file::IOStream
 )::Lexer
   current_section = definitions
   aliases::Vector{RegexAlias} = []
-  lexer_actions::Vector{Action} = []
-  options = Options() # TODO: Fill if needed
+  lexer_actions::Vector{LexerAction} = []
+  options = LexerOptions() # TODO: Fill if needed
   code_blocks::Vector{String} = []
 
   text::String = read(file, String)
@@ -90,22 +90,22 @@ function _read_definition_file(
       m = match(pattern, text[matched])
 
       if definition == section
-        current_section = _next_section(current_section)
+        current_section = _next_lexer_section(current_section)
       elseif definition == code_block
         code_block_txt = text[matched]
         push!(code_blocks, strip(code_block_txt[4:end-2])) # Omit %{\n and %}
       elseif definition == option
-        _section_guard(current_section, definitions, "Option $(text[matched]) outside of definitions section")
+        _lexer_section_guard(current_section, definitions, "Option $(text[matched]) outside of definitions section")
         # TODO: Fill options if needed
       elseif definition == regex_alias
-        _section_guard(current_section, definitions, "Regex alias $(text[matched]) outside of definitions section")
+        _lexer_section_guard(current_section, definitions, "Regex alias $(text[matched]) outside of definitions section")
         push!(aliases, RegexAlias(
           Symbol(m[:name]),
           m[:pattern]
         ))
       elseif definition == action
-        _section_guard(current_section, actions, "Action $(text[matched]) outside of actions section")
-        push!(lexer_actions, Action(
+        _lexer_section_guard(current_section, actions, "Action $(text[matched]) outside of actions section")
+        push!(lexer_actions, LexerAction(
           m[:pattern],
           m[:body]
         ))
@@ -119,7 +119,7 @@ function _read_definition_file(
     if current_section == code && !isempty(strip(text[cursor:end]))
       to_copy = text[cursor:end]
       # Remove comments
-      for m in eachmatch(COMMENT_REGEX, to_copy)
+      for m in eachmatch(LEXER_COMMENT_REGEX, to_copy)
         to_copy = replace(to_copy, m.match => "")
       end
 
