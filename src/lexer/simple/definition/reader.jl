@@ -10,7 +10,7 @@ using Parameters: @consts
 
   SECTION_REGEX = r"%%"
   CODE_BLOCK_REGEX = r"%{((?s:.)*?)%}"
-  OPTION_REGEX = r"%option ((?:\w+ ?)+)"
+  OPTION_REGEX = r"%option[ \t]+((?:\w+ ?)+)"
   REGEX_ALIAS_REGEX = r"(?<name>[A-Z0-9_-]+)\s+(?<pattern>.+)"
   ACTION_REGEX = r"(?<pattern>.+?)\s+{(?<body>(?s:.)+?)}"
   COMMENT_REGEX = r"#=[^\n]*=#\n?"
@@ -30,7 +30,7 @@ end
 #
 # definitions/flags/regex aliases
 # %%
-# regexes
+# lexer actions
 # %%
 # user code
 #
@@ -87,6 +87,7 @@ function _read_definition_file(
       if matched === nothing || matched.start != cursor
         continue
       end
+      m = match(pattern, text[matched])
 
       if definition == section
         current_section = _next_section(current_section)
@@ -98,23 +99,19 @@ function _read_definition_file(
         # TODO: Fill options if needed
       elseif definition == regex_alias
         _section_guard(current_section, definitions, "Regex alias $(text[matched]) outside of definitions section")
-
-        m = match(pattern, text[matched])
         push!(aliases, RegexAlias(
           Symbol(m[:name]),
           m[:pattern]
         ))
       elseif definition == action
         _section_guard(current_section, actions, "Action $(text[matched]) outside of actions section")
-
-        m = match(pattern, text[matched])
-          push!(lexer_actions, Action(
+        push!(lexer_actions, Action(
           m[:pattern],
           m[:body]
         ))
       end
 
-      cursor += length(text[matched])
+      cursor += length(matched)
       did_match = true
       break
     end

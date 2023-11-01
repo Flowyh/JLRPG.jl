@@ -1,0 +1,44 @@
+#= Definitions section =#
+
+#= Code block inserted at the beginning of the generated file =#
+%{
+  println("Code in definitions :o")
+%}
+
+#= Token definitions =#
+%token EXPRESSION
+%token NUM
+%token OPERATOR
+%token ERROR
+%token PLUS "+"
+
+#= Returned types =#
+%type <Expression> expression
+%type <Int> NUM
+
+%%
+#= Productions section =#
+%start start
+
+%{
+  println("Code in actions :o")
+%}
+
+start      -> expression
+expression -> expression OPERATOR expression {
+                $$ = Expression($1, $2, $3)
+              }
+            | NUM {
+                $$ = $1.value
+              }
+
+%%
+
+function factorial(n::Int)::Int
+  return n * factorial(n - 1)
+end
+
+function at_end() # Overloaded JLPG function
+  println("Code at the end :o")
+  return 0
+end
