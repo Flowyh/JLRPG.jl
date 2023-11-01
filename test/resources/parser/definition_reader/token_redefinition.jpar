@@ -1,0 +1,9 @@
+#= Definitions =#
+
+%token ONE "1"
+%token ONE "redefined"
+%%
+#= Productions =#
+
+%%
+#= User code =#

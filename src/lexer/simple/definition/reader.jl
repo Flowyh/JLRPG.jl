@@ -131,7 +131,7 @@ function _read_lexer_definition_file(
     if !did_match
       # Omit whitespace (only one line at a time)
       whitespace = findnext(r"[\r\t\f\v\n ]+", text, cursor)
-      # @debug text[cursor:end]
+
       if whitespace !== nothing && whitespace.start == cursor
         cursor += length(text[whitespace])
       else

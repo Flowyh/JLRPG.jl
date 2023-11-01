@@ -1,0 +1,9 @@
+#= Definitions =#
+
+%token MISPLACED
+start -> MISPLACED
+%%
+#= Productions =#
+
+%%
+#= User code =#

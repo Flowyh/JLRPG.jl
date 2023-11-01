@@ -1,0 +1,9 @@
+#= Definitions =#
+
+%token END
+%%
+#= Productions =#
+start -> MixEd END CaSe
+
+%%
+#= User code =#

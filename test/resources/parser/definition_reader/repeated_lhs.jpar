@@ -1,0 +1,11 @@
+#= Definitions =#
+
+%token END
+%token REPEATED
+%%
+#= Productions =#
+start -> END
+start -> REPEATED
+
+%%
+#= User code =#

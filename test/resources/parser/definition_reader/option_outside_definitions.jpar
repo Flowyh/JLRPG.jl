@@ -1,0 +1,8 @@
+#= Definitions =#
+
+%%
+#= Productions =#
+%option misplaced
+
+%%
+#= User code =#

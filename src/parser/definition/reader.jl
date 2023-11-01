@@ -76,11 +76,11 @@ function _parser_section_guard(
   end
 end
 
-islowercased(str::String)::Bool = ismatch(r"^[a-z0-9_-]+$", str)
-isuppercased(str::String)::Bool = ismatch(r"^[A-Z0-9_-]+$", str)
+islowercased(str::AbstractString)::Bool = occursin(r"^[a-z0-9_-]+$", str)
+isuppercased(str::AbstractString)::Bool = occursin(r"^[A-Z0-9_-]+$", str)
 
 function _split_production_string(
-  production::String
+  production::AbstractString
 )::Tuple{Vector{Symbol}, Vector{Symbol}, Vector{Symbol}}
   sanitized = strip(production)
   symbols = split(sanitized, r"\s+")
@@ -107,7 +107,7 @@ function _read_parser_definition_file(
   terminals::Set{Symbol} = Set()
   nonterminals::Set{Symbol} = Set()
   starting::Union{Symbol, Nothing} = nothing
-  productions::Dict{Symbol, ParserProduction}  = Dict()
+  parser_productions::Dict{Symbol, ParserProduction}  = Dict()
   symbol_types::Dict{Symbol, Symbol} = Dict()
   tokens::Set{Symbol} = Set()
   token_aliases::Dict{Symbol, Symbol} = Dict()
@@ -121,7 +121,7 @@ function _read_parser_definition_file(
     did_match::Bool = false
     for (definition, pattern) in SpecialDefinitionPatterns
       matched = findnext(pattern, text, cursor)
-      if matched !== nothing || matched.start != cursor
+      if matched === nothing || matched.start != cursor
         continue
       end
       m = match(pattern, text[matched])
@@ -138,17 +138,17 @@ function _read_parser_definition_file(
         _parser_section_guard(current_section, definitions, "Token definition $(text[matched]) outside of definitions section")
 
         t, a = Symbol(m[:name]), Symbol(m[:alias])
-        if t in tokens || a in token_aliases
+        if t in tokens || a in tokens
           error("Token $(text[matched]) already defined")
         end
         push!(tokens, t)
-        push!(tokens, a)
 
-        if a !== nothing
+        if m[:alias] !== nothing
+          push!(tokens, a)
           token_aliases[a] = t
           token_aliases[t] = a
         end
-      elseif defintion == type
+      elseif definition == type
         _parser_section_guard(current_section, definitions, "Type definition $(text[matched]) outside of definitions section")
         symbol_types[Symbol(m[:symbol])] = Symbol(m[:type])
       elseif definition == start
@@ -161,12 +161,8 @@ function _read_parser_definition_file(
         _parser_section_guard(current_section, productions, "Production $(text[matched]) outside of productions section")
         current_production_lhs = Symbol(m[:lhs])
 
-        if current_production_lhs in productions
-          error("Production $(text[matched]) already defined")
-        end
-
-        if !islowercased(current_production_lhs)
-          error("Production LHS has to be lowercase, because it is a nonterminal (got $(m[:lhs]))")
+        if haskey(parser_productions, current_production_lhs)
+          error("Production left-hand side $current_production_lhs repeated")
         end
 
         # First production is considered as the starting production, unless specified otherwise
@@ -182,10 +178,10 @@ function _read_parser_definition_file(
 
         return_type = get(symbol_types, current_production_lhs, Symbol("String"))
 
-        productions[current_production_lhs] = ParserProduction(
+        parser_productions[current_production_lhs] = ParserProduction(
           current_production_lhs,
           _production,
-          m[:action],
+          haskey(m, :action) ? m[:action] : nothing, # TODO: utils get for regexmatches
           return_type
         )
       elseif definition == production_alt
@@ -196,13 +192,13 @@ function _read_parser_definition_file(
 
         union!(terminals, _terminals)
         union!(nonterminals, _nonterminals)
-get
+
         return_type = (symbol_types, current_production_lhs, Symbol("String"))
 
-        productions[current_production_lhs] = ParserProduction(
+        parser_productions[current_production_lhs] = ParserProduction(
           current_production_lhs,
           _production,
-          m[:action],
+          haskey(m, :action) ? m[:action] : nothing,
           return_type
         )
       end
@@ -211,13 +207,43 @@ get
       did_match = true
       break
     end
+
+    if current_section == code && !isempty(strip(text[cursor:end]))
+      to_copy = text[cursor:end]
+      # Remove comments
+      for m in eachmatch(PARSER_COMMENT_REGEX, to_copy)
+        to_copy = replace(to_copy, m.match => "")
+      end
+
+      # Copy everything
+      push!(code_blocks, strip(to_copy))
+      break
+    end
+
+    if !did_match
+      # Omit whitespace (only one line at a time)
+      whitespace = findnext(r"[\r\t\f\v\n ]+", text, cursor)
+      if whitespace !== nothing && whitespace.start == cursor
+        cursor += length(text[whitespace])
+      else
+        error("Invalid characters in definition file, $(text[cursor]), at $cursor")
+      end
+    end
+  end
+
+  if current_section != code
+    error("Invalid definition file, not enough sections")
+  end
+
+  if starting === nothing
+    error("No start symbol defined")
   end
 
   return Parser(
     terminals,
     nonterminals,
     starting::Symbol,
-    productions,
+    parser_productions,
     symbol_types,
     tokens,
     token_aliases,
