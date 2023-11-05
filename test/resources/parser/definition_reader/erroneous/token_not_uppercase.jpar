@@ -1,0 +1,8 @@
+#= Definitions =#
+
+%token NotUppercase
+%%
+#= Productions =#
+
+%%
+#= User code =#

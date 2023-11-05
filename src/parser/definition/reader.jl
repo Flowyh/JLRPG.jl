@@ -11,11 +11,11 @@ using Parameters: @consts
   PARSER_SECTION_REGEX = r"%%"
   PARSER_CODE_BLOCK_REGEX = r"%{((?s:.)*?)%}"
   PARSER_OPTION_REGEX = r"%option[ \t]+((?:\w+ ?)+)"
-  TOKEN_REGEX = r"%token[ \t]+(?<name>[A-Z0-9_-]+)(?:[ \t]+\"(?<alias>[^\"]+)\")?"
+  TOKEN_REGEX = r"%token[ \t]+(?<name>\w+)(?:[ \t]+\"(?<alias>[^\"]+)\")?"
   TYPE_REGEX = r"%type[ \t]+<(?<type>\w+)>(?:[ \t]+(?<symbol>\w+))?"
-  START_REGEX = r"%start[ \t]+(?<symbol>.+)"
-  PRODUCTION_REGEX = r"(?<lhs>[a-z0-9_-]+)\s+->\s+(?<production>[^{}\n]+?)\s+{(?<action>(?s:.)*?)}"
-  EMPTY_CALLBACK_PRODUCTION_REGEX = r"(?<lhs>[a-z0-9_-]+)\s+->\s+(?<production>[^{}\n]+)"
+  START_REGEX = r"%start[ \t]+(?<symbol>\w+)"
+  PRODUCTION_REGEX = r"(?<lhs>\w+)\s+->\s+(?<production>[^{}\n]+?)\s+{(?<action>(?s:.)*?)}"
+  EMPTY_CALLBACK_PRODUCTION_REGEX = r"(?<lhs>\w+)\s+->\s+(?<production>[^{}\n]+)"
   PRODUCTION_ALT_REGEX = r"\|\s+(?<production>[^{}\n]+)\s+{(?<action>(?s:.)*?)}"
   EMPTY_CALLBACK_PRODUCTION_ALT_REGEX = r"\|\s+(?<production>[^{}\n]+)"
   PARSER_COMMENT_REGEX = r"#=[^\n]*=#\n?"
@@ -162,7 +162,12 @@ function _read_parser_definition_file(
       elseif definition == token
         _parser_section_guard(current_section, definitions, "Token definition $(text[matched]) outside of definitions section")
 
+        if !isuppercased(m[:name])
+          error("Token $(text[matched]) name must be uppercase")
+        end
+
         t, a = Symbol(m[:name]), Symbol(m[:alias])
+
         if t in tokens || a in tokens
           error("Token $(text[matched]) already defined")
         end
@@ -184,6 +189,11 @@ function _read_parser_definition_file(
         starting = Symbol(m[:symbol])
       elseif definition == production
         _parser_section_guard(current_section, productions, "Production $(text[matched]) outside of productions section")
+
+        if !islowercased(m[:lhs])
+          error("Production $(text[matched]) left-hand side must be lowercase")
+        end
+
         current_production_lhs = Symbol(m[:lhs])
 
         if haskey(parser_productions, current_production_lhs)
