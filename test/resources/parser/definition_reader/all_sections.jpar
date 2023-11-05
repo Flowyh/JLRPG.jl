@@ -6,32 +6,29 @@
 %}
 
 #= Token definitions =#
-%token EXPRESSION
-%token NUM
-%token OPERATOR
-%token ERROR
 %token PLUS "+"
+%token MINUS "-"
+%token TIMES "*"
+%token DIVIDE "/"
+%token LPAREN "("
+%token RPAREN ")"
+%token END
+%token NUMBER
 
 #= Returned types =#
-%type <Expression> expression
-%type <Int> NUM
-
+%type <Int> start
+%type <Int> expr
+%type <Int> NUMBER
 %%
-#= Productions section =#
+#= Productions =#
 %start start
-
-%{
-  println("Code in actions :o")
-%}
-
-start      -> expression
-expression -> expression OPERATOR expression {
-                $$ = Expression($1, $2, $3)
-              }
-            | NUM {
-                $$ = $1.value
-              }
-
+start -> expr END { println($1) }
+expr -> expr "+" expr { $$ = $1 + $3 }
+      | expr "-" expr { $$ = $1 - $3 }
+      | expr "*" expr { $$ = $1 * $3 }
+      | expr "/" expr { $$ = $1 / $3 }
+      | "(" expr ")" { $$ = $2 }
+      | NUMBER { $$ = $1 }
 %%
 
 function factorial(n::Int)::Int

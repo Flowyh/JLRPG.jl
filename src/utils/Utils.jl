@@ -7,4 +7,6 @@ module JLPG_Utils
 
   include("convert_type.jl")
   export convert_type
+
+  include("set_extensions.jl")
 end

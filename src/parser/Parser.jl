@@ -1,4 +1,6 @@
 module JLPG_Parser
+  using ..JLPG: Comparable
+
   include("types.jl")
   export Parser, ParserOptions, ParserProduction
 

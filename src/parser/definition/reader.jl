@@ -11,14 +11,16 @@ using Parameters: @consts
   PARSER_SECTION_REGEX = r"%%"
   PARSER_CODE_BLOCK_REGEX = r"%{((?s:.)*?)%}"
   PARSER_OPTION_REGEX = r"%option[ \t]+((?:\w+ ?)+)"
-  TOKEN_REGEX = r"%token[ \t]+(?<name>[A-Z0-9_-]+)(?:[ \t]+\"(?<alias>.+)\")?"
+  TOKEN_REGEX = r"%token[ \t]+(?<name>[A-Z0-9_-]+)(?:[ \t]+\"(?<alias>[^\"]+)\")?"
   TYPE_REGEX = r"%type[ \t]+<(?<type>\w+)>(?:[ \t]+(?<symbol>\w+))?"
   START_REGEX = r"%start[ \t]+(?<symbol>.+)"
-  PRODUCTION_REGEX = r"(?<lhs>[a-z0-9_-]+)\s+->\s+(?<production>[A-Za-z0-9_ \t-]+?)\s+{(?<action>(?s:.)*?)}"
-  EMPTY_PRODUCTION_REGEX = r"(?<lhs>[a-z0-9_-]+)\s+->\s+(?<production>.+)"
-  PRODUCTION_ALT_REGEX = r"\|\s+(?<production>.+)\s+?{(?<action>(?s:.)*?)}"
-  EMPTY_PRODUCTION_ALT_REGEX = r"\|\s+(?<production>.+)"
+  PRODUCTION_REGEX = r"(?<lhs>[a-z0-9_-]+)\s+->\s+(?<production>[^{}\n]+?)\s+{(?<action>(?s:.)*?)}"
+  EMPTY_CALLBACK_PRODUCTION_REGEX = r"(?<lhs>[a-z0-9_-]+)\s+->\s+(?<production>[^{}\n]+)"
+  PRODUCTION_ALT_REGEX = r"\|\s+(?<production>[^{}\n]+)\s+{(?<action>(?s:.)*?)}"
+  EMPTY_CALLBACK_PRODUCTION_ALT_REGEX = r"\|\s+(?<production>[^{}\n]+)"
   PARSER_COMMENT_REGEX = r"#=[^\n]*=#\n?"
+
+  DOUBLE_QUOTES_ALIAS = r"\"(?<alias>[^\"]+)\""
 
   SpecialDefinitionPatterns::Vector{Pair{ParserSpecialDefinition, Regex}} = [
     section => PARSER_SECTION_REGEX,
@@ -28,9 +30,9 @@ using Parameters: @consts
     type => TYPE_REGEX,
     start => START_REGEX,
     production => PRODUCTION_REGEX,
-    production => EMPTY_PRODUCTION_REGEX,
+    production => EMPTY_CALLBACK_PRODUCTION_REGEX,
     production_alt => PRODUCTION_ALT_REGEX,
-    production_alt => EMPTY_PRODUCTION_ALT_REGEX,
+    production_alt => EMPTY_CALLBACK_PRODUCTION_ALT_REGEX,
     comment => PARSER_COMMENT_REGEX
   ]
 end
@@ -80,22 +82,45 @@ islowercased(str::AbstractString)::Bool = occursin(r"^[a-z0-9_-]+$", str)
 isuppercased(str::AbstractString)::Bool = occursin(r"^[A-Z0-9_-]+$", str)
 
 function _split_production_string(
-  production::AbstractString
+  production::AbstractString,
+  token_aliases::Dict{Symbol, Symbol}
 )::Tuple{Vector{Symbol}, Vector{Symbol}, Vector{Symbol}}
   sanitized = strip(production)
   symbols = split(sanitized, r"\s+")
+
+  if length(symbols) == 1 && symbols[1] == "%empty"
+    return ([Symbol("%empty")], [], [])
+  end
+
+  production::Vector{Symbol} = []
   terminals::Vector{Symbol} = []
   nonterminals::Vector{Symbol} = []
   for _symbol in symbols
-    if islowercased(_symbol)
-      push!(nonterminals, Symbol(_symbol))
+    # If is an alias
+    is_alias::Bool = false
+    m = match(DOUBLE_QUOTES_ALIAS, _symbol)
+    if m !== nothing
+      _symbol = m[:alias]
+      if !haskey(token_aliases, Symbol(_symbol))
+        error("Token alias $_symbol not defined")
+      end
+      is_alias = true
+    end
+
+    token = Symbol(_symbol)
+    if is_alias
+      token = token_aliases[Symbol(_symbol)] # Get normal token instead of alias
+      push!(terminals, token)
     elseif isuppercased(_symbol)
-      push!(terminals, Symbol(_symbol))
+      push!(terminals, token)
+    elseif islowercased(_symbol)
+      push!(nonterminals, token)
     else
       error("Symbol in production has to be either lowercase or uppercase (got $_symbol)")
     end
+    push!(production, token)
   end
-  return (Symbol.(symbols), terminals, nonterminals)
+  return (production, terminals, nonterminals)
 end
 
 # TODO: Better error signaling
@@ -107,7 +132,7 @@ function _read_parser_definition_file(
   terminals::Set{Symbol} = Set()
   nonterminals::Set{Symbol} = Set()
   starting::Union{Symbol, Nothing} = nothing
-  parser_productions::Dict{Symbol, ParserProduction}  = Dict()
+  parser_productions::Dict{Symbol, Vector{ParserProduction}}  = Dict()
   symbol_types::Dict{Symbol, Symbol} = Dict()
   tokens::Set{Symbol} = Set()
   token_aliases::Dict{Symbol, Symbol} = Dict()
@@ -170,7 +195,7 @@ function _read_parser_definition_file(
           starting = current_production_lhs
         end
 
-        _production, _terminals, _nonterminals = _split_production_string(m[:production])
+        _production, _terminals, _nonterminals = _split_production_string(m[:production], token_aliases)
         push!(_nonterminals, current_production_lhs)
 
         union!(terminals, _terminals)
@@ -178,29 +203,37 @@ function _read_parser_definition_file(
 
         return_type = get(symbol_types, current_production_lhs, Symbol("String"))
 
-        parser_productions[current_production_lhs] = ParserProduction(
+        if !haskey(parser_productions, current_production_lhs)
+          parser_productions[current_production_lhs] = []
+        end
+
+        push!(parser_productions[current_production_lhs], ParserProduction(
           current_production_lhs,
           _production,
           haskey(m, :action) ? m[:action] : nothing, # TODO: utils get for regexmatches
           return_type
-        )
+        ))
       elseif definition == production_alt
         _parser_section_guard(current_section, productions, "Production alternative $(text[matched]) outside of productions section")
 
-        _production, _terminals, _nonterminals = _split_production_string(m[:production])
+        _production, _terminals, _nonterminals = _split_production_string(m[:production], token_aliases)
         push!(_nonterminals, current_production_lhs)
 
         union!(terminals, _terminals)
         union!(nonterminals, _nonterminals)
 
-        return_type = (symbol_types, current_production_lhs, Symbol("String"))
+        return_type = get(symbol_types, current_production_lhs, Symbol("String"))
 
-        parser_productions[current_production_lhs] = ParserProduction(
+        if !haskey(parser_productions, current_production_lhs)
+          parser_productions[current_production_lhs] = []
+        end
+
+        push!(parser_productions[current_production_lhs], ParserProduction(
           current_production_lhs,
           _production,
           haskey(m, :action) ? m[:action] : nothing,
           return_type
-        )
+        ))
       end
 
       cursor += length(matched)
@@ -236,7 +269,7 @@ function _read_parser_definition_file(
   end
 
   if starting === nothing
-    error("No start symbol defined")
+    error("No start symbol detected")
   end
 
   return Parser(

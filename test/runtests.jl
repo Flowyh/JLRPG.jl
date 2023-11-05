@@ -8,9 +8,11 @@ include("test_logger.jl")
 debuglogger = TestLogger(stderr)
 global_logger(debuglogger)
 
+OMIT_DIRECTORIES::Set{String} = Set("resources", "regex")
+
 @testset "JLPG.jl" begin
   t = @elapsed for directory in filter(isdir, readdir(@__DIR__))
-    if directory == "resources"
+    if directory in OMIT_DIRECTORIES
       continue
     end
     @testset "$(uppercasefirst(directory)) module" begin

@@ -33,7 +33,7 @@
     end
 
     @testset "No %start symbol" begin
-      @test_throws "No start symbol defined" read_parser_definition_file(from_current_path("resources/parser/definition_reader/no_start_symbol.jpar"))
+      @test_throws "No start symbol detected" read_parser_definition_file(from_current_path("resources/parser/definition_reader/no_start_symbol.jpar"))
     end
 
     @testset "Production outside productions" begin
@@ -58,10 +58,63 @@
   end
 
   @testset "Correctly parses definition files" begin
-    @testset "Empty sections" begin
-    end
-
     @testset "All sections present" begin
+      parser = read_parser_definition_file(from_current_path("resources/parser/definition_reader/all_sections.jpar"))
+
+      @test parser == Parser(
+        Set(
+          :PLUS, :MINUS, :TIMES, :DIVIDE,
+          :LPAREN, :RPAREN, :END, :NUMBER
+        ),
+        Set(:expr, :start),
+        :start,
+        Dict(
+          :start => [
+            ParserProduction(:start, [:expr, :END], raw" println($1) ", :Int)
+          ],
+          :expr => [
+            ParserProduction(:expr, [:expr, :PLUS, :expr], raw" $$ = $1 + $3 ", :Int),
+            ParserProduction(:expr, [:expr, :MINUS, :expr], raw" $$ = $1 - $3 ", :Int),
+            ParserProduction(:expr, [:expr, :TIMES, :expr], raw" $$ = $1 * $3 ", :Int),
+            ParserProduction(:expr, [:expr, :DIVIDE, :expr], raw" $$ = $1 / $3 ", :Int),
+            ParserProduction(:expr, [:LPAREN, :expr, :RPAREN], raw" $$ = $2 ", :Int),
+            ParserProduction(:expr, [:NUMBER], raw" $$ = $1 ", :Int)
+          ]
+        ),
+        Dict(
+          :expr => :Int,
+          :NUMBER => :Int,
+          :start => :Int
+        ),
+        Set(
+          :PLUS, Symbol("+"),
+          :MINUS, Symbol("-"),
+          :TIMES, Symbol("*"),
+          :DIVIDE, Symbol("/"),
+          :LPAREN, Symbol("("),
+          :RPAREN, Symbol(")"),
+          :END, :NUMBER
+        ),
+        Dict(
+          :PLUS => Symbol("+"),
+          Symbol("+") => :PLUS,
+          :MINUS => Symbol("-"),
+          Symbol("-") => :MINUS,
+          :TIMES => Symbol("*"),
+          Symbol("*") => :TIMES,
+          :DIVIDE => Symbol("/"),
+          Symbol("/") => :DIVIDE,
+          :LPAREN => Symbol("("),
+          Symbol("(") => :LPAREN,
+          :RPAREN => Symbol(")"),
+          Symbol(")") => :RPAREN
+        ),
+        [
+          "println(\"Code in definitions :o\")",
+          "function factorial(n::Int)::Int\n  return n * factorial(n - 1)\nend\n\nfunction at_end() # Overloaded JLPG function\n  println(\"Code at the end :o\")\n  return 0\nend"
+        ],
+        ParserOptions()
+      )
     end
   end
 end
