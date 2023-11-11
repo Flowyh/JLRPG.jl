@@ -80,6 +80,20 @@ function _first_set_for_symbol(
   return firsts
 end
 
+function _first_set_for_string_of_symbols(
+  symbols::Vector{Symbol},
+  firsts::Dict{Symbol, Set{Symbol}},
+)::Set{Symbol}
+  first_set::Set{Symbol} = Set()
+  for symbol in symbols
+    union!(first_set, firsts[symbol])
+    if !(EMPTY_SYMBOL in firsts[symbol])
+      break
+    end
+  end
+  return first_set
+end
+
 function follow_sets(
   firsts::Dict{Symbol, Set{Symbol}},
   parser::Parser
@@ -164,7 +178,10 @@ function _follows_from_prodcution(
     if trailing in parser.terminals
       push!(follow[rhs_symbol], trailing)
     else
-      union!(follow[rhs_symbol], setdiff(firsts[trailing], EMPTY_SYMBOL))
+      union!(follow[rhs_symbol], setdiff(
+        _first_set_for_string_of_symbols(rhs[id+1:end], firsts),
+        EMPTY_SYMBOL
+      ))
     end
   end
 
