@@ -1,0 +1,17 @@
+#= Definitions section =#
+
+#= Token definitions =#
+%token X "x"
+%token Y "y"
+
+%%
+#= Productions =#
+%start s
+s -> s x
+   | y
+x -> X
+   | %empty
+y -> Y
+   | %empty
+
+%%

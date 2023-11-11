@@ -1,8 +1,16 @@
+using Parameters: @consts
+
+@consts begin
+  EMPTY_PRODUCTION::Vector{Symbol} = [Symbol(raw"%empty")]
+  EMPTY_SYMBOL::Symbol = Symbol(raw"%empty")
+  END_OF_INPUT::Symbol = Symbol(raw"%end")
+end
+
 # === Parser definition ===
 
 struct ParserProduction <: Comparable
-  symbol::Symbol
-  production::Vector{Symbol}
+  lhs::Symbol
+  rhs::Vector{Symbol}
   action::Union{Nothing, String}
   return_type::Symbol
 end

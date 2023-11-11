@@ -1,0 +1,22 @@
+#= Definitions section =#
+
+#= Token definitions =#
+%token PLUS "+"
+%token TIMES "*"
+%token LPAREN "("
+%token RPAREN ")"
+%token ID
+
+%%
+#= Productions =#
+%start e
+e      -> t e_prim
+e_prim -> "+" t e_prim
+        | %empty
+t      -> f t_prim
+t_prim -> "*" f t_prim
+        | %empty
+f      -> "(" e ")"
+        | ID
+
+%%

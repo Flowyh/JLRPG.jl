@@ -1,0 +1,9 @@
+#= Definitions =#
+
+%token END
+%%
+#= Productions =#
+start -> %empty END
+
+%%
+#= User code =#

@@ -44,6 +44,10 @@
       @test_throws "Production start -> MISPLACED outside of productions section" read_parser_definition_file(from_current_path("resources/parser/definition_reader/erroneous/production_outside_productions.jpar"))
     end
 
+    @testset "Empty production with other symbols" begin
+      @test_throws "Production start -> %empty END contains %empty and other symbols" read_parser_definition_file(from_current_path("resources/parser/definition_reader/erroneous/empty_production_with_other_symbols.jpar"))
+    end
+
     @testset "Repeated lhs symbol in productions" begin
       @test_throws "Production left-hand side start repeated" read_parser_definition_file(from_current_path("resources/parser/definition_reader/erroneous/repeated_lhs.jpar"))
     end
@@ -78,7 +82,8 @@
         :start,
         Dict(
           :start => [
-            ParserProduction(:start, [:expr, :END], raw" println($1) ", :Int)
+            ParserProduction(:start, [:expr, :END], raw" println($1) ", :Int),
+            ParserProduction(:start, EMPTY_PRODUCTION, " println(\"Empty input\") ", :Int)
           ],
           :expr => [
             ParserProduction(:expr, [:expr, :PLUS, :expr], raw" $$ = $1 + $3 ", :Int),
@@ -121,6 +126,62 @@
           "println(\"Code in definitions :o\")",
           "function factorial(n::Int)::Int\n  return n * factorial(n - 1)\nend\n\nfunction at_end() # Overloaded JLPG function\n  println(\"Code at the end :o\")\n  return 0\nend"
         ],
+        ParserOptions()
+      )
+    end
+
+    @testset "Dragonbook top-down parser grammar (4.28, p. 217)" begin
+      parser = read_parser_definition_file(from_current_path("resources/parser/definition_reader/dragonbook_4_28_ll.jpar"))
+
+      @test parser == Parser(
+        Set(:PLUS, :TIMES, :LPAREN, :RPAREN, :ID),
+        Set(:e, :e_prim, :t, :t_prim, :f),
+        :e,
+        Dict(
+          :e => [
+            ParserProduction(:e, [:t, :e_prim], nothing, :String)
+          ],
+          :e_prim => [
+            ParserProduction(:e_prim, [:PLUS, :t, :e_prim], nothing, :String),
+            ParserProduction(:e_prim, EMPTY_PRODUCTION, nothing, :String)
+          ],
+          :t => [
+            ParserProduction(:t, [:f, :t_prim], nothing, :String)
+          ],
+          :t_prim => [
+            ParserProduction(:t_prim, [:TIMES, :f, :t_prim], nothing, :String),
+            ParserProduction(:t_prim, EMPTY_PRODUCTION, nothing, :String)
+          ],
+          :f => [
+            ParserProduction(:f, [:LPAREN, :e, :RPAREN], nothing, :String),
+            ParserProduction(:f, [:ID], nothing, :String)
+          ]
+        ),
+        Dict(
+          :e => :String,
+          :e_prim => :String,
+          :t => :String,
+          :t_prim => :String,
+          :f => :String
+        ),
+        Set(
+          :PLUS, Symbol("+"),
+          :TIMES, Symbol("*"),
+          :LPAREN, Symbol("("),
+          :RPAREN, Symbol(")"),
+          :ID
+        ),
+        Dict(
+          :PLUS => Symbol("+"),
+          Symbol("+") => :PLUS,
+          :TIMES => Symbol("*"),
+          Symbol("*") => :TIMES,
+          :LPAREN => Symbol("("),
+          Symbol("(") => :LPAREN,
+          :RPAREN => Symbol(")"),
+          Symbol(")") => :RPAREN
+        ),
+        [],
         ParserOptions()
       )
     end

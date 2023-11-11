@@ -82,6 +82,7 @@ islowercased(str::AbstractString)::Bool = occursin(r"^[a-z0-9_-]+$", str)
 isuppercased(str::AbstractString)::Bool = occursin(r"^[A-Z0-9_-]+$", str)
 
 function _split_production_string(
+  production_lhs::Symbol,
   production::AbstractString,
   token_aliases::Dict{Symbol, Symbol}
 )::Tuple{Vector{Symbol}, Vector{Symbol}, Vector{Symbol}}
@@ -89,12 +90,14 @@ function _split_production_string(
   symbols = split(sanitized, r"\s+")
 
   if length(symbols) == 1 && symbols[1] == "%empty"
-    return ([Symbol("%empty")], [], [])
+    return (EMPTY_PRODUCTION, [], [])
+  elseif length(symbols) != 1 && "%empty" in symbols
+    error("Production $production_lhs -> $production contains %empty and other symbols")
   end
 
   production::Vector{Symbol} = []
   terminals::Vector{Symbol} = []
-  nonterminals::Vector{Symbol} = []
+  nonterminals::Vector{Symbol} = [production_lhs]
   for _symbol in symbols
     # If is an alias
     is_alias::Bool = false
@@ -205,13 +208,16 @@ function _read_parser_definition_file(
           starting = current_production_lhs
         end
 
-        _production, _terminals, _nonterminals = _split_production_string(m[:production], token_aliases)
-        push!(_nonterminals, current_production_lhs)
+        _production, _terminals, _nonterminals = _split_production_string(
+          current_production_lhs,
+          m[:production],
+          token_aliases
+        )
 
         union!(terminals, _terminals)
         union!(nonterminals, _nonterminals)
 
-        return_type = get(symbol_types, current_production_lhs, Symbol("String"))
+        return_type = get(symbol_types, current_production_lhs, :String)
 
         if !haskey(parser_productions, current_production_lhs)
           parser_productions[current_production_lhs] = []
@@ -226,13 +232,16 @@ function _read_parser_definition_file(
       elseif definition == production_alt
         _parser_section_guard(current_section, productions, "Production alternative $(text[matched]) outside of productions section")
 
-        _production, _terminals, _nonterminals = _split_production_string(m[:production], token_aliases)
-        push!(_nonterminals, current_production_lhs)
+        _production, _terminals, _nonterminals = _split_production_string(
+          current_production_lhs,
+          m[:production],
+          token_aliases
+        )
 
         union!(terminals, _terminals)
         union!(nonterminals, _nonterminals)
 
-        return_type = get(symbol_types, current_production_lhs, Symbol("String"))
+        return_type = get(symbol_types, current_production_lhs, :String)
 
         if !haskey(parser_productions, current_production_lhs)
           parser_productions[current_production_lhs] = []
@@ -271,6 +280,14 @@ function _read_parser_definition_file(
       else
         error("Invalid characters in definition file, $(text[cursor]), at $cursor")
       end
+    end
+  end
+
+  # Add types to symbols which did not have one specified by %type <Type> Symbol
+  # String by default
+  for symbol in nonterminals
+    if !haskey(symbol_types, symbol)
+      symbol_types[symbol] = :String
     end
   end
 
