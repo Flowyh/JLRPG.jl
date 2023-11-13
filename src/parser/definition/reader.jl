@@ -132,8 +132,8 @@ function _read_parser_definition_file(
 )::Parser
   current_section = definitions
   current_production_lhs::Union{Symbol, Nothing} = nothing
-  terminals::Set{Symbol} = Set()
-  nonterminals::Set{Symbol} = Set()
+  terminals::Vector{Symbol} = []
+  nonterminals::Vector{Symbol} = []
   starting::Union{Symbol, Nothing} = nothing
   parser_productions::Dict{Symbol, Vector{ParserProduction}}  = Dict()
   symbol_types::Dict{Symbol, Symbol} = Dict()
@@ -175,6 +175,7 @@ function _read_parser_definition_file(
           error("Token $(text[matched]) already defined")
         end
         push!(tokens, t)
+        push!(terminals, t)
 
         if m[:alias] !== nothing
           push!(tokens, a)
@@ -217,7 +218,7 @@ function _read_parser_definition_file(
         union!(terminals, _terminals)
         union!(nonterminals, _nonterminals)
 
-        return_type = get(symbol_types, current_production_lhs, :String)
+        return_type = get(symbol_types, current_production_lhs, :nothing)
 
         if !haskey(parser_productions, current_production_lhs)
           parser_productions[current_production_lhs] = []
@@ -241,7 +242,7 @@ function _read_parser_definition_file(
         union!(terminals, _terminals)
         union!(nonterminals, _nonterminals)
 
-        return_type = get(symbol_types, current_production_lhs, :String)
+        return_type = get(symbol_types, current_production_lhs, :nothing)
 
         if !haskey(parser_productions, current_production_lhs)
           parser_productions[current_production_lhs] = []
@@ -283,11 +284,11 @@ function _read_parser_definition_file(
     end
   end
 
-  # Add types to symbols which did not have one specified by %type <Type> Symbol
-  # String by default
+  # Add return types to symbols which did not have one specified by %type <Type> Symbol
+  # nothing by default
   for symbol in nonterminals
     if !haskey(symbol_types, symbol)
-      symbol_types[symbol] = :String
+      symbol_types[symbol] = :nothing
     end
   end
 

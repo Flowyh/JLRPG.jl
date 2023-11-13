@@ -1,4 +1,4 @@
-@testset "Definition files reader" begin
+@testset "First / follow sets" begin
   @testset "Throws errors for invalid grammars" begin
   end
 

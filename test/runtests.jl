@@ -11,7 +11,7 @@ global_logger(debuglogger)
 OMIT_DIRECTORIES::Set{String} = Set("resources", "regex")
 
 @testset "JLPG.jl" begin
-  t = @elapsed for directory in filter(isdir, readdir(@__DIR__))
+  time = @elapsed for directory in filter(isdir, readdir(@__DIR__))
     if directory in OMIT_DIRECTORIES
       continue
     end
@@ -22,13 +22,13 @@ OMIT_DIRECTORIES::Set{String} = Set("resources", "regex")
         file_prefix = (i == length(files) ? "└─" : "├─")
         test_result_prefix = (i == length(files) ? "  └─" : "│ └─")
         @info "$(file_prefix)Testing $(file)"
-        include(joinpath(@__DIR__, directory, file))
-        @info "$(test_result_prefix)Tests finished!"
+        test_time = @elapsed include(joinpath(@__DIR__, directory, file))
+        @info "$(test_result_prefix)Tests finished! ($(round(test_time; digits=3))s)"
       end
       @info "$(uppercasefirst(directory)) tests finshed!"
       @info ""
     end
   end
   @info "Finished testing JLPG.jl"
-  @info "Total time elapsed: $(t)s"
+  @info "Total time elapsed: $(round(time; digits=3))s"
 end

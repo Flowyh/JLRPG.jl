@@ -73,14 +73,14 @@
     @testset "All sections present" begin
       parser = read_parser_definition_file(from_current_path("resources/parser/definition_reader/all_sections.jpar"))
 
-      @test parser == Parser(
-        Set(
+      @test parser == Parser(;
+        terminals = [
           :PLUS, :MINUS, :TIMES, :DIVIDE,
           :LPAREN, :RPAREN, :END, :NUMBER
-        ),
-        Set(:expr, :start),
-        :start,
-        Dict(
+        ],
+        nonterminals = [:start, :expr],
+        starting = :start,
+        productions = Dict(
           :start => [
             ParserProduction(:start, [:expr, :END], raw" println($1) ", :Int),
             ParserProduction(:start, EMPTY_PRODUCTION, " println(\"Empty input\") ", :Int)
@@ -94,12 +94,12 @@
             ParserProduction(:expr, [:NUMBER], raw" $$ = $1 ", :Int)
           ]
         ),
-        Dict(
+        symbol_types = Dict(
           :expr => :Int,
           :NUMBER => :Int,
           :start => :Int
         ),
-        Set(
+        tokens = Set(
           :PLUS, Symbol("+"),
           :MINUS, Symbol("-"),
           :TIMES, Symbol("*"),
@@ -108,7 +108,7 @@
           :RPAREN, Symbol(")"),
           :END, :NUMBER
         ),
-        Dict(
+        token_aliases = Dict(
           :PLUS => Symbol("+"),
           Symbol("+") => :PLUS,
           :MINUS => Symbol("-"),
@@ -122,56 +122,56 @@
           :RPAREN => Symbol(")"),
           Symbol(")") => :RPAREN
         ),
-        [
+        code_blocks = [
           "println(\"Code in definitions :o\")",
           "function factorial(n::Int)::Int\n  return n * factorial(n - 1)\nend\n\nfunction at_end() # Overloaded JLPG function\n  println(\"Code at the end :o\")\n  return 0\nend"
         ],
-        ParserOptions()
+        options = ParserOptions()
       )
     end
 
     @testset "Dragonbook top-down parser grammar (4.28, p. 217)" begin
       parser = read_parser_definition_file(from_current_path("resources/parser/definition_reader/dragonbook_4_28_ll.jpar"))
 
-      @test parser == Parser(
-        Set(:PLUS, :TIMES, :LPAREN, :RPAREN, :ID),
-        Set(:e, :e_prim, :t, :t_prim, :f),
-        :e,
-        Dict(
+      @test parser == Parser(;
+        terminals = [:PLUS, :TIMES, :LPAREN, :RPAREN, :ID],
+        nonterminals = [:e, :t, :e_prim, :f, :t_prim],
+        starting = :e,
+        productions = Dict(
           :e => [
-            ParserProduction(:e, [:t, :e_prim], nothing, :String)
+            ParserProduction(:e, [:t, :e_prim])
           ],
           :e_prim => [
-            ParserProduction(:e_prim, [:PLUS, :t, :e_prim], nothing, :String),
-            ParserProduction(:e_prim, EMPTY_PRODUCTION, nothing, :String)
+            ParserProduction(:e_prim, [:PLUS, :t, :e_prim]),
+            ParserProduction(:e_prim, EMPTY_PRODUCTION)
           ],
           :t => [
-            ParserProduction(:t, [:f, :t_prim], nothing, :String)
+            ParserProduction(:t, [:f, :t_prim])
           ],
           :t_prim => [
-            ParserProduction(:t_prim, [:TIMES, :f, :t_prim], nothing, :String),
-            ParserProduction(:t_prim, EMPTY_PRODUCTION, nothing, :String)
+            ParserProduction(:t_prim, [:TIMES, :f, :t_prim]),
+            ParserProduction(:t_prim, EMPTY_PRODUCTION)
           ],
           :f => [
-            ParserProduction(:f, [:LPAREN, :e, :RPAREN], nothing, :String),
-            ParserProduction(:f, [:ID], nothing, :String)
+            ParserProduction(:f, [:LPAREN, :e, :RPAREN]),
+            ParserProduction(:f, [:ID])
           ]
         ),
-        Dict(
-          :e => :String,
-          :e_prim => :String,
-          :t => :String,
-          :t_prim => :String,
-          :f => :String
+        symbol_types = Dict(
+          :e => :nothing,
+          :e_prim => :nothing,
+          :t => :nothing,
+          :t_prim => :nothing,
+          :f => :nothing
         ),
-        Set(
+        tokens = Set(
           :PLUS, Symbol("+"),
           :TIMES, Symbol("*"),
           :LPAREN, Symbol("("),
           :RPAREN, Symbol(")"),
           :ID
         ),
-        Dict(
+        token_aliases = Dict(
           :PLUS => Symbol("+"),
           Symbol("+") => :PLUS,
           :TIMES => Symbol("*"),
@@ -181,8 +181,8 @@
           :RPAREN => Symbol(")"),
           Symbol(")") => :RPAREN
         ),
-        [],
-        ParserOptions()
+        code_blocks = Vector{String}(),
+        options = ParserOptions()
       )
     end
   end

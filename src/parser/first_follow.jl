@@ -123,6 +123,7 @@ function follow_sets(
       end
     end
 
+    # No change in follow sets, end computation
     if _follow_sets == _prev
       break
     end
@@ -174,9 +175,9 @@ function _follows_from_prodcution(
       still_nullable = false
     end
 
-    trailing::Symbol = rhs[id+1]
-    if trailing in parser.terminals
-      push!(follow[rhs_symbol], trailing)
+    next_symbol::Symbol = rhs[id+1]
+    if next_symbol in parser.terminals
+      push!(follow[rhs_symbol], next_symbol)
     else
       union!(follow[rhs_symbol], setdiff(
         _first_set_for_string_of_symbols(rhs[id+1:end], firsts),

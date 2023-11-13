@@ -54,7 +54,7 @@ const ACTION_PATTERNS = [
   {{/:actions}}
 ]
 
-function tokenize(txt::String)::Vector{LexerToken}
+function __LEX__tokenize(txt::String)::Vector{LexerToken}
   @debug "<<<<<: START OF TOKENIZE :>>>>>"
   tokens::Vector{LexerToken} = []
   cursor::Int = 1
@@ -96,7 +96,7 @@ function main()
   tokens = nothing
   if length(ARGS) == 0
     txt::String = read(stdin, String)
-    tokens = tokenize(txt)
+    tokens = __LEX__tokenize(txt)
   elseif ARGS[1] == "-h" || ARGS[1] == "--help"
     println("Usage: $(PROGRAM_FILE) [path]")
   elseif !isfile(ARGS[1])
@@ -106,7 +106,7 @@ function main()
     open(ARGS[1]) do file
       txt = read(file, String)
     end
-    tokens = tokenize(txt)
+    tokens = __LEX__tokenize(txt)
   end
   @debug "<<<<<: LEXER OUTPUT :>>>>>"
   @debug "Output tokens: $tokens"
