@@ -18,6 +18,6 @@ IDENTIFIER [_a-zA-Z]([_a-zA-Z]|{NUM})+
   println("Got a Number! ", $$)
   return Number(val::Int=$$)
 }
-.                          { return Error(char::Char=$$) }
+.                          { return Error(char::AbstractChar=$$) }
 
 %%

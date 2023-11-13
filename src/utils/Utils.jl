@@ -9,4 +9,7 @@ module JLPG_Utils
   export convert_type
 
   include("set_extensions.jl")
+
+  include("regexes.jl")
+  export full_function_pattern
 end
