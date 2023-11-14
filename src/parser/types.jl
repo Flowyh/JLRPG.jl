@@ -95,12 +95,15 @@ end
 function augment_parser(
   parser::Parser
 )::Parser
+  augmented_symbol_types::Dict{Symbol, Symbol} = copy(parser.symbol_types)
+  augmented_symbol_types[AUGMENTED_START] = augmented_symbol_types[parser.starting]
+
   return Parser(
     parser.terminals,
     parser.nonterminals,
     parser.starting,
     augment_productions(parser.starting, parser.symbol_types[parser.starting], parser.productions),
-    parser.symbol_types,
+    augmented_symbol_types,
     parser.tokens,
     parser.token_aliases,
     parser.code_blocks,

@@ -24,7 +24,6 @@ module JLPG_SimpleLexer
   include("codegen/special_replacements.jl")
   export replace_special_variables_in_generated_lexer
   export replace_overloaded_functions_in_generated_lexer
-  export full_function_pattern
 
   include("generate_lexer.jl")
   export generate_lexer

@@ -7,8 +7,11 @@ using Parameters: @consts
     raw"$$" => "__LEX__.current_match"
   ]
 
-  LEXER_SPECIAL_FUNCTIONS_PATTERNS = [r"__LEX__" * fn for fn in [
-    r"at_end"
+  LEXER_SPECIAL_FUNCTION_PREFIX = r"__LEX__"
+
+  LEXER_SPECIAL_FUNCTIONS_PATTERNS = [LEXER_SPECIAL_FUNCTION_PREFIX * fn for fn in [
+    r"at_end",
+    r"main"
   ]]
 end
 

@@ -1,4 +1,7 @@
-function generate_lexer(definition_path::String, output_path::String)
+function generate_lexer(
+  definition_path::String,
+  output_path::String="__LEX__.jl"
+)
   lexer = nothing
   open(definition_path) do definition_file
     lexer = _read_lexer_definition_file(definition_file)

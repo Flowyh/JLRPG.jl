@@ -1,0 +1,75 @@
+#=== START OF ENVIRONEMNT SETUP ===#
+{{{:env}}}
+#===   END OF ENVIRONEMNT SETUP ===#
+
+#=== START OF CODE BLOCKS DEFINED IN PARSER (INSERTED IN ORDER OF DEFINITION)===#
+{{#:codeblocks}}
+{{{.}}}
+{{^.[end]}}
+
+{{/.[end]}}
+{{/:codeblocks}}
+#===   END OF CODE BLOCKS DEFINED IN PARSER (INSERTED IN ORDER OF DEFINITION)===#
+
+#=== START OF PARSING TABLE ===#
+const table = ParsingTable(
+  Dict(
+    {{#:action}}
+    {{:state}} => Dict(
+      {{#:actions}}
+      Symbol(raw"{{:symbol}}") => {{:action}},
+      {{/:actions}}
+    ),
+    {{/:action}}
+  ),
+  Dict(
+    {{#:goto}}
+    {{:state}} => Dict(
+      {{#:gotos}}
+      Symbol(raw"{{:symbol}}") => {{:goto}},
+      {{/:gotos}}
+    ),
+    {{/:goto}}
+  )
+)
+#===  END OF PARSING TABLE ===#
+
+#=== START OF PRODUCTION ACTIONS ===#
+{{#:productions}}
+#<<< START OF ACTIONS WITH LEFT-HAND SIDE {{:lhs}} >>>#
+{{#:actions}}
+# {{:lhs}} -> {{:rhs}}
+function action_{{:lhs}}_{{:id}}()::{{:type}}
+  __PAR__action_result::Union{Nothing, {{:type}}} = nothing
+  {{{:action}}}
+  return __PAR__action_result
+end
+{{/:actions}}#<<<   END OF ACTIONS WITH LEFT-HAND SIDE {{:lhs}} >>>#
+
+{{/:productions}}
+#<<< (LHS, ID) TO ACTION FUNCTION MAPPINGS >>>#
+const LHS_ID_TO_ACTION = Dict(
+  {{#:productions}}
+  Symbol(raw"{{:lhs}}") => [
+    {{#:actions}}
+    action_{{:lhs}}_{{:id}},
+    {{/:actions}}
+  ],
+  {{/:productions}}
+)
+
+#<<< (LHS, ID) TO RHS LENGTHS >>>#
+const LHS_ID_TO_RHS_LENGTH = Dict(
+  {{#:productions}}
+  Symbol(raw"{{:lhs}}") => [{{#:lengths}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:lengths}}],
+  {{/:productions}}
+)
+#===   END OF PRODUCTION ACTIONS ===#
+
+#=== START OF SIMULATION LOOP ===#
+{{{:simulation}}}
+#===   END OF SIMULATION LOOP ===#
+
+#=== START OF MAIN FUNCTION ===#
+{{{:main}}}
+#===   END OF MAIN FUNCTION ===#

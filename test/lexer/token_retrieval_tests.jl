@@ -1,26 +1,26 @@
 @testset "Token retrevial from lexer actions" begin
   @testset "Throws errors for invalid tokens returned in lexer actions" begin
     @testset "Redefined arguments in tokens" begin
-      lexer = read_lexer_definition_file(from_current_path("resources/lexer/token_retrieval/redefined_args_tokens.jlex"))
+      lexer = read_lexer_definition_file(abspaths("resources/lexer/token_retrieval/redefined_args_tokens.jlex"))
       @test_throws "Token OneTwoThree has duplicate arguments: [:one, :one, :one]" retrieve_tokens_from_lexer(lexer)
     end
 
     @testset "Redefined token with different arguments" begin
-      lexer = read_lexer_definition_file(from_current_path("resources/lexer/token_retrieval/redefined_token_with_different_args.jlex"))
+      lexer = read_lexer_definition_file(abspaths("resources/lexer/token_retrieval/redefined_token_with_different_args.jlex"))
       @test_throws "Token OneTwoThree has been redefined with different arguments" retrieve_tokens_from_lexer(lexer)
     end
   end
 
   @testset "Correctly retrieves tokens from actions" begin
     @testset "Empty actions" begin
-      lexer = read_lexer_definition_file(from_current_path("resources/lexer/definition_reader/empty_sections.jlex"))
+      lexer = read_lexer_definition_file(abspaths("resources/lexer/definition_reader/empty_sections.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       @test returned_tokens == []
     end
 
     @testset "Tokens without typing and naming" begin
-      lexer = read_lexer_definition_file(from_current_path("resources/lexer/token_retrieval/simple_tokens.jlex"))
+      lexer = read_lexer_definition_file(abspaths("resources/lexer/token_retrieval/simple_tokens.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       @test returned_tokens == [
@@ -40,7 +40,7 @@
     end
 
     @testset "Tokens with typing, without naming" begin
-      lexer = read_lexer_definition_file(from_current_path("resources/lexer/token_retrieval/typed_tokens.jlex"))
+      lexer = read_lexer_definition_file(abspaths("resources/lexer/token_retrieval/typed_tokens.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       @test returned_tokens == [
@@ -61,7 +61,7 @@
     end
 
     @testset "Tokens with typing and naming" begin
-      lexer = read_lexer_definition_file(from_current_path("resources/lexer/token_retrieval/typed_named_tokens.jlex"))
+      lexer = read_lexer_definition_file(abspaths("resources/lexer/token_retrieval/typed_named_tokens.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       @test returned_tokens == [
@@ -82,7 +82,7 @@
     end
 
     @testset "All tokens" begin
-      lexer = read_lexer_definition_file(from_current_path("resources/lexer/token_retrieval/all_tokens.jlex"))
+      lexer = read_lexer_definition_file(abspaths("resources/lexer/token_retrieval/all_tokens.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       @test returned_tokens == [

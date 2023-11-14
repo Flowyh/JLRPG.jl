@@ -325,7 +325,7 @@
   end
 
   @testset "Correctly computes SLR parsing tables for SLR grammars" begin
-    parser::Parser = read_parser_definition_file(from_current_path("resources/parser/slr/dragonbook_4_45_slr.jpar"))
+    parser::Parser = read_parser_definition_file(abspaths("resources/parser/slr/dragonbook_4_45_slr.jpar"))
     augmented_parser = augment_parser(parser)
 
     table::ParsingTable = SlrParsingTable(augmented_parser)

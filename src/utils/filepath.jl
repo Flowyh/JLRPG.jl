@@ -1,6 +1,5 @@
-function from_current_path(
-  root = @__DIR__,
+function abspaths(
   paths...
-)::String
-  return abspath(joinpath(root, paths...))
+)::AbstractString
+  return abspath(joinpath(paths...))
 end

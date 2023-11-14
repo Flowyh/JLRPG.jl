@@ -5,7 +5,7 @@
 
   @testset "Correctly retrieves tokens from actions" begin
     @testset "Empty actions" begin
-      lexer = read_lexer_definition_file(from_current_path("resources/lexer/definition_reader/empty_sections.jlex"))
+      lexer = read_lexer_definition_file(abspaths("resources/lexer/definition_reader/empty_sections.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       lexer = replace_token_args_in_lexer(lexer, returned_tokens)
@@ -13,7 +13,7 @@
     end
 
     @testset "Tokens without typing and naming" begin
-      lexer = read_lexer_definition_file(from_current_path("resources/lexer/token_retrieval/simple_tokens.jlex"))
+      lexer = read_lexer_definition_file(abspaths("resources/lexer/token_retrieval/simple_tokens.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       lexer = replace_token_args_in_lexer(lexer, returned_tokens)
@@ -27,7 +27,7 @@
     end
 
     @testset "Tokens with typing, without naming" begin
-      lexer = read_lexer_definition_file(from_current_path("resources/lexer/token_retrieval/typed_tokens.jlex"))
+      lexer = read_lexer_definition_file(abspaths("resources/lexer/token_retrieval/typed_tokens.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       lexer = replace_token_args_in_lexer(lexer, returned_tokens)
@@ -42,7 +42,7 @@
     end
 
     @testset "Tokens with typing and naming" begin
-      lexer = read_lexer_definition_file(from_current_path("resources/lexer/token_retrieval/typed_named_tokens.jlex"))
+      lexer = read_lexer_definition_file(abspaths("resources/lexer/token_retrieval/typed_named_tokens.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       lexer = replace_token_args_in_lexer(lexer, returned_tokens)
@@ -57,7 +57,7 @@
     end
 
     @testset "All tokens" begin
-      lexer = read_lexer_definition_file(from_current_path("resources/lexer/token_retrieval/all_tokens.jlex"))
+      lexer = read_lexer_definition_file(abspaths("resources/lexer/token_retrieval/all_tokens.jlex"))
 
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       lexer = replace_token_args_in_lexer(lexer, returned_tokens)

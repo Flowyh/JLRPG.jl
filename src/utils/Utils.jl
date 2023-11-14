@@ -1,6 +1,6 @@
 module JLPG_Utils
   include("filepath.jl")
-  export from_current_path
+  export abspaths
 
   include("comparable.jl")
   export Comparable

@@ -227,7 +227,7 @@ function _read_parser_definition_file(
         push!(parser_productions[current_production_lhs], ParserProduction(
           current_production_lhs,
           _production,
-          haskey(m, :action) ? m[:action] : nothing, # TODO: utils get for regexmatches
+          haskey(m, :action) ? strip(m[:action]) : nothing, # TODO: utils get for regexmatches
           return_type
         ))
       elseif definition == production_alt
@@ -251,7 +251,7 @@ function _read_parser_definition_file(
         push!(parser_productions[current_production_lhs], ParserProduction(
           current_production_lhs,
           _production,
-          haskey(m, :action) ? m[:action] : nothing,
+          haskey(m, :action) ? strip(m[:action]) : nothing,
           return_type
         ))
       end

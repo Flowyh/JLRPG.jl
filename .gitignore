@@ -27,6 +27,10 @@ Manifest.toml
 dev/
 TODO
 
+# Generated files (default names)
+__LEX__.jl
+__PAR__.jl
+
 # DISCONTINUED UNTIL I FINISH MY BACHELOR DEGREE
 src/dfa
 

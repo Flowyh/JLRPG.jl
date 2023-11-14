@@ -4,7 +4,7 @@
 
   @testset "Correctly computes first set for given grammar" begin
     @testset "Left-recusrive grammar 1" begin
-      parser = read_parser_definition_file(from_current_path("resources/parser/first_follow/left_recursive_1.jpar"))
+      parser = read_parser_definition_file(abspaths("resources/parser/first_follow/left_recursive_1.jpar"))
 
       firsts = first_sets(parser)
       @test firsts == Dict(
@@ -15,7 +15,7 @@
     end
 
     @testset "Left-recusrive grammar 2" begin
-      parser = read_parser_definition_file(from_current_path("resources/parser/first_follow/left_recursive_2.jpar"))
+      parser = read_parser_definition_file(abspaths("resources/parser/first_follow/left_recursive_2.jpar"))
 
       firsts = first_sets(parser)
       @test firsts == Dict(
@@ -26,7 +26,7 @@
     end
 
     @testset "Dragonbook top-down parser grammar (4.28, p. 217)" begin
-      parser = read_parser_definition_file(from_current_path("resources/parser/definition_reader/dragonbook_4_28_ll.jpar"))
+      parser = read_parser_definition_file(abspaths("resources/parser/definition_reader/dragonbook_4_28_ll.jpar"))
 
       firsts = first_sets(parser)
       @test firsts == Dict(
@@ -41,7 +41,7 @@
     end
 
     @testset "All tokens in rhs are nullable" begin
-      parser = read_parser_definition_file(from_current_path("resources/parser/first_follow/all_nullable.jpar"))
+      parser = read_parser_definition_file(abspaths("resources/parser/first_follow/all_nullable.jpar"))
 
       firsts = first_sets(parser)
       @test firsts == Dict(
@@ -53,7 +53,7 @@
     end
 
     @testset "All tokens in rhs are nullable (left recursion)" begin
-      parser = read_parser_definition_file(from_current_path("resources/parser/first_follow/all_nullable_left_recursion.jpar"))
+      parser = read_parser_definition_file(abspaths("resources/parser/first_follow/all_nullable_left_recursion.jpar"))
 
       firsts = first_sets(parser)
       @test firsts == Dict(
@@ -68,7 +68,7 @@
   @testset "Correctly computes follow set for given grammar" begin
 
     @testset "Left-recusrive grammar 1" begin
-      parser = read_parser_definition_file(from_current_path("resources/parser/first_follow/left_recursive_1.jpar"))
+      parser = read_parser_definition_file(abspaths("resources/parser/first_follow/left_recursive_1.jpar"))
 
       firsts = first_sets(parser)
       follows = follow_sets(firsts, parser)
@@ -80,7 +80,7 @@
     end
 
     @testset "Left-recusrive grammar 2" begin
-      parser = read_parser_definition_file(from_current_path("resources/parser/first_follow/left_recursive_2.jpar"))
+      parser = read_parser_definition_file(abspaths("resources/parser/first_follow/left_recursive_2.jpar"))
 
       firsts = first_sets(parser)
       follows = follow_sets(firsts, parser)
@@ -92,7 +92,7 @@
     end
 
     @testset "Dragonbook top-down parser grammar (4.28, p. 217)" begin
-      parser = read_parser_definition_file(from_current_path("resources/parser/definition_reader/dragonbook_4_28_ll.jpar"))
+      parser = read_parser_definition_file(abspaths("resources/parser/definition_reader/dragonbook_4_28_ll.jpar"))
 
       firsts = first_sets(parser)
       follows = follow_sets(firsts, parser)
@@ -106,7 +106,7 @@
     end
 
     @testset "All tokens in rhs are nullable" begin
-      parser = read_parser_definition_file(from_current_path("resources/parser/first_follow/all_nullable.jpar"))
+      parser = read_parser_definition_file(abspaths("resources/parser/first_follow/all_nullable.jpar"))
 
       firsts = first_sets(parser)
       follows = follow_sets(firsts, parser)
@@ -119,7 +119,7 @@
     end
 
     @testset "All tokens in rhs are nullable (left recursion)" begin
-      parser = read_parser_definition_file(from_current_path("resources/parser/first_follow/all_nullable_left_recursion.jpar"))
+      parser = read_parser_definition_file(abspaths("resources/parser/first_follow/all_nullable_left_recursion.jpar"))
 
       firsts = first_sets(parser)
       follows = follow_sets(firsts, parser)

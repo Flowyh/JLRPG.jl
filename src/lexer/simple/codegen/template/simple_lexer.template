@@ -15,7 +15,7 @@
 {{#:tokens}}
 #<<<: DECL {{:name}} :>>>#
 struct {{:name}} <: LexerToken
-  tag::Symbol
+  symbol::Symbol
   values::Dict
 end
 
@@ -39,7 +39,8 @@ function action{{#:counter}}{{/:counter}}()::Union{LexerToken, Any}
   {{{:body}}}
 end
 
-#<<< PATTERN TO ACTION FUNCTION MAPPINGS >>>#{{/:actions}}{{#:reset_counter}}{{/:reset_counter}}
+{{/:actions}}{{#:reset_counter}}{{/:reset_counter}}
+#<<< PATTERN TO ACTION FUNCTION MAPPINGS >>>#
 const PATTERN_TO_ACTION = Dict(
   {{#:actions}}
   r"{{{:pattern}}}" => action{{#:counter}}{{/:counter}}{{^.[end]}}, {{/.[end]}}

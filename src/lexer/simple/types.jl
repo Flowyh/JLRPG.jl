@@ -32,16 +32,16 @@ end
 # This is required for codegen, since the library user should not worry about creating all Token types manually
 # Example of a token:
 # struct Num <: LexerToken
-#   tag::Symbol  # This is the name of the token
-#   values::Dict # Dict of all values passed during token creation
-#                # Those values may be typed, but it is not required
-#                # You can access those values by using simple member access notation (token.value)
-#   ???          # Anything else I might think of in the future
+#   symbol::Symbol  # This is the name of the token
+#   values::Dict    # Dict of all values passed during token creation
+#                   # Those values may be typed, but it is not required
+#                   # You can access those values by using simple member access notation (token.value)
+#   ???             # Anything else I might think of in the future
 # end
 abstract type LexerToken <: Comparable end
 
-function tag(token::LexerToken)::Symbol
-  return token.tag
+function symbol(token::LexerToken)::Symbol
+  return token.symbol
 end
 
 # Support for member access notation

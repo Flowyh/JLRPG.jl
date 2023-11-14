@@ -1,5 +1,5 @@
 module JLPG_Parser
-  using ..JLPG: Comparable
+  using ..JLPG: Comparable, full_function_pattern
 
   include("types.jl")
   export Parser, ParserOptions, ParserProduction
@@ -17,4 +17,14 @@ module JLPG_Parser
 
   include("slr.jl")
   export lr0_closure, lr0_goto, lr0_items
+
+  include("codegen/fill_template.jl")
+  export fill_parser_template
+
+  include("codegen/special_replacements.jl")
+  export replace_special_variables_in_generated_parser
+  export replace_overloaded_functions_in_generated_parser
+
+  include("generate_parser.jl")
+  export generate_parser
 end
