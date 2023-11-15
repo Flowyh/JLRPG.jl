@@ -40,18 +40,18 @@ end
 # end
 abstract type LexerToken <: Comparable end
 
-function symbol(token::LexerToken)::Symbol
-  return token.symbol
+function token_symbol(token::LexerToken)::Symbol
+  return getfield(token, :symbol)
 end
 
 # Support for member access notation
 function Base.getproperty(token::LexerToken, name::Symbol)
-  return getfield(token, values)[name]
+  return getfield(token, :values)[name]
 end
 
 # Return values dictionary
-function values(token::LexerToken)::Dict
-  return getfield(token, values)
+function token_values(token::LexerToken)::Dict
+  return getfield(token, :values)
 end
 
 #=== Mustache helpers ===#

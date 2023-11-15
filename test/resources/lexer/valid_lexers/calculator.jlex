@@ -1,0 +1,14 @@
+WHITESPACE [ \t\r\n]+
+NUMBER     [1-9]+[0-9]*
+
+%%
+
+{WHITESPACE}              { # Ignore }
+{NUMBER}                  { return Number(::Int=$$) }
+"\*"                      { return Times() }
+"\+"                      { return Plus() }
+"\("                      { return LParen() }
+"\)"                      { return RParen() }
+.                         { return Error(char::AbstractChar=$$) }
+
+%%

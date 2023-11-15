@@ -26,10 +26,12 @@ Manifest.toml
 # Dev files
 dev/
 TODO
+src/utils/macros
 
 # Generated files (default names)
 __LEX__.jl
 __PAR__.jl
+test_input
 
 # DISCONTINUED UNTIL I FINISH MY BACHELOR DEGREE
 src/dfa

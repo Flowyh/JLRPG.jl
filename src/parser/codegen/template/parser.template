@@ -12,7 +12,7 @@
 #===   END OF CODE BLOCKS DEFINED IN PARSER (INSERTED IN ORDER OF DEFINITION)===#
 
 #=== START OF PARSING TABLE ===#
-const table = ParsingTable(
+const PARSING_TABLE = ParsingTable(
   Dict(
     {{#:action}}
     {{:state}} => Dict(
@@ -39,7 +39,7 @@ const table = ParsingTable(
 #<<< START OF ACTIONS WITH LEFT-HAND SIDE {{:lhs}} >>>#
 {{#:actions}}
 # {{:lhs}} -> {{:rhs}}
-function action_{{:lhs}}_{{:id}}()::{{:type}}
+function action_{{:lhs}}_{{:id}}(__PAR__symbols_slice::Vector)::{{:type}}
   __PAR__action_result::Union{Nothing, {{:type}}} = nothing
   {{{:action}}}
   return __PAR__action_result

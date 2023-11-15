@@ -20,6 +20,8 @@ function __PAR__main()
     tokens = __LEX__tokenize(txt)
     __PAR__simulate(tokens, PARSING_TABLE)
   end
+  @debug "<<<<< PARSER OUTPUT >>>>>"
+
   return __PAR__at_end()
 end
 

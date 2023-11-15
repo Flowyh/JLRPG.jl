@@ -218,7 +218,7 @@ function _read_parser_definition_file(
         union!(terminals, _terminals)
         union!(nonterminals, _nonterminals)
 
-        return_type = get(symbol_types, current_production_lhs, :nothing)
+        return_type = get(symbol_types, current_production_lhs, :Nothing)
 
         if !haskey(parser_productions, current_production_lhs)
           parser_productions[current_production_lhs] = []
@@ -242,7 +242,7 @@ function _read_parser_definition_file(
         union!(terminals, _terminals)
         union!(nonterminals, _nonterminals)
 
-        return_type = get(symbol_types, current_production_lhs, :nothing)
+        return_type = get(symbol_types, current_production_lhs, :Nothing)
 
         if !haskey(parser_productions, current_production_lhs)
           parser_productions[current_production_lhs] = []
@@ -288,7 +288,7 @@ function _read_parser_definition_file(
   # nothing by default
   for symbol in nonterminals
     if !haskey(symbol_types, symbol)
-      symbol_types[symbol] = :nothing
+      symbol_types[symbol] = :Nothing
     end
   end
 

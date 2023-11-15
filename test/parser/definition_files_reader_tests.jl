@@ -91,7 +91,7 @@
             ParserProduction(:expr, [:expr, :TIMES, :expr], raw"$$ = $1 * $3", :Int),
             ParserProduction(:expr, [:expr, :DIVIDE, :expr], raw"$$ = $1 / $3", :Int),
             ParserProduction(:expr, [:LPAREN, :expr, :RPAREN], raw"$$ = $2", :Int),
-            ParserProduction(:expr, [:NUMBER], raw"$$ = $1", :Int)
+            ParserProduction(:expr, [:NUMBER], raw"$$ = $1.value", :Int)
           ]
         ),
         symbol_types = Dict(
@@ -124,7 +124,7 @@
         ),
         code_blocks = [
           "println(\"Code in definitions :o\")",
-          "function factorial(n::Int)::Int\n  return n * factorial(n - 1)\nend\n\nfunction at_end() # Overloaded JLPG function\n  println(\"Code at the end :o\")\n  return 0\nend"
+          "function factorial(n::Int)::Int\n  return n * factorial(n - 1)\nend\n\nfunction __PAR__at_end() # Overloaded JLPG function\n  println(\"Code at the end :o\")\n  return 0\nend"
         ],
         options = ParserOptions()
       )
@@ -158,11 +158,11 @@
           ]
         ),
         symbol_types = Dict(
-          :e => :nothing,
-          :e_prim => :nothing,
-          :t => :nothing,
-          :t_prim => :nothing,
-          :f => :nothing
+          :e => :Nothing,
+          :e_prim => :Nothing,
+          :t => :Nothing,
+          :t_prim => :Nothing,
+          :f => :Nothing
         ),
         tokens = Set(
           :PLUS, Symbol("+"),

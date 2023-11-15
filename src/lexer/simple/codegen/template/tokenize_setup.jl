@@ -1,5 +1,5 @@
 function __LEX__tokenize(txt::String)::Vector{LexerToken}
-  @debug "<<<<<: START OF TOKENIZE :>>>>>"
+  @debug "<<<<< START OF TOKENIZE >>>>>"
   tokens::Vector{LexerToken} = []
   cursor::Int = 1
   while cursor <= length(txt)
@@ -9,7 +9,7 @@ function __LEX__tokenize(txt::String)::Vector{LexerToken}
       if matched === nothing || matched.start != cursor
         continue
       end
-      @debug "New match of length $(length(matched)) found: $(txt[matched])"
+      @debug "New match of length $(length(matched)) found: \"$(txt[matched])\""
       __LEX__current_match(txt[matched])
 
       token = PATTERN_TO_ACTION[pattern]()
@@ -28,6 +28,7 @@ function __LEX__tokenize(txt::String)::Vector{LexerToken}
     end
   end
 
-  @debug "<<<<<:   END OF TOKENIZE :>>>>>"
+  @debug "<<<<<   END OF TOKENIZE >>>>>"
+  push!(tokens, __LEX__EOI())
   return tokens
 end

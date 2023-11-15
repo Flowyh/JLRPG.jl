@@ -43,7 +43,11 @@ function productions_to_named_tuples(
       lhs=lhs,
       type=symbol_types[lhs],
       actions=[
-        (id=id, rhs=join(prod.rhs, " "), action=prod.action)
+        (
+          id=id,
+          rhs=join(prod.rhs, " "),
+          action=(prod.action !== nothing ? prod.action : "")
+        )
         for (id, prod) in enumerate(productions[lhs])
       ],
       lengths=["$(length(prod.rhs))" for prod in productions[lhs]]

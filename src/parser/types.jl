@@ -19,7 +19,7 @@ struct ParserProduction <: Comparable
     lhs::Symbol,
     rhs::Vector{Symbol},
     action::Union{Nothing, AbstractString} = nothing,
-    return_type::Symbol = :nothing
+    return_type::Symbol = :Nothing
   )::ParserProduction
     return new(lhs, rhs, action, return_type)
   end

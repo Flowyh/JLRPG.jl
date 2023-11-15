@@ -3,6 +3,7 @@ module JLPG_SimpleLexer
 
   include("types.jl")
   export Lexer, RegexAlias, LexerAction, LexerOptions, LexerToken, LexerTokenDefinition
+  export token_symbol, token_values
 
   include("definition/reader.jl")
   export read_lexer_definition_file

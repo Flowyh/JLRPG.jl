@@ -1,0 +1,29 @@
+#= Token definitions =#
+%token PLUS "+"
+%token TIMES "*"
+%token LPAREN "("
+%token RPAREN ")"
+%token NUMBER
+
+#= Returned types =#
+%type <Int> e
+%type <Int> t
+%type <Int> f
+%type <Int> NUMBER
+
+%%
+#= Productions =#
+%start s
+s -> e         { println($1) }
+e -> e "+" t   { $$ = $1 + $3 }
+   | t         { $$ = $1 }
+t -> t "*" f   { $$ = $1 * $3 }
+   | f         { $$ = $1 }
+f -> NUMBER    { $$ = $1.value }
+   | "(" e ")" { $$ = $2 }
+
+%%
+
+function __PAR__at_end()
+  return 0
+end

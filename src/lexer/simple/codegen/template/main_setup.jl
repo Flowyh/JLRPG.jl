@@ -16,7 +16,7 @@ function __LEX__main()
     end
     tokens = __LEX__tokenize(txt)
   end
-  @debug "<<<<<: LEXER OUTPUT :>>>>>"
+  @debug "<<<<< LEXER OUTPUT >>>>>"
   @debug "Output tokens: $tokens"
 
   return __LEX__at_end()

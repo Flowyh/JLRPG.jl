@@ -13,7 +13,7 @@
 
 #=== START OF TOKENS RETURNED BY LEXER ACTIONS ===#
 {{#:tokens}}
-#<<<: DECL {{:name}} :>>>#
+#<<< DECL {{:name}} >>>#
 struct {{:name}} <: LexerToken
   symbol::Symbol
   values::Dict
@@ -21,20 +21,34 @@ end
 
 function {{:name}}(;{{#arguments}}{{:name}}::{{:type}}, {{/arguments}})::{{:name}}
   return {{:name}}(
-    :{{:name}},
+    Symbol(uppercase(raw"{{:name}}")),
     Dict({{#arguments}}:{{:name}} => {{:name}},{{/arguments}})
   )
 end
-#<<<: EODL {{:name}} :>>>#
+#<<< EODL {{:name}} >>>#
 {{^.[end]}}
 
 {{/.[end]}}
 {{/:tokens}}
+
+#<<< DECL END OF INPUT >>>#
+struct __LEX__EOI <: LexerToken
+  symbol::Symbol
+  values::Dict
+end
+
+function __LEX__EOI()::__LEX__EOI
+  return __LEX__EOI(
+    END_OF_INPUT,
+    Dict()
+  )
+end
+#<<< EODL END OF INPUT >>>#
 #===   END OF TOKENS RETURNED BY LEXER ACTIONS ===#
 
 #=== START OF ACTIONS ===#
 {{#:actions}}
-#<<<: {{{:pattern}}} >>>#
+#<<< {{{:pattern}}} >>>#
 function action{{#:counter}}{{/:counter}}()::Union{LexerToken, Any}
   {{{:body}}}
 end

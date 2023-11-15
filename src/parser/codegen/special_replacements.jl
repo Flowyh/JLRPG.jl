@@ -7,6 +7,7 @@ using Parameters: @consts
   PARSER_SPECIAL_VARIABLES_REPLACEMENTS::Vector{Pair} = [
     # TODO: $$, $1, $2, etc.
     raw"$$" => "__PAR__action_result"
+    r"\$(\d+)" => s"__PAR__symbols_slice[\1]"
   ]
 
   PARSER_SPECIAL_FUNCTION_PREFIX = r"__PAR__"
