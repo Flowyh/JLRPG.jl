@@ -5,7 +5,7 @@ module JLPG_Parser
   export Parser, ParserOptions, ParserProduction
   export augment_parser, parser_grammar_symbols
   export ParsingItem
-  export ParsingTableAction, Shift, Reduce, Accept, Error
+  export ParsingTableAction, Shift, Reduce, Accept, ParsingError
   export ParsingTable, SlrParsingTable
   export EMPTY_PRODUCTION, EMPTY_SYMBOL, END_OF_INPUT, AUGMENTED_START
 

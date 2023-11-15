@@ -12,7 +12,7 @@ function __PAR__simulate(
     @debug "States stack: $states"
 
     s::Int = states[end]
-    current_action::ParsingTableAction = table.action[s][current_symbol]
+    current_action::ParsingTableAction = get(table.action[s], current_symbol, ParsingError())
 
     if current_action isa Shift
       @debug "Shift to state $(current_action.state)"
@@ -37,8 +37,12 @@ function __PAR__simulate(
     elseif current_action isa Accept
       @debug "Accept!"
       break
-    else
-      error("Syntax error at token $(tokens[cursor])")
+    elseif current_action isa ParsingError
+      if tokens[cursor] isa __LEX__EOI
+        error("Syntax error at end of input")
+      else
+        error("Syntax error at token $(tokens[cursor])")
+      end
     end
   end
 

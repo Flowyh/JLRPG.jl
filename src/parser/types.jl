@@ -141,7 +141,7 @@ struct Reduce <: ParsingTableAction
 end
 
 struct Accept <: ParsingTableAction end
-struct Error <: ParsingTableAction end
+struct ParsingError <: ParsingTableAction end
 
 struct ParsingTable <: Comparable
   action::Dict{Int, Dict{Symbol, ParsingTableAction}}
