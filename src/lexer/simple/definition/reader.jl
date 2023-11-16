@@ -99,7 +99,7 @@ function _read_lexer_definition_file(
         _lexer_section_guard(
           current_section,
           definitions,
-          c, "Option $(cursor_slice(c, matched)) outside of definitions section";
+          c, "Option outside of definitions section";
           erroneous_slice=matched
         )
         # TODO: Fill options if needed
@@ -107,7 +107,7 @@ function _read_lexer_definition_file(
         _lexer_section_guard(
           current_section,
           definitions,
-          c, "Regex alias $(cursor_slice(c, matched)) outside of definitions section";
+          c, "Regex alias outside of definitions section";
           erroneous_slice=matched
         )
         push!(aliases, RegexAlias(
@@ -118,7 +118,7 @@ function _read_lexer_definition_file(
         _lexer_section_guard(
           current_section,
           actions,
-          c, "Action $(cursor_slice(c, matched)) outside of actions section";
+          c, "Action outside of actions section";
           erroneous_slice=matched
         )
         push!(lexer_actions, LexerAction(

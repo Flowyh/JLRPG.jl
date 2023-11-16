@@ -52,7 +52,9 @@ function read_parser_definition_file(
 )::Parser
   parser::Union{Nothing, Parser} = nothing
   open(path) do file
-    parser = _read_parser_definition_file(file)
+    text::String = read(file, String)
+    c::Cursor = Cursor(text; source=path)
+    parser = _read_parser_definition_file(c)
   end
 
   return parser::Parser
@@ -71,10 +73,12 @@ end
 function _parser_section_guard(
   current::ParserSection,
   expected::ParserSection,
-  err_msg::String
+  c::Cursor,
+  err_msg::String;
+  erroneous_slice::Union{Nothing, UnitRange{Int}} = nothing
 )
   if current != expected
-    error(err_msg)
+    cursor_error(c, err_msg; erroneous_slice=erroneous_slice)
   end
 end
 
@@ -84,7 +88,9 @@ isuppercased(str::AbstractString)::Bool = occursin(r"^[A-Z0-9_-]+$", str)
 function _split_production_string(
   production_lhs::Symbol,
   production::AbstractString,
-  token_aliases::Dict{Symbol, Symbol}
+  token_aliases::Dict{Symbol, Symbol},
+  c::Cursor,
+  erroneous_slice::Union{Nothing, UnitRange{Int}} = nothing
 )::Tuple{Vector{Symbol}, Vector{Symbol}, Vector{Symbol}}
   sanitized = strip(production)
   symbols = split(sanitized, r"\s+")
@@ -92,7 +98,10 @@ function _split_production_string(
   if length(symbols) == 1 && symbols[1] == "%empty"
     return (EMPTY_PRODUCTION, [], [])
   elseif length(symbols) != 1 && "%empty" in symbols
-    error("Production $production_lhs -> $production contains %empty and other symbols")
+    cursor_error(
+      c, "Production contains %empty and other symbols";
+      erroneous_slice=erroneous_slice
+    )
   end
 
   production::Vector{Symbol} = []
@@ -105,7 +114,10 @@ function _split_production_string(
     if m !== nothing
       _symbol = m[:alias]
       if !haskey(token_aliases, Symbol(_symbol))
-        error("Token alias $_symbol not defined")
+        cursor_error(
+          c, "Token alias not defined";
+          erroneous_slice=erroneous_slice
+        )
       end
       is_alias = true
     end
@@ -119,16 +131,18 @@ function _split_production_string(
     elseif islowercased(_symbol)
       push!(nonterminals, token)
     else
-      error("Symbol in production has to be either lowercase or uppercase (got $_symbol)")
+      cursor_error(
+        c, "Symbol in production has to be either lowercase or uppercase (got $_symbol)";
+        erroneous_slice=erroneous_slice
+      )
     end
     push!(production, token)
   end
   return (production, terminals, nonterminals)
 end
 
-# TODO: Better error signaling
 function _read_parser_definition_file(
-  file::IOStream
+  c::Cursor
 )::Parser
   current_section = definitions
   current_production_lhs::Union{Nothing, Symbol} = nothing
@@ -142,37 +156,51 @@ function _read_parser_definition_file(
   code_blocks::Vector{String} = []
   options = ParserOptions() # TODO: Fill if needed
 
-  text::String = read(file, String)
-  cursor::Int = 1
-
-  while cursor <= length(text)
+  while !cursor_is_eof(c)
     did_match::Bool = false
+
     for (definition, pattern) in SpecialDefinitionPatterns
-      matched = findnext(pattern, text, cursor)
-      if matched === nothing || matched.start != cursor
+      matched = cursor_findnext_and_move(c, pattern)
+      if matched === nothing
         continue
       end
-      m = match(pattern, text[matched])
+      m = cursor_match(c, pattern; slice=matched)
 
       if definition == section
         current_section = _next_parser_section(current_section)
       elseif definition == code_block
-        code_block_txt = text[matched]
+        code_block_txt = cursor_slice(c, matched)
         push!(code_blocks, strip(code_block_txt[4:end-2])) # Omit %{\n and %}
       elseif definition == option
-        _parser_section_guard(current_section, definitions, "Option $(text[matched]) outside of definitions section")
+        _parser_section_guard(
+          current_section,
+          definitions,
+          c, "Option outside of definitions section";
+          erroneous_slice=matched
+        )
         # TODO: Fill if needed
       elseif definition == token
-        _parser_section_guard(current_section, definitions, "Token definition $(text[matched]) outside of definitions section")
+        _parser_section_guard(
+          current_section,
+          definitions,
+          c, "Token definition outside of definitions section";
+          erroneous_slice=matched
+        )
 
         if !isuppercased(m[:name])
-          error("Token $(text[matched]) name must be uppercase")
+          cursor_error(
+            c, "Token name must be uppercase";
+            erroneous_slice=matched
+          )
         end
 
         t, a = Symbol(m[:name]), Symbol(m[:alias])
 
         if t in tokens || a in tokens
-          error("Token $(text[matched]) already defined")
+          cursor_error(
+            c, "Token already defined";
+            erroneous_slice=matched
+          )
         end
         push!(tokens, t)
         push!(terminals, t)
@@ -183,25 +211,66 @@ function _read_parser_definition_file(
           token_aliases[t] = a
         end
       elseif definition == type
-        _parser_section_guard(current_section, definitions, "Type definition $(text[matched]) outside of definitions section")
-        symbol_types[Symbol(m[:symbol])] = Symbol(m[:type])
+        _parser_section_guard(
+          current_section,
+          definitions,
+          c, "Type definition outside of definitions section";
+          erroneous_slice=matched
+        )
+
+        if !isuppercased(m[:symbol]) && !islowercased(m[:symbol])
+          cursor_error(
+            c, "Typed symbol must be either uppercase or lowercase";
+            erroneous_slice=matched
+          )
+        end
+
+        s, t = Symbol(m[:symbol]), Symbol(m[:type])
+
+        if haskey(symbol_types, s)
+          cursor_error(
+            c, "Type already defined";
+            erroneous_slice=matched
+          )
+        end
+
+        symbol_types[s] = Symbol(t)
       elseif definition == start
-        _parser_section_guard(current_section, productions, "Start definition $(text[matched]) outside of productions section")
+        _parser_section_guard(
+          current_section,
+          productions,
+          c, "Start definition outside of productions section";
+          erroneous_slice=matched
+        )
         if starting !== nothing
-          error("Start symbol already defined")
+          cursor_error(
+            c, "Start symbol already defined";
+            erroneous_slice=matched
+          )
         end
         starting = Symbol(m[:symbol])
       elseif definition == production
-        _parser_section_guard(current_section, productions, "Production $(text[matched]) outside of productions section")
+        _parser_section_guard(
+          current_section,
+          productions,
+          c, "Production outside of productions section";
+          erroneous_slice=matched
+        )
 
         if !islowercased(m[:lhs])
-          error("Production $(text[matched]) left-hand side must be lowercase")
+          cursor_error(
+            c, "Production left-hand side must be lowercase";
+            erroneous_slice=matched
+          )
         end
 
         current_production_lhs = Symbol(m[:lhs])
 
         if haskey(parser_productions, current_production_lhs)
-          error("Production left-hand side $current_production_lhs repeated")
+          cursor_error(
+            c, "Production left-hand side repeated";
+            erroneous_slice=matched
+          )
         end
 
         # First production is considered as the starting production, unless specified otherwise
@@ -212,7 +281,8 @@ function _read_parser_definition_file(
         _production, _terminals, _nonterminals = _split_production_string(
           current_production_lhs,
           m[:production],
-          token_aliases
+          token_aliases,
+          c, matched
         )
 
         union!(terminals, _terminals)
@@ -231,12 +301,18 @@ function _read_parser_definition_file(
           return_type
         ))
       elseif definition == production_alt
-        _parser_section_guard(current_section, productions, "Production alternative $(text[matched]) outside of productions section")
+        _parser_section_guard(
+          current_section,
+          productions,
+          c, "Production alternative outside of productions section";
+          erroneous_slice=matched
+        )
 
         _production, _terminals, _nonterminals = _split_production_string(
           current_production_lhs,
           m[:production],
-          token_aliases
+          token_aliases,
+          c, matched
         )
 
         union!(terminals, _terminals)
@@ -256,13 +332,12 @@ function _read_parser_definition_file(
         ))
       end
 
-      cursor += length(matched)
       did_match = true
       break
     end
 
-    if current_section == code && !isempty(strip(text[cursor:end]))
-      to_copy = text[cursor:end]
+    if current_section == code && !isempty(strip(cursor_rest(c)))
+      to_copy = cursor_rest(c)
       # Remove comments
       for m in eachmatch(PARSER_COMMENT_REGEX, to_copy)
         to_copy = replace(to_copy, m.match => "")
@@ -274,12 +349,10 @@ function _read_parser_definition_file(
     end
 
     if !did_match
-      # Omit whitespace (only one line at a time)
-      whitespace = findnext(r"[\r\t\f\v\n ]+", text, cursor)
-      if whitespace !== nothing && whitespace.start == cursor
-        cursor += length(text[whitespace])
-      else
-        error("Invalid characters in definition file, $(text[cursor]), at $cursor")
+      # Omit whitespace
+      whitespace = cursor_findnext_and_move(c, r"[\r\t\f\v\n ]+")
+      if whitespace === nothing
+        cursor_error(c, "Invalid character/s in definition file")
       end
     end
   end

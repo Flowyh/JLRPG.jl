@@ -61,14 +61,16 @@ function expand_regex_aliases_in_actions(
   for action in actions
     pattern, body = action.pattern, action.body
     new_pattern::String = ""
-    cursor::Int = 1
-    while cursor <= length(pattern)
+    c::Cursor = Cursor(pattern)
+
+    while !cursor_is_eof(c)
       for (part_type, part_pattern) in PatternParts
-        matched = findnext(part_pattern, pattern, cursor)
-        if matched === nothing || matched.start != cursor
+        matched = cursor_findnext_and_move(c, part_pattern)
+        if matched === nothing
           continue
         end
-        m = match(part_pattern, pattern[matched])
+        m = cursor_match(c, part_pattern; slice=matched)
+
         if part_type == alias
           alias_name = Symbol(m[:name])
           if !haskey(visited_aliases, alias_name)
@@ -79,7 +81,6 @@ function expand_regex_aliases_in_actions(
           new_pattern *= m[:pattern]
         end
 
-        cursor += length(matched)
         break
       end
     end

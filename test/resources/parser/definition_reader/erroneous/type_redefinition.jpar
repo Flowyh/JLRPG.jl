@@ -1,8 +1,9 @@
 #= Definitions =#
 
+%type <Int> redefined
+%type <String> redefined
 %%
 #= Productions =#
-%type <Int> misplaced
 
 %%
 #= User code =#

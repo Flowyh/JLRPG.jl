@@ -1,8 +1,8 @@
 #= Definitions =#
 
+%type <Int> NeitherUppercaseNorLowercase
 %%
 #= Productions =#
-%type <Int> misplaced
 
 %%
 #= User code =#

@@ -9,63 +9,121 @@
     end
 
     @testset "Option outside definitions" begin
-      @test_throws "Option %option misplaced outside of definitions section" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/option_outside_definitions.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/option_outside_definitions.jpar")
+      error_msg = raw"Option outside of definitions section" * "\n" *
+                  raw"       \"%option misplaced\" at " * "$(unexpanduser(path)):5:18"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
     @testset "%Type outside definitions" begin
-      @test_throws "Type definition %type <Int> Misplaced outside of definitions sectio" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/type_outside_definitions.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/type_outside_definitions.jpar")
+      error_msg = raw"Type definition outside of definitions section" * "\n" *
+                  raw"       \"%type <Int> misplaced\" at " * "$(unexpanduser(path)):5:22"
+      @test_throws error_msg read_parser_definition_file(path)
+    end
+
+    @testset "%Type redefinition" begin
+      path = abspaths("resources/parser/definition_reader/erroneous/type_redefinition.jpar")
+      error_msg = raw"Type already defined" * "\n" *
+                  raw"       \"%type <String> redefined\" at " * "$(unexpanduser(path)):4:25"
+      @test_throws error_msg read_parser_definition_file(path)
+    end
+
+    @testset "%Type neither uppercase nor lowercase" begin
+      path = abspaths("resources/parser/definition_reader/erroneous/type_neither_uppercase_nor_lowercase.jpar")
+      error_msg = raw"Typed symbol must be either uppercase or lowercase" * "\n" *
+                  raw"       \"%type <Int> NeitherUppercaseNorLowercase\" at " * "$(unexpanduser(path)):3:41"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
     @testset "%Token outside definitions" begin
-      @test_throws "Token definition %token MISPLACED \"misplaced\" outside of definitions section" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/token_outside_definitions.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/token_outside_definitions.jpar")
+      error_msg = raw"Token definition outside of definitions section" * "\n" *
+                  raw"       \"%token MISPLACED \"misplaced\"\" at " * "$(unexpanduser(path)):5:29"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
     @testset "%Token redefinition" begin
-      @test_throws "Token %token ONE \"redefined\" already defined" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/token_redefinition.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/token_redefinition.jpar")
+      error_msg = raw"Token already defined" * "\n" *
+                  raw"       \"%token ONE \"redefined\"\" at " * "$(unexpanduser(path)):4:23"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
     @testset "%Token not uppercase" begin
-      @test_throws "Token %token NotUppercase name must be uppercase" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/token_not_uppercase.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/token_not_uppercase.jpar")
+      error_msg = raw"Token name must be uppercase" * "\n" *
+                  raw"       \"%token NotUppercase\" at " * "$(unexpanduser(path)):3:20"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
     @testset "%Start outside productions" begin
-      @test_throws "Start definition %start misplaced outside of productions section" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/start_outside_productions.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/start_outside_productions.jpar")
+      error_msg = raw"Start definition outside of productions section" * "\n" *
+                  raw"       \"%start misplaced\" at " * "$(unexpanduser(path)):3:17"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
     @testset "%Start redefinition" begin
-      @test_throws "Start symbol already defined" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/start_redefinition.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/start_redefinition.jpar")
+      error_msg = raw"Start symbol already defined" * "\n" *
+                  raw"       \"%start redefined\" at " * "$(unexpanduser(path)):6:17"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
     @testset "No %start symbol" begin
-      @test_throws "No start symbol detected" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/no_start_symbol.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/no_start_symbol.jpar")
+      error_msg = raw"No start symbol detected"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
     @testset "Production outside productions" begin
-      @test_throws "Production start -> MISPLACED outside of productions section" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/production_outside_productions.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/production_outside_productions.jpar")
+      error_msg = raw"Production outside of productions section" * "\n" *
+                  raw"       \"start -> MISPLACED\" at " * "$(unexpanduser(path)):4:19"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
     @testset "Empty production with other symbols" begin
-      @test_throws "Production start -> %empty END contains %empty and other symbols" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/empty_production_with_other_symbols.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/empty_production_with_other_symbols.jpar")
+      error_msg = raw"Production contains %empty and other symbols" * "\n" *
+                  raw"       \"start -> %empty END\" at " * "$(unexpanduser(path)):6:20"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
     @testset "Repeated lhs symbol in productions" begin
-      @test_throws "Production left-hand side start repeated" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/repeated_lhs.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/repeated_lhs.jpar")
+      error_msg = raw"Production left-hand side repeated" * "\n" *
+                  raw"       \"start -> REPEATED\" at " * "$(unexpanduser(path)):8:18"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
     @testset "Production lhs not lowercase" begin
-      @test_throws "Production Start -> END left-hand side must be lowercase" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/production_lhs_not_lowercase.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/production_lhs_not_lowercase.jpar")
+      error_msg = raw"Production left-hand side must be lowercase" * "\n" *
+                  raw"       \"Start -> END\" at " * "$(unexpanduser(path)):6:13"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
     @testset "Production alternative outside productions" begin
-      @test_throws "Production alternative | MISPLACED outside of productions section" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/production_alt_outside_productions.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/production_alt_outside_productions.jpar")
+      error_msg = raw"Production alternative outside of productions section" * "\n" *
+                  raw"       \"| MISPLACED\" at " * "$(unexpanduser(path)):4:12"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
     @testset "Mixed letter cases in productions" begin
-      @test_throws "Symbol in production has to be either lowercase or uppercase (got MixEd)" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/mixed_letter_cases_in_productions.jpar"))
+      path = abspaths("resources/parser/definition_reader/erroneous/mixed_letter_cases_in_productions.jpar")
+      error_msg = raw"Symbol in production has to be either lowercase or uppercase (got MixEd)" * "\n" *
+                  raw"       \"start -> MixEd END CaSe\" at " * "$(unexpanduser(path)):6:24"
+      @test_throws error_msg read_parser_definition_file(path)
     end
 
-    @testset "Invalid char/s inside definition file" begin
-      @test_throws "Invalid characters in definition file, ?, at 52" read_parser_definition_file(abspaths("resources/parser/definition_reader/erroneous/invalid_chars.jpar"))
+    @testset "Invalid character/s in definition file" begin
+      path = abspaths("resources/parser/definition_reader/erroneous/invalid_chars.jpar")
+      error_msg = raw"Invalid character/s in definition file" * "\n" *
+                  raw"       \"?\" at " * "$(unexpanduser(path)):6:1"
+      @test_throws error_msg read_parser_definition_file(path)
     end
   end
 

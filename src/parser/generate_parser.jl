@@ -4,7 +4,9 @@ function generate_parser(
 )
   parser = nothing
   open(definition_path) do definition_file
-    parser = _read_parser_definition_file(definition_file)
+    text::String = read(definition_file, String)
+    c::Cursor = Cursor(text; source=definition_path)
+    parser = _read_parser_definition_file(c)
   end
 
   parser = augment_parser(parser)
