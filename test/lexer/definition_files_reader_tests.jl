@@ -15,21 +15,21 @@
     @testset "Option outside definition section" begin
       path = abspaths("resources/lexer/definition_reader/erroneous/option_outside_definitions.jlex")
       error_msg = raw"Option outside of definitions section" * "\n" *
-                  raw"       \"%option misplaced\" at " * "$(unexpanduser(path)):5:18"
+                  raw"       \"%option misplaced\" at " * "$(unexpanduser(path)):5:1"
       @test_throws error_msg read_lexer_definition_file(path)
     end
 
     @testset "Regex alias outside definition section" begin
       path = abspaths("resources/lexer/definition_reader/erroneous/regex_alias_outside_definitions.jlex")
       error_msg = raw"Regex alias outside of definitions section" * "\n" *
-                  raw"       \"WHITESPACE [ \t\r\n]+\" at " * "$(unexpanduser(path)):5:22"
+                  raw"       \"WHITESPACE [ \t\r\n]+\" at " * "$(unexpanduser(path)):5:1"
       @test_throws error_msg read_lexer_definition_file(path)
     end
 
     @testset "Action outside actions section" begin
       path = abspaths("resources/lexer/definition_reader/erroneous/action_outside_actions.jlex")
       error_msg = raw"Action outside of actions section" * "\n" *
-                  raw"       \"\"test\" { return Test($$) }\" at " * "$(unexpanduser(path)):3:27"
+                  raw"       \"\"test\" { return Test($$) }\" at " * "$(unexpanduser(path)):3:1"
       @test_throws error_msg read_lexer_definition_file(path)
     end
 

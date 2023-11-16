@@ -101,6 +101,8 @@ module Cursors
   )::String
     if erroneous_slice === nothing
       erroneous_slice = c.cursor:c.cursor
+    else
+      c.column -= length(c.txt[erroneous_slice])
     end
     error(
       "$error_msg" * "\n" *
