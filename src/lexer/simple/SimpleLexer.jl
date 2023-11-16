@@ -31,4 +31,5 @@ module JLPG_SimpleLexer
   export generate_lexer
 
   include("show.jl")
+  export show_simple
 end

@@ -45,7 +45,7 @@ function __PAR__simulate(
         symbol = token_symbol(token)
         error(
           "Syntax error at token $symbol" * "\n" *
-          "       $(token) at $(token_file_pos(token))"
+          "       Token $(sprint(show_simple, token)) at $(token_file_pos(token))"
         )
       end
     end
