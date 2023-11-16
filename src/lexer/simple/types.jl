@@ -17,7 +17,7 @@ end
 struct Lexer <: Comparable
   actions::Vector{LexerAction}
   aliases::Vector{RegexAlias}
-  code_blocks::Vector{String} # TODO: Add some more context to code blocks (origin file, line number etc.)
+  code_blocks::Vector{String}
   options::LexerOptions
 end
 

@@ -14,9 +14,15 @@ function __LEX__main()
     txt = ""
     open(ARGS[1]) do file
       txt = read(file, String)
+      __LEX__bind_cursor(Cursor(txt; source=ARGS[1]))
     end
-    __LEX__bind_cursor(Cursor(txt; source=ARGS[1]))
-    tokens = __LEX__tokenize()
+    try
+      tokens = __LEX__tokenize()
+    catch e
+      e = ErrorException(replace(e.msg, r"\n       " => "\n"))
+      @error "Error while tokenizing input" exception=(e, catch_backtrace())
+      exit(1)
+    end
   end
   @debug "<<<<< LEXER OUTPUT >>>>>"
   @debug "Output tokens: $tokens"

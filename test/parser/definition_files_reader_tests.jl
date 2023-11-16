@@ -86,7 +86,7 @@
 
     @testset "Empty production with other symbols" begin
       path = abspaths("resources/parser/definition_reader/erroneous/empty_production_with_other_symbols.jpar")
-      error_msg = raw"Production contains %empty and other symbols" * "\n" *
+      error_msg = raw"%empty productions cannot be mixed with other symbols" * "\n" *
                   raw"       \"start -> %empty END\" at " * "$(unexpanduser(path)):6:20"
       @test_throws error_msg read_parser_definition_file(path)
     end

@@ -5,8 +5,8 @@ function __PAR__simulate(
   @debug "<<<<< START OF PARSER SIMULATION >>>>>"
   states::Vector{Int} = [0] # Stack
   symbols::Vector = [] # Stack
-  cursor::Int = 1
-  current_symbol::Symbol = token_symbol(tokens[cursor])
+  current_token::Int = 1
+  current_symbol::Symbol = token_symbol(tokens[current_token])
   while true
     @debug "Current symbol: $current_symbol"
     @debug "States stack: $states"
@@ -18,9 +18,9 @@ function __PAR__simulate(
       @debug "Shift to state $(current_action.state)"
 
       push!(states, current_action.state)
-      push!(symbols, tokens[cursor])
-      cursor += 1
-      current_symbol = token_symbol(tokens[cursor])
+      push!(symbols, tokens[current_token])
+      current_token += 1
+      current_symbol = token_symbol(tokens[current_token])
     elseif current_action isa Reduce
       lhs, production = current_action.lhs, current_action.production
       @debug "Reduce with production $(lhs), $(production)"
@@ -38,10 +38,15 @@ function __PAR__simulate(
       @debug "Accept!"
       break
     elseif current_action isa ParsingError
-      if tokens[cursor] isa __LEX__EOI
-        error("Syntax error at end of input")
+      if tokens[current_token] isa __LEX__EOI
+        error("Not enough tokens to parse")
       else
-        error("Syntax error at token $(tokens[cursor])")
+        token = tokens[current_token]
+        symbol = token_symbol(token)
+        error(
+          "Syntax error at token $symbol" * "\n" *
+          "       $(token) at $(token_file_pos(token))"
+        )
       end
     end
   end

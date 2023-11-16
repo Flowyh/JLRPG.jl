@@ -99,7 +99,7 @@ function _split_production_string(
     return (EMPTY_PRODUCTION, [], [])
   elseif length(symbols) != 1 && "%empty" in symbols
     cursor_error(
-      c, "Production contains %empty and other symbols";
+      c, "%empty productions cannot be mixed with other symbols";
       erroneous_slice=erroneous_slice
     )
   end

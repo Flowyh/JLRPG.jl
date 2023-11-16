@@ -9,6 +9,6 @@ NUMBER     0|[1-9]+[0-9]*
 "\+"                      { return Plus() }
 "\("                      { return LParen() }
 "\)"                      { return RParen() }
-#= .                         { return Error(char::AbstractChar=$$) } =#
+#= .                      { return Error(char::AbstractChar=$$) } =#
 
 %%

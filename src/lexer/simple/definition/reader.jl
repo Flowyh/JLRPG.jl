@@ -70,7 +70,6 @@ function _lexer_section_guard(
   end
 end
 
-# TODO: Better error signaling
 function _read_lexer_definition_file(
   c::Cursor
 )::Lexer

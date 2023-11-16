@@ -16,9 +16,23 @@ function __PAR__main()
     txt = ""
     open(ARGS[1]) do file
       txt = read(file, String)
+      __LEX__bind_cursor(Cursor(txt; source=ARGS[1]))
     end
-    tokens = __LEX__tokenize(txt)
-    __PAR__simulate(tokens, PARSING_TABLE)
+    try
+      tokens = __LEX__tokenize()
+    catch e
+      e = ErrorException(replace(e.msg, r"\n       " => "\n"))
+      @error "Error while tokenizing input" exception=(e, catch_backtrace())
+      exit(1)
+    else
+      try
+        __PAR__simulate(tokens, PARSING_TABLE)
+      catch e
+        e = ErrorException(replace(e.msg, r"\n       " => "\n"))
+        @error "Error while parsing tokens" exception=(e, catch_backtrace())
+        exit(1)
+      end
+    end
   end
   @debug "<<<<< PARSER OUTPUT >>>>>"
 
