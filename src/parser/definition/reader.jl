@@ -50,7 +50,7 @@ end
 function read_parser_definition_file(
   path::String
 )::Parser
-  parser::Union{Parser, Nothing} = nothing
+  parser::Union{Nothing, Parser} = nothing
   open(path) do file
     parser = _read_parser_definition_file(file)
   end
@@ -131,10 +131,10 @@ function _read_parser_definition_file(
   file::IOStream
 )::Parser
   current_section = definitions
-  current_production_lhs::Union{Symbol, Nothing} = nothing
+  current_production_lhs::Union{Nothing, Symbol} = nothing
   terminals::Vector{Symbol} = []
   nonterminals::Vector{Symbol} = []
-  starting::Union{Symbol, Nothing} = nothing
+  starting::Union{Nothing, Symbol} = nothing
   parser_productions::Dict{Symbol, Vector{ParserProduction}}  = Dict()
   symbol_types::Dict{Symbol, Symbol} = Dict()
   tokens::Set{Symbol} = Set()

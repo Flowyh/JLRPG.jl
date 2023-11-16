@@ -47,19 +47,6 @@
         return __LEX__.current_match
       end
       """
-      @test replace_special_variables_in_generated_lexer(raw"""
-      println($$line)
-      line += $$line
-      """) == raw"""
-      println(__LEX__.line)
-      line += __LEX__.line
-      """
-
-      @test replace_special_variables_in_generated_lexer(raw"""
-      @error "Error at $($$line):$($$col)"
-      """) == raw"""
-      @error "Error at $(__LEX__.line):$(__LEX__.column)"
-      """
     end
   end
 

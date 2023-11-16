@@ -2,9 +2,7 @@ using Parameters: @consts
 
 @consts begin
   LEXER_SPECIAL_VARIABLES_REPLACEMENTS::Vector{Pair} = [
-    raw"$$line" => "__LEX__.line",
-    raw"$$col" => "__LEX__.column",
-    raw"$$" => "__LEX__.current_match"
+    raw"$$" => "__LEX__current_match()"
   ]
 
   LEXER_SPECIAL_FUNCTION_PREFIX = r"__LEX__"

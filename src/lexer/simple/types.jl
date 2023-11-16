@@ -32,11 +32,12 @@ end
 # This is required for codegen, since the library user should not worry about creating all Token types manually
 # Example of a token:
 # struct Num <: LexerToken
-#   symbol::Symbol  # This is the name of the token
-#   values::Dict    # Dict of all values passed during token creation
-#                   # Those values may be typed, but it is not required
-#                   # You can access those values by using simple member access notation (token.value)
-#   ???             # Anything else I might think of in the future
+#   symbol::Symbol   # This is the name of the token
+#   values::Dict     # Dict of all values passed during token creation
+#                    # Those values may be typed, but it is not required
+#                    # You can access those values by using simple member access notation (token.value)
+#   file_pos::String # File position of the token
+#   ???              # Anything else I might think of in the future
 # end
 abstract type LexerToken <: Comparable end
 
@@ -52,6 +53,11 @@ end
 # Return values dictionary
 function token_values(token::LexerToken)::Dict
   return getfield(token, :values)
+end
+
+# Return file position of the token
+function token_file_pos(token::LexerToken)::String
+  return getfield(token, :file_pos)
 end
 
 #=== Mustache helpers ===#

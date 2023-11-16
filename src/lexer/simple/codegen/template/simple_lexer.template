@@ -17,12 +17,14 @@
 struct {{:name}} <: LexerToken
   symbol::Symbol
   values::Dict
+  file_pos::String
 end
 
 function {{:name}}(;{{#arguments}}{{:name}}::{{:type}}, {{/arguments}})::{{:name}}
   return {{:name}}(
     Symbol(uppercase(raw"{{:name}}")),
-    Dict({{#arguments}}:{{:name}} => {{:name}},{{/arguments}})
+    Dict({{#arguments}}:{{:name}} => {{:name}},{{/arguments}}),
+    __LEX__file_pos_before_match()
   )
 end
 #<<< EODL {{:name}} >>>#
@@ -35,12 +37,14 @@ end
 struct __LEX__EOI <: LexerToken
   symbol::Symbol
   values::Dict
+  file_pos::String
 end
 
 function __LEX__EOI()::__LEX__EOI
   return __LEX__EOI(
     END_OF_INPUT,
-    Dict()
+    Dict(),
+    ""
   )
 end
 #<<< EODL END OF INPUT >>>#

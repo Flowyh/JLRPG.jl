@@ -38,7 +38,7 @@ end
 function read_lexer_definition_file(
   path::String
 )::Lexer
-  lexer::Union{Lexer, Nothing} = nothing
+  lexer::Union{Nothing, Lexer} = nothing
   open(path) do file
     text::String = read(file, String)
     c::Cursor = Cursor(text; source=path)
