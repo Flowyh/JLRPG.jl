@@ -1,5 +1,6 @@
 module JLPG_SimpleLexer
   using ..JLPG: Comparable, full_function_pattern
+  using ..JLPG_Utils.Cursors
 
   include("types.jl")
   export Lexer, RegexAlias, LexerAction, LexerOptions, LexerToken, LexerTokenDefinition

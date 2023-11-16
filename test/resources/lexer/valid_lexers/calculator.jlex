@@ -1,5 +1,5 @@
 WHITESPACE [ \t\r\n]+
-NUMBER     [1-9]+[0-9]*
+NUMBER     0|[1-9]+[0-9]*
 
 %%
 

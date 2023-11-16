@@ -9,23 +9,38 @@
     end
 
     @testset "Option outside definitions" begin
-      @test_throws "Option %option misplaced outside of definitions section" read_lexer_definition_file(abspaths("resources/lexer/definition_reader/option_outside_definitions.jlex"))
+      path = abspaths("resources/lexer/definition_reader/option_outside_definitions.jlex")
+      error_msg = raw"Option %option misplaced outside of definitions section" * "\n" * 
+                  raw"       \"%option misplaced\" at " * "$(unexpanduser(path)):5:18"
+      @test_throws error_msg read_lexer_definition_file(path)
     end
 
     @testset "Regex alias outside definitions" begin
-      @test_throws raw"Regex alias WHITESPACE [ \t\r\n]+ outside of definitions section" read_lexer_definition_file(abspaths("resources/lexer/definition_reader/regex_alias_outside_definitions.jlex"))
+      path = abspaths("resources/lexer/definition_reader/regex_alias_outside_definitions.jlex")
+      error_msg = raw"Regex alias WHITESPACE [ \t\r\n]+ outside of definitions section" * "\n" * 
+                  raw"       \"WHITESPACE [ \t\r\n]+\" at " * "$(unexpanduser(path)):5:22"
+      @test_throws error_msg read_lexer_definition_file(path)
     end
 
     @testset "Action outside actions" begin
-      @test_throws raw"Action \"test\" { return Test($$) } outside of actions section" read_lexer_definition_file(abspaths("resources/lexer/definition_reader/action_outside_actions.jlex"))
+      path = abspaths("resources/lexer/definition_reader/action_outside_actions.jlex")
+      error_msg = raw"Action \"test\" { return Test($$) } outside of actions section" * "\n" * 
+                  raw"       \"\"test\" { return Test($$) }\" at " * "$(unexpanduser(path)):3:27"
+      @test_throws error_msg read_lexer_definition_file(path)
     end
 
     @testset "Invalid char/s inside definition file" begin
-      @test_throws "Invalid characters in definition file, /, at 47)" read_lexer_definition_file(abspaths("resources/lexer/definition_reader/invalid_chars.jlex"))
+      path = abspaths("resources/lexer/definition_reader/invalid_chars.jlex")
+      error_msg = "Invalid character/s in definition file" * "\n" * 
+                  "       \"/\" at $(unexpanduser(path)):3:43"
+      @test_throws error_msg read_lexer_definition_file(path)
     end
 
     @testset "Actions with empty patterns are invalid" begin
-      @test_throws "Invalid characters in definition file, {, at 66)" read_lexer_definition_file(abspaths("resources/lexer/definition_reader/empty_action_pattern.jlex"))
+      path = abspaths("resources/lexer/definition_reader/empty_action_pattern.jlex")
+      error_msg = "Invalid character/s in definition file" * "\n" * 
+                  "       \"{\" at $(unexpanduser(path)):5:8"
+      @test_throws error_msg read_lexer_definition_file(path)
     end
   end
 

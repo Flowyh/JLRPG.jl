@@ -1,6 +1,8 @@
 module JLPG_Utils
+  using Reexport
+
   include("filepath.jl")
-  export abspaths
+  export abspaths, unexpanduser
 
   include("comparable.jl")
   export Comparable
@@ -12,4 +14,7 @@ module JLPG_Utils
 
   include("regexes.jl")
   export full_function_pattern
+
+  include("cursor.jl")
+  @reexport using .Cursors
 end
