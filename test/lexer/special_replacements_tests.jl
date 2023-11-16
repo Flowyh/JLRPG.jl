@@ -44,7 +44,7 @@
       end
       """) == raw"""
       function test()
-        return __LEX__.current_match
+        return __LEX__current_match()
       end
       """
     end
@@ -54,7 +54,7 @@
     @testset "Empty string" begin
       @test replace_overloaded_functions_in_generated_lexer(raw"""
       function __LEX__at_end()
-        return __LEX__.current_match == ""
+        return getfield(__LEX__, :current_match) == ""
       end
 
       function __LEX__at_end()
