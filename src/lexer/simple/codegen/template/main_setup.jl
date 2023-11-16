@@ -4,7 +4,8 @@ function __LEX__main()
   tokens = nothing
   if length(ARGS) == 0
     txt::String = read(stdin, String)
-    tokens = __LEX__tokenize(txt)
+    c::Cursor = Cursor(txt; source="stdin")
+    tokens = __LEX__tokenize(c)
   elseif ARGS[1] == "-h" || ARGS[1] == "--help"
     println("Usage: $(PROGRAM_FILE) [path]")
   elseif !isfile(ARGS[1])
@@ -14,7 +15,8 @@ function __LEX__main()
     open(ARGS[1]) do file
       txt = read(file, String)
     end
-    tokens = __LEX__tokenize(txt)
+    c = Cursor(txt; source=ARGS[1])
+    tokens = __LEX__tokenize(c)
   end
   @debug "<<<<< LEXER OUTPUT >>>>>"
   @debug "Output tokens: $tokens"

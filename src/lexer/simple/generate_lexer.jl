@@ -4,7 +4,9 @@ function generate_lexer(
 )
   lexer = nothing
   open(definition_path) do definition_file
-    lexer = _read_lexer_definition_file(definition_file)
+    text::String = read(definition_file, String)
+    c::Cursor = Cursor(text; source=definition_path)
+    lexer = _read_lexer_definition_file(c)
   end
 
   lexer = expand_regex_aliases_in_lexer(lexer)

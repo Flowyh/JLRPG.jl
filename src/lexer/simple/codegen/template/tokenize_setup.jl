@@ -1,16 +1,16 @@
-function __LEX__tokenize(txt::String)::Vector{LexerToken}
+function __LEX__tokenize(c::Cursor)::Vector{LexerToken}
   @debug "<<<<< START OF TOKENIZE >>>>>"
   tokens::Vector{LexerToken} = []
-  cursor::Int = 1
-  while cursor <= length(txt)
+  while !cursor_is_eof(c)
     did_match::Bool = false
     for pattern in ACTION_PATTERNS
-      matched = findnext(pattern, txt, cursor)
-      if matched === nothing || matched.start != cursor
+      matched = cursor_findnext_and_move(c, pattern)
+      if matched === nothing
         continue
       end
-      @debug "New match of length $(length(matched)) found: \"$(txt[matched])\""
-      __LEX__current_match(txt[matched])
+      matched_txt = cursor_slice(c, matched)
+      @debug "New match of length $(length(matched)) found: \"$(matched_txt)\" at $(cursor_file_position(c))"
+      __LEX__current_match(matched_txt)
 
       token = PATTERN_TO_ACTION[pattern]()
       if token isa LexerToken
@@ -19,12 +19,11 @@ function __LEX__tokenize(txt::String)::Vector{LexerToken}
       end
 
       did_match = true
-      cursor += length(matched)
       break
     end
 
     if !did_match
-      error("Syntax error, cannot match remaining text: $(txt[cursor:end])")
+      cursor_error(c, "Unrecognized token, did not match any pattern")
     end
   end
 

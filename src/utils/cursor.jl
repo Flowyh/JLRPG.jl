@@ -20,7 +20,7 @@ module Cursors
       if unexpand_home
         source = replace(source, expanduser("~") => "~")
       end
-      new(txt, length(txt), 1, 1, 0, source)
+      new(txt, length(txt), 1, 1, 1, source)
     end
   end
 
@@ -30,12 +30,12 @@ module Cursors
 
   function cursor_move(c::Cursor, matched_text::String)::Nothing
     c.cursor += length(matched_text)
+    c.column += length(matched_text)
 
     lines = count("\n", matched_text)
     c.line += lines
 
     last_newline::Int = 0
-    c.column += length(matched_text)
     if lines > 0
       last_newline = findlast("\n", matched_text).stop
       c.column = length(matched_text[last_newline:end])

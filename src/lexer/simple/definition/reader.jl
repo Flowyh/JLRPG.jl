@@ -18,11 +18,10 @@ using Parameters: @consts
   SpecialDefinitionPatterns::Vector{Pair{LexerSpecialDefinition, Regex}} = [
     section => LEXER_SECTION_REGEX,
     code_block => LEXER_CODE_BLOCK_REGEX,
-    option => LEXER_OPTION_REGEX,
+    comment => LEXER_COMMENT_REGEX,
     regex_alias => REGEX_ALIAS_REGEX,
-    # action => r"(?<pattern>{[A-Z0-9_-]+}|\".+?\"|[^\s]+?)\s+{(?<body>(?s:.)+?)}",
-    action => ACTION_REGEX,
-    comment => LEXER_COMMENT_REGEX
+    option => LEXER_OPTION_REGEX,
+    action => ACTION_REGEX
   ]
 end
 
@@ -98,16 +97,16 @@ function _read_lexer_definition_file(
         push!(code_blocks, strip(code_block_txt[4:end-2])) # Omit %{\n and %}
       elseif definition == option
         _lexer_section_guard(
-          current_section, 
-          definitions, 
-          c, "Option $(cursor_slice(c, matched)) outside of definitions section"; 
+          current_section,
+          definitions,
+          c, "Option $(cursor_slice(c, matched)) outside of definitions section";
           erroneous_slice=matched
         )
         # TODO: Fill options if needed
       elseif definition == regex_alias
         _lexer_section_guard(
-          current_section, 
-          definitions, 
+          current_section,
+          definitions,
           c, "Regex alias $(cursor_slice(c, matched)) outside of definitions section";
           erroneous_slice=matched
         )
@@ -117,8 +116,8 @@ function _read_lexer_definition_file(
         ))
       elseif definition == action
         _lexer_section_guard(
-          current_section, 
-          actions, 
+          current_section,
+          actions,
           c, "Action $(cursor_slice(c, matched)) outside of actions section";
           erroneous_slice=matched
         )
