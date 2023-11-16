@@ -29,15 +29,17 @@ module Cursors
   end
 
   function cursor_move(c::Cursor, matched_text::String)::Nothing
+    c.cursor += length(matched_text)
+
     lines = count("\n", matched_text)
+    c.line += lines
+
     last_newline::Int = 0
     c.column += length(matched_text)
     if lines > 0
       last_newline = findlast("\n", matched_text).stop
       c.column = length(matched_text[last_newline:end])
     end
-    c.cursor += length(matched_text)
-    c.line += lines
 
     nothing
   end
@@ -101,7 +103,7 @@ module Cursors
       erroneous_slice = c.cursor:c.cursor
     end
     error(
-      "$error_msg" * "\n" * 
+      "$error_msg" * "\n" *
       "       \"$(cursor_slice(c, erroneous_slice))\" at $(cursor_file_position(c))"
     )
   end

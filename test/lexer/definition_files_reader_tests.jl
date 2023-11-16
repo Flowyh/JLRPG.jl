@@ -1,44 +1,44 @@
 @testset "Definition files reader" begin
   @testset "Throws errors for invalid definition files" begin
     @testset "Empty file" begin
-      @test_throws "Invalid definition file, not enough sections" read_lexer_definition_file(abspaths("resources/lexer/definition_reader/empty_file.jlex"))
+      @test_throws "Invalid definition file, not enough sections" read_lexer_definition_file(abspaths("resources/lexer/definition_reader/erroneous/empty_file.jlex"))
     end
 
     @testset "Not enough sections" begin
-      @test_throws "Invalid definition file, not enough sections" read_lexer_definition_file(abspaths("resources/lexer/definition_reader/not_enough_sections.jlex"))
+      @test_throws "Invalid definition file, not enough sections" read_lexer_definition_file(abspaths("resources/lexer/definition_reader/erroneous/not_enough_sections.jlex"))
     end
 
     @testset "Option outside definitions" begin
-      path = abspaths("resources/lexer/definition_reader/option_outside_definitions.jlex")
-      error_msg = raw"Option %option misplaced outside of definitions section" * "\n" * 
+      path = abspaths("resources/lexer/definition_reader/erroneous/option_outside_definitions.jlex")
+      error_msg = raw"Option %option misplaced outside of definitions section" * "\n" *
                   raw"       \"%option misplaced\" at " * "$(unexpanduser(path)):5:18"
       @test_throws error_msg read_lexer_definition_file(path)
     end
 
     @testset "Regex alias outside definitions" begin
-      path = abspaths("resources/lexer/definition_reader/regex_alias_outside_definitions.jlex")
-      error_msg = raw"Regex alias WHITESPACE [ \t\r\n]+ outside of definitions section" * "\n" * 
+      path = abspaths("resources/lexer/definition_reader/erroneous/regex_alias_outside_definitions.jlex")
+      error_msg = raw"Regex alias WHITESPACE [ \t\r\n]+ outside of definitions section" * "\n" *
                   raw"       \"WHITESPACE [ \t\r\n]+\" at " * "$(unexpanduser(path)):5:22"
       @test_throws error_msg read_lexer_definition_file(path)
     end
 
     @testset "Action outside actions" begin
-      path = abspaths("resources/lexer/definition_reader/action_outside_actions.jlex")
-      error_msg = raw"Action \"test\" { return Test($$) } outside of actions section" * "\n" * 
+      path = abspaths("resources/lexer/definition_reader/erroneous/action_outside_actions.jlex")
+      error_msg = raw"Action \"test\" { return Test($$) } outside of actions section" * "\n" *
                   raw"       \"\"test\" { return Test($$) }\" at " * "$(unexpanduser(path)):3:27"
       @test_throws error_msg read_lexer_definition_file(path)
     end
 
     @testset "Invalid char/s inside definition file" begin
-      path = abspaths("resources/lexer/definition_reader/invalid_chars.jlex")
-      error_msg = "Invalid character/s in definition file" * "\n" * 
+      path = abspaths("resources/lexer/definition_reader/erroneous/invalid_chars.jlex")
+      error_msg = "Invalid character/s in definition file" * "\n" *
                   "       \"/\" at $(unexpanduser(path)):3:43"
       @test_throws error_msg read_lexer_definition_file(path)
     end
 
     @testset "Actions with empty patterns are invalid" begin
-      path = abspaths("resources/lexer/definition_reader/empty_action_pattern.jlex")
-      error_msg = "Invalid character/s in definition file" * "\n" * 
+      path = abspaths("resources/lexer/definition_reader/erroneous/empty_action_pattern.jlex")
+      error_msg = "Invalid character/s in definition file" * "\n" *
                   "       \"{\" at $(unexpanduser(path)):5:8"
       @test_throws error_msg read_lexer_definition_file(path)
     end
@@ -50,6 +50,14 @@
       @test lexer.actions == []
       @test lexer.aliases == []
       @test lexer.code_blocks == []
+      @test lexer.options == LexerOptions()
+    end
+
+    @testset "Too many sections" begin
+      lexer = read_lexer_definition_file(abspaths("resources/lexer/definition_reader/too_many_sections.jlex"))
+      @test lexer.actions == []
+      @test lexer.aliases == []
+      @test lexer.code_blocks == ["%%\n\n%%\n\n%%\n\n%%"]
       @test lexer.options == LexerOptions()
     end
 
