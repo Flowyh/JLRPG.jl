@@ -1,0 +1,13 @@
+#= Token definitions =#
+%token A
+%token B
+
+%%
+#= Productions =#
+%start s
+s -> a s
+   | B
+a -> s a
+   | A
+
+%%

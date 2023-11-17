@@ -17,7 +17,8 @@ function first_sets(parser::Parser)::Dict{Symbol, Set{Symbol}}
       _first_sets[nonterminal] = _first_set_for_symbol(
         nonterminal,
         _prev,
-        parser
+        parser,
+        Set{Symbol}()
       )
     end
 
@@ -40,19 +41,24 @@ function _first_set_for_symbol(
   symbol::Symbol,
   prev_firsts::Dict{Symbol, Set{Symbol}},
   parser::Parser,
+  visited::Set{Symbol}
 )::Set{Symbol}
+  if symbol in visited
+    return Set{Symbol}()
+  end
+
   if symbol in parser.terminals
     return Set(symbol)
   end
 
-  firsts::Set{Symbol} = get(prev_firsts, symbol, Set())
+  firsts::Set{Symbol} = get(prev_firsts, symbol, Set{Symbol}())
   for production in parser.productions[symbol]
     if production.rhs == EMPTY_PRODUCTION
       push!(firsts, EMPTY_SYMBOL)
     else
       all_nullable::Bool = true
       for rhs_symbol in production.rhs
-        rhs_first_set::Set{Symbol} = get(prev_firsts, rhs_symbol, Set())
+        rhs_first_set::Set{Symbol} = get(prev_firsts, rhs_symbol, Set{Symbol}())
         if rhs_symbol == symbol
           # If production is A -> A B1 B2 ... Bn, and does not have an empty
           # production, then skip it
@@ -64,7 +70,15 @@ function _first_set_for_symbol(
             continue
           end
         end
-        union!(rhs_first_set, _first_set_for_symbol(rhs_symbol, prev_firsts, parser))
+        union!(
+          rhs_first_set,
+          _first_set_for_symbol(
+            rhs_symbol,
+            prev_firsts,
+            parser,
+            union(visited, Set(symbol))
+          )
+        )
         union!(firsts, setdiff(rhs_first_set, EMPTY_SYMBOL))
         if !(EMPTY_SYMBOL in rhs_first_set)
           all_nullable = false

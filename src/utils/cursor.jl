@@ -16,7 +16,7 @@ module Cursors
     column::Int
     source::String
 
-    function Cursor(txt::String; source="", unexpand_home=true)
+    function Cursor(txt::String; source::String="", unexpand_home::Bool=true)
       if unexpand_home
         source = replace(source, expanduser("~") => "~")
       end

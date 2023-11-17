@@ -1,0 +1,15 @@
+#= Token definitions =#
+%token EQUALS "="
+%token PTR "*"
+%token ID
+
+%%
+#= Productions =#
+%start s
+s -> l "=" r
+   | r
+l -> "*" r
+   | ID
+r -> l
+
+%%

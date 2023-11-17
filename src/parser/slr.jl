@@ -145,6 +145,9 @@ function SlrParsingTable(
           action[i][END_OF_INPUT] = Accept()
         else # (2)
           for symbol in _follow[lhs]
+            if haskey(action[i], symbol)
+              error("Conflict in parsing table. $(typeof(action[i][symbol]))-Reduce conflict at state $i, symbol $symbol")
+            end
             action[i][symbol] = Reduce(lhs, id)
           end
         end
@@ -152,6 +155,9 @@ function SlrParsingTable(
         next_symbol_index::Int = dot + 1
         next_symbol::Symbol = rhs[next_symbol_index]
         if next_symbol in augmented_parser.terminals && haskey(lr0_gotos, i) && haskey(lr0_gotos[i], next_symbol)
+          if haskey(action[i], next_symbol)
+            error("Conflict in parsing table. Shift-$(typeof(action[i][next_symbol])) conflict at state $i, symbol $next_symbol")
+          end
           action[i][next_symbol] = Shift(lr0_gotos[i][next_symbol])
         end
       end
