@@ -18,11 +18,11 @@
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       lexer = replace_token_args_in_lexer(lexer, returned_tokens)
       @test lexer.actions == [
-        LexerAction("\"5\"", " return Five(;value=convert_type(String, 5)) "),
-        LexerAction("\"123\"", " return OneTwoThree(;value1=convert_type(String, 1), value2=convert_type(String, 2), value3=convert_type(String, 3)) "),
-        LexerAction("[0-9]", raw" return Digit(;value=convert_type(String, $$)) "),
-        LexerAction("\"def\"", raw" return Function(;value=convert_type(String, func($$))) "),
-        LexerAction(".*", " return Error() ")
+        LexerAction("\"5\"", "return Five(;value=5)"),
+        LexerAction("\"123\"", "return OneTwoThree(;value1=1, value2=2, value3=3)"),
+        LexerAction("[0-9]", raw"return Digit(;value=$$)"),
+        LexerAction("\"def\"", raw"return Function(;value=func($$))"),
+        LexerAction(".*", "return Error()")
       ]
     end
 
@@ -32,12 +32,12 @@
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       lexer = replace_token_args_in_lexer(lexer, returned_tokens)
       @test lexer.actions == [
-        LexerAction("\"5.0\"", " return Five(;value=convert_type(Float64, 5.0)) "),
-        LexerAction("\"123\"", " return OneTwoThree(;value1=convert_type(Int, 1), value2=convert_type(Float32, 2), value3=convert_type(Int16, 3)) "),
-        LexerAction("[0-9]", raw" return Digit(;value=convert_type(Int, $$)) "),
-        LexerAction("\"def\"", raw" return Function(;value=convert_type(String, func($$))) "),
-        LexerAction("[a-zA-Z]+", raw" return Message(;value=convert_type(String, $$)) "),
-        LexerAction(".*", " return Error() ")
+        LexerAction("\"5.0\"", "return Five(;value=5.0)"),
+        LexerAction("\"123\"", "return OneTwoThree(;value1=1, value2=2, value3=3)"),
+        LexerAction("[0-9]", raw"return Digit(;value=$$)"),
+        LexerAction("\"def\"", raw"return Function(;value=func($$))"),
+        LexerAction("[a-zA-Z]+", raw"return Message(;value=$$)"),
+        LexerAction(".*", "return Error()")
       ]
     end
 
@@ -47,12 +47,12 @@
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       lexer = replace_token_args_in_lexer(lexer, returned_tokens)
       @test lexer.actions == [
-        LexerAction("\"5.0\"", " return Five(;five=convert_type(Float64, 5.0)) "),
-        LexerAction("\"123\"", " return OneTwoThree(;one=convert_type(Int, 1), two=convert_type(Float32, 2), three=convert_type(Int16, 3)) "),
-        LexerAction("[0-9]", raw" return Digit(;value=convert_type(Int, $$)) "),
-        LexerAction("\"def\"", raw" return Function(;func_call=convert_type(String, func($$))) "),
-        LexerAction("[a-zA-Z]+", raw" return Message(;msg=convert_type(String, $$)) "),
-        LexerAction(".*", " return Error() ")
+        LexerAction("\"5.0\"", "return Five(;five=5.0)"),
+        LexerAction("\"123\"", "return OneTwoThree(;one=1, two=2, three=3)"),
+        LexerAction("[0-9]", raw"return Digit(;value=$$)"),
+        LexerAction("\"def\"", raw"return Function(;func_call=func($$))"),
+        LexerAction("[a-zA-Z]+", raw"return Message(;msg=$$)"),
+        LexerAction(".*", "return Error()")
       ]
     end
 
@@ -62,12 +62,13 @@
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       lexer = replace_token_args_in_lexer(lexer, returned_tokens)
       @test lexer.actions == [
-        LexerAction("\"invalid return\"", " return Omitted "),
-        LexerAction("\"missing parenthesis\"", " return Omitted( "),
-        LexerAction("[0-9]", raw" return Digit(;value=convert_type(String, $$)) "),
-        LexerAction("[0-9]+", raw" return Number(;value=convert_type(Int, $$)) "),
-        LexerAction("[_a-zA-Z][_a-zA-Z0-9]*", raw" return Identifier(;name=convert_type(String, $$), line=convert_type(Int, 15)) "),
-        LexerAction(".*", raw" return Error(;match=convert_type(String, $$)) ")
+        LexerAction("\"invalid return\"", "return Omitted"),
+        LexerAction("\"missing parenthesis\"", "return Omitted("),
+        LexerAction("[0-9]", raw"return Digit(;value=$$)"),
+        LexerAction("[0-9]+", raw"return Number(;value=$$)"),
+        LexerAction("[_a-zA-Z][_a-zA-Z0-9]*", raw"return Identifier(;name=$$, line=15)"),
+        LexerAction("\"all arg types\"", "return AllArgs(;a=1, value2=2.0, value3=\"3\")"),
+        LexerAction(".*", raw"return Error(;match=$$)")
       ]
     end
   end

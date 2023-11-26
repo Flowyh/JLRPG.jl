@@ -6,6 +6,7 @@ using Parameters: @consts
   ALIAS_PATTERN::Regex = r"{(?<name>[A-Z0-9_-]+)}"
   ANYTHING_PATTERN::Regex = r"(?<pattern>.+?)"
   RAW_STRING_PATTERN::Regex = r"\"(?<pattern>.+?)\""
+
   PatternParts::Vector{Pair{PatternPart, Regex}} = [
     alias => ALIAS_PATTERN,
     string => RAW_STRING_PATTERN,
@@ -23,6 +24,7 @@ function expand_regex_aliases_in_aliases(aliases::Vector{RegexAlias})::Vector{Re
   for alias in aliases
     name, pattern = alias.name, alias.pattern
     alias_matches = findall(ALIAS_PATTERN, pattern)
+    replacements = []
     if !isempty(alias_matches)
       for alias_match in alias_matches
         m = match(ALIAS_PATTERN, pattern[alias_match])
@@ -30,8 +32,9 @@ function expand_regex_aliases_in_aliases(aliases::Vector{RegexAlias})::Vector{Re
         if !haskey(visited_aliases, alias_name) # Alias referenced before it was defined
           error("Invalid definition file, alias for $(alias_name) was referenced before it was defined")
         end
-        pattern = replace(pattern, pattern[alias_match] => visited_aliases[alias_name])
+        push!(replacements, pattern[alias_match] => visited_aliases[alias_name])
       end
+      pattern = replace(pattern, replacements...)
     end
 
     if name in defined_aliases
@@ -77,6 +80,8 @@ function expand_regex_aliases_in_actions(
             error("Invalid definition file, alias for $(alias_name) is not defined")
           end
           new_pattern *= visited_aliases[alias_name]
+        elseif part_type == string
+          new_pattern *= "\\Q$(m[:pattern])\\E"
         else
           new_pattern *= m[:pattern]
         end

@@ -13,7 +13,7 @@ using Parameters: @consts
   LEXER_OPTION_REGEX = r"%option[ \t]+((?:\w+ ?)+)"
   REGEX_ALIAS_REGEX = r"(?<name>[A-Z0-9_-]+)\s+(?<pattern>.+)"
   ACTION_REGEX = r"(?<pattern>.+?)\s+{(?<body>(?s:.)+?)}"
-  LEXER_COMMENT_REGEX = r"#=[^\n]*=#\n?"
+  LEXER_COMMENT_REGEX = r"\s*#=[^\n]*=#\s*"
 
   SpecialDefinitionPatterns::Vector{Pair{LexerSpecialDefinition, Regex}} = [
     section => LEXER_SECTION_REGEX,
@@ -21,7 +21,7 @@ using Parameters: @consts
     comment => LEXER_COMMENT_REGEX,
     regex_alias => REGEX_ALIAS_REGEX,
     option => LEXER_OPTION_REGEX,
-    action => ACTION_REGEX
+    action => ACTION_REGEX,
   ]
 end
 
@@ -122,7 +122,7 @@ function _read_lexer_definition_file(
         )
         push!(lexer_actions, LexerAction(
           m[:pattern],
-          m[:body]
+          strip(m[:body])
         ))
       end
 

@@ -42,5 +42,5 @@ function __LEX__file_pos_before_match()::String
 end
 
 function __LEX__at_end()
-  return getfield(__LEX__, :current_match) == ""
+  return false
 end

@@ -1,9 +1,5 @@
 using Parameters: @consts
 
-@consts begin
-  CONVERSION_FUNCTION = (type, value) -> "convert_type($type, $value)"
-end
-
 function replace_token_args_in_actions(
   actions::Vector{LexerAction},
   defined_tokens::Dict{Symbol, Vector}
@@ -26,8 +22,8 @@ function replace_token_args_in_actions(
     end
 
     new_args = [
-      "$name=$(CONVERSION_FUNCTION(type, value))"
-      for (name, type, value) in defined_tokens[tag]
+      "$name=$value"
+      for (name, _, value) in defined_tokens[tag]
     ]
     new_return = replace(m.match, args => ";$(join(new_args, ", "))")
 

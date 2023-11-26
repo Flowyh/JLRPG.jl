@@ -1,14 +1,17 @@
-WHITESPACE [ \t\r]+
-NUM        [0-9]
-IDENTIFIER [_a-zA-Z]([_a-zA-Z]|{NUM})+
+WHITESPACE      \s
+DIGIT           [0-9]
+NON_ZERO_DIGIT  [1-9]
+NUMBER          0|{NON_ZERO_DIGIT}+{DIGIT}*
+CHAR            [_a-zA-Z]
+IDENTIFIER      {CHAR}({CHAR}|{DIGIT})*
 
 %%
 
-{IDENTIFIER}               { return Id($$) }
-{NUM}+                     { return Number($$) }
-"HELLO"{WHITESPACE}"WORLD" { return Hello() }
-.*                         { return Error() }
-"a"              "b"       { return AB() }
+{IDENTIFIER}                        { return Id($$) }
+{NUMBER}                            { return Number($$) }
+"**HELLO**"{WHITESPACE}+"++WORLD++" { return Hello() }
+.*                                  { return Error() }
+"a"              "b"                { return AB() }
 
 %%
 

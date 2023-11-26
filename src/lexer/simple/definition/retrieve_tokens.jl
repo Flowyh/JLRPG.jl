@@ -1,9 +1,26 @@
 using Parameters: @consts
 
+@enum ArgumentType typed_named untyped_named typed_unnamed untyped_unnamed
+
 @consts begin
   RETURNED_TOKEN_PATTERN = r"return (?<tag>\w+)\((?<args>.*)\)"
   # TODO: Fix this regex, because it's ugly and fragile
-  TOKEN_ARGUMENT_PATTERN = r"(?:(?<argname>.*?)(?:::(?<type>\w+))(?:\s*=\s*))?(?<value>[^,]+)(?:,\s+)?"
+
+  TYPE_NAMED_TOKEN_ARGUMENT_PATTERN =
+    r"(?<argname>.+?)::(?<type>\w+?)(?:\s*=\s*)(?<value>.+)"
+  TYPED_UNNAMED_TOKEN_ARGUMENT_PATTERN =
+    r"::(?<type>\w+?)(?:\s*=\s*)(?<value>.+)"
+  UNTYPED_NAMED_TOKEN_ARGUMENT_PATTERN =
+    r"(?<argname>.+?)(?:\s*=\s*)(?<value>.+)"
+  UNTYPED_UNNAMED_TOKEN_ARGUMENT_PATTERN =
+    r"(?<value>.+)"
+
+  TOKEN_ARGUMENT_PATTERNS::Vector{Pair{ArgumentType, Regex}} = [
+    typed_named => TYPE_NAMED_TOKEN_ARGUMENT_PATTERN,
+    typed_unnamed => TYPED_UNNAMED_TOKEN_ARGUMENT_PATTERN,
+    untyped_named => UNTYPED_NAMED_TOKEN_ARGUMENT_PATTERN,
+    untyped_unnamed => UNTYPED_UNNAMED_TOKEN_ARGUMENT_PATTERN
+  ]
 end
 
 # Each action should return some sort of token
@@ -15,7 +32,6 @@ end
 # {ID}  { return ID("hello", "world", ::Int=4)} -> ID has 3 arguments, all of which will be retrieveable by using token.value1, token.value2, token.value3
 # You can also name your arguments:
 # {ID}  { return ID(first::String="hello", second::String="world", num::Int=4)} -> ID has 3 arguments, all of which will be retrieveable by using token.first, token.second, token.num
-# Currently, you have to specify the type of each named argument, but I might change that in the future
 # By default, if a token has only one argument, it will be named "value"
 function retrieve_tokens_from_actions(actions::Vector{LexerAction})::Vector{LexerTokenDefinition}
   defined_tokens::Dict{Symbol, Vector} = Dict()
@@ -29,21 +45,30 @@ function retrieve_tokens_from_actions(actions::Vector{LexerAction})::Vector{Lexe
     end
 
     tag = Symbol(m[:tag])
-    arguments = eachmatch(TOKEN_ARGUMENT_PATTERN, m[:args]) |> collect
+    arguments = strip.(split(m[:args], ","))
     no_arguments = length(arguments)
 
     token_args::Vector{NamedTuple} = []
     for (i, argument) in enumerate(arguments)
-      argname = Symbol(argument[:argname])
-      type = Symbol(argument[:type])
-      value = argument[:value]
-      if argname === :nothing || argname === Symbol("")
+      for (matched_type, pattern) in TOKEN_ARGUMENT_PATTERNS
+        m = match(pattern, argument)
+        if m === nothing
+          continue
+        end
+        type::Symbol = :String
         argname = Symbol("value$(no_arguments == 1 ? "" : i)")
+        if matched_type == typed_named
+          argname = Symbol(m[:argname])
+          type = Symbol(m[:type])
+        elseif matched_type == untyped_named
+          argname = Symbol(m[:argname])
+        elseif matched_type == typed_unnamed
+          type = Symbol(m[:type])
+        end
+        value = m[:value]
+        push!(token_args, (name=argname, type=type, value=value))
+        break
       end
-      if type === :nothing # TODO: Support no type at all
-        type = :String
-      end
-      push!(token_args, (name=argname, type=type, value=value))
     end
 
     if !haskey(defined_tokens, tag)

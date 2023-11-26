@@ -36,8 +36,8 @@ struct Parser <: Comparable
   starting::Symbol
   productions::Dict{Symbol, Vector{ParserProduction}}
   symbol_types::Dict{Symbol, Symbol}
-  tokens::Set{Symbol}
-  token_aliases::Dict{Symbol, Symbol}
+  lexer_tokens::Set{Symbol}
+  lexer_token_aliases::Dict{Symbol, Symbol}
   code_blocks::Vector{String}
   options::ParserOptions
 end
@@ -48,8 +48,8 @@ function Parser(;
   starting::Symbol,
   productions::Dict{Symbol, Vector{ParserProduction}},
   symbol_types::Dict{Symbol, Symbol},
-  tokens::Set{Symbol},
-  token_aliases::Dict{Symbol, Symbol},
+  lexer_tokens::Set{Symbol},
+  lexer_token_aliases::Dict{Symbol, Symbol},
   code_blocks::Vector{String},
   options::ParserOptions
 )::Parser
@@ -59,8 +59,8 @@ function Parser(;
     starting,
     productions,
     symbol_types,
-    tokens,
-    token_aliases,
+    lexer_tokens,
+    lexer_token_aliases,
     code_blocks,
     options,
   )
@@ -104,8 +104,8 @@ function augment_parser(
     parser.starting,
     augment_productions(parser.starting, parser.symbol_types[parser.starting], parser.productions),
     augmented_symbol_types,
-    parser.tokens,
-    parser.token_aliases,
+    parser.lexer_tokens,
+    parser.lexer_token_aliases,
     parser.code_blocks,
     parser.options,
   )

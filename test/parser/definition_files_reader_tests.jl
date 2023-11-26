@@ -77,6 +77,13 @@
       @test_throws error_msg read_parser_definition_file(path)
     end
 
+    @testset "%start not lowercase" begin
+      path = abspaths("resources/parser/definition_reader/erroneous/start_not_lowercase.jpar")
+      error_msg = raw"Start symbol must be lowercase" * "\n" *
+                  raw"       \"%start NotLowercase\" at " * "$(unexpanduser(path)):5:1"
+      @test_throws error_msg read_parser_definition_file(path)
+    end
+
     @testset "Production outside productions" begin
       path = abspaths("resources/parser/definition_reader/erroneous/production_outside_productions.jpar")
       error_msg = raw"Production outside of productions section" * "\n" *
@@ -155,9 +162,10 @@
         symbol_types = Dict(
           :expr => :Int,
           :NUMBER => :Int,
-          :start => :Int
+          :start => :Int,
+          :vec => Symbol(raw"Vector{Int}")
         ),
-        tokens = Set(
+        lexer_tokens = Set(
           :PLUS, Symbol("+"),
           :MINUS, Symbol("-"),
           :TIMES, Symbol("*"),
@@ -166,7 +174,7 @@
           :RPAREN, Symbol(")"),
           :END, :NUMBER
         ),
-        token_aliases = Dict(
+        lexer_token_aliases = Dict(
           :PLUS => Symbol("+"),
           Symbol("+") => :PLUS,
           :MINUS => Symbol("-"),
@@ -222,14 +230,14 @@
           :t_prim => :Nothing,
           :f => :Nothing
         ),
-        tokens = Set(
+        lexer_tokens = Set(
           :PLUS, Symbol("+"),
           :TIMES, Symbol("*"),
           :LPAREN, Symbol("("),
           :RPAREN, Symbol(")"),
           :ID
         ),
-        token_aliases = Dict(
+        lexer_token_aliases = Dict(
           :PLUS => Symbol("+"),
           Symbol("+") => :PLUS,
           :TIMES => Symbol("*"),

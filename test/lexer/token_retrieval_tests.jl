@@ -95,6 +95,14 @@
             (name=:line, type=:Int, value="15")
           ]
         ),
+        LexerTokenDefinition(
+          :AllArgs,
+          [
+            (name = :a, type = :Int, value = "1"),
+            (name = :value2, type = :Float64, value = "2.0"),
+            (name = :value3, type = :String, value = "\"3\"")
+          ]
+        ),
         LexerTokenDefinition(:Error, [(name=:match, type=:String, value=raw"$$")])
       ]
     end

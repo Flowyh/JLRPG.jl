@@ -12,19 +12,18 @@ using Parameters: @consts
   PARSER_CODE_BLOCK_REGEX = r"%{((?s:.)*?)%}"
   PARSER_OPTION_REGEX = r"%option[ \t]+((?:\w+ ?)+)"
   TOKEN_REGEX = r"%token[ \t]+(?<name>\w+)(?:[ \t]+\"(?<alias>[^\"]+)\")?"
-  TYPE_REGEX = r"%type[ \t]+<(?<type>\w+)>(?:[ \t]+(?<symbol>\w+))?"
+  TYPE_REGEX = r"%type[ \t]+<(?<type>(?:\w|\{|\})+)>(?:[ \t]+(?<symbol>\w+))?"
   START_REGEX = r"%start[ \t]+(?<symbol>\w+)"
   PRODUCTION_REGEX = r"(?<lhs>\w+)\s+->\s+(?<production>[^{}\n]+?)\s+{(?<action>(?s:.)*?)}"
   EMPTY_CALLBACK_PRODUCTION_REGEX = r"(?<lhs>\w+)\s+->\s+(?<production>[^{}\n]+)"
   PRODUCTION_ALT_REGEX = r"\|\s+(?<production>[^{}\n]+)\s+{(?<action>(?s:.)*?)}"
   EMPTY_CALLBACK_PRODUCTION_ALT_REGEX = r"\|\s+(?<production>[^{}\n]+)"
-  PARSER_COMMENT_REGEX = r"#=[^\n]*=#\n?"
+  PARSER_COMMENT_REGEX = r"\s*#=[^\n]*=#\s*"
 
   DOUBLE_QUOTES_ALIAS = r"\"(?<alias>[^\"]+)\""
 
   SpecialDefinitionPatterns::Vector{Pair{ParserSpecialDefinition, Regex}} = [
     section => PARSER_SECTION_REGEX,
-    code_block => PARSER_CODE_BLOCK_REGEX,
     option => PARSER_OPTION_REGEX,
     token => TOKEN_REGEX,
     type => TYPE_REGEX,
@@ -33,6 +32,7 @@ using Parameters: @consts
     production => EMPTY_CALLBACK_PRODUCTION_REGEX,
     production_alt => PRODUCTION_ALT_REGEX,
     production_alt => EMPTY_CALLBACK_PRODUCTION_ALT_REGEX,
+    code_block => PARSER_CODE_BLOCK_REGEX,
     comment => PARSER_COMMENT_REGEX
   ]
 end
@@ -88,7 +88,7 @@ isuppercased(str::AbstractString)::Bool = occursin(r"^[A-Z0-9_-]+$", str)
 function _split_production_string(
   production_lhs::Symbol,
   production::AbstractString,
-  token_aliases::Dict{Symbol, Symbol},
+  lexer_token_aliases::Dict{Symbol, Symbol},
   c::Cursor,
   erroneous_slice::Union{Nothing, UnitRange{Int}} = nothing
 )::Tuple{Vector{Symbol}, Vector{Symbol}, Vector{Symbol}}
@@ -113,7 +113,7 @@ function _split_production_string(
     m = match(DOUBLE_QUOTES_ALIAS, _symbol)
     if m !== nothing
       _symbol = m[:alias]
-      if !haskey(token_aliases, Symbol(_symbol))
+      if !haskey(lexer_token_aliases, Symbol(_symbol))
         cursor_error(
           c, "Token alias not defined";
           erroneous_slice=erroneous_slice
@@ -124,7 +124,7 @@ function _split_production_string(
 
     token = Symbol(_symbol)
     if is_alias
-      token = token_aliases[Symbol(_symbol)] # Get normal token instead of alias
+      token = lexer_token_aliases[Symbol(_symbol)] # Get normal token instead of alias
       push!(terminals, token)
     elseif isuppercased(_symbol)
       push!(terminals, token)
@@ -151,8 +151,8 @@ function _read_parser_definition_file(
   starting::Union{Nothing, Symbol} = nothing
   parser_productions::Dict{Symbol, Vector{ParserProduction}}  = Dict()
   symbol_types::Dict{Symbol, Symbol} = Dict()
-  tokens::Set{Symbol} = Set()
-  token_aliases::Dict{Symbol, Symbol} = Dict()
+  lexer_tokens::Set{Symbol} = Set()
+  lexer_token_aliases::Dict{Symbol, Symbol} = Dict()
   code_blocks::Vector{String} = []
   options = ParserOptions() # TODO: Fill if needed
 
@@ -196,19 +196,19 @@ function _read_parser_definition_file(
 
         t, a = Symbol(m[:name]), Symbol(m[:alias])
 
-        if t in tokens || a in tokens
+        if t in lexer_tokens || a in lexer_tokens
           cursor_error(
             c, "Token already defined";
             erroneous_slice=matched
           )
         end
-        push!(tokens, t)
+        push!(lexer_tokens, t)
         push!(terminals, t)
 
         if m[:alias] !== nothing
-          push!(tokens, a)
-          token_aliases[a] = t
-          token_aliases[t] = a
+          push!(lexer_tokens, a)
+          lexer_token_aliases[a] = t
+          lexer_token_aliases[t] = a
         end
       elseif definition == type
         _parser_section_guard(
@@ -248,6 +248,14 @@ function _read_parser_definition_file(
             erroneous_slice=matched
           )
         end
+
+        if !islowercased(m[:symbol])
+          cursor_error(
+            c, "Start symbol must be lowercase";
+            erroneous_slice=matched
+          )
+        end
+
         starting = Symbol(m[:symbol])
       elseif definition == production
         _parser_section_guard(
@@ -281,7 +289,7 @@ function _read_parser_definition_file(
         _production, _terminals, _nonterminals = _split_production_string(
           current_production_lhs,
           m[:production],
-          token_aliases,
+          lexer_token_aliases,
           c, matched
         )
 
@@ -311,7 +319,7 @@ function _read_parser_definition_file(
         _production, _terminals, _nonterminals = _split_production_string(
           current_production_lhs,
           m[:production],
-          token_aliases,
+          lexer_token_aliases,
           c, matched
         )
 
@@ -379,8 +387,8 @@ function _read_parser_definition_file(
     starting::Symbol,
     parser_productions,
     symbol_types,
-    tokens,
-    token_aliases,
+    lexer_tokens,
+    lexer_token_aliases,
     code_blocks,
     options
   )

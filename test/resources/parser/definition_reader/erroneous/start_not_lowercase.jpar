@@ -1,0 +1,8 @@
+#= Definitions =#
+
+%%
+#= Productions =#
+%start NotLowercase
+
+%%
+#= User code =#

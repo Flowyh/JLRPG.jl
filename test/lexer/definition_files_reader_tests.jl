@@ -68,9 +68,9 @@
     @testset "Only actions" begin
       lexer = read_lexer_definition_file(abspaths("resources/lexer/definition_reader/only_actions.jlex"))
       @test lexer.actions == [
-        LexerAction("\"Test\"", " return \"Test\" "),
-        LexerAction("[0-9]+", " return Number(\$\$) "),
-        LexerAction(".*", " return Error() "),
+        LexerAction("\"Test\"", "return \"Test\""),
+        LexerAction("[0-9]+", raw"return Number($$)"),
+        LexerAction(".*", "return Error()"),
       ]
       @test lexer.aliases == []
       @test lexer.code_blocks == []
@@ -80,11 +80,11 @@
     @testset "All sections present" begin
       lexer = read_lexer_definition_file(abspaths("resources/lexer/definition_reader/all_sections.jlex"))
       @test lexer.actions == [
-        LexerAction("{WHITESPACE}", " test += 1 "),
-        LexerAction("{NUM}", "\n  test += 2\n  return Num(5)\n"),
-        LexerAction("\"text\"{NUM}", " test += 3 "),
-        LexerAction("\"+\"", " return Operator(\"+\") "),
-        LexerAction(".*", " return Error() ")
+        LexerAction("{WHITESPACE}", "test += 1"),
+        LexerAction("{NUM}", "test += 2\n  return Num(5)"),
+        LexerAction("\"text\"{NUM}", "test += 3"),
+        LexerAction("\"+\"", "return Operator(\"+\")"),
+        LexerAction(".*", "return Error()")
       ]
       @test lexer.aliases == [
         RegexAlias(:WHITESPACE, raw"[ \t\r]+"),

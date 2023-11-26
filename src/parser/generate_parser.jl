@@ -25,4 +25,7 @@ function generate_parser(
 
     write(output_file, output)
   end
+
+  println("Generated parser path: $(output_path)")
+  nothing
 end

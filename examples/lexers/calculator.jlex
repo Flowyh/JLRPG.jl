@@ -1,0 +1,18 @@
+WHITESPACE [ \t\r\n]+
+NUMBER     0|[1-9]+[0-9]*
+
+%%
+
+{WHITESPACE}             { # Ignore }
+{NUMBER}                 {
+  val::Int = parse(Int, $$)
+  return Number(::Int=val)
+}
+"*"                      { return Multiply() }
+"/"                      { return Divide() }
+"+"                      { return Add() }
+"-"                      { return Subtract() }
+"("                      { return LParen() }
+")"                      { return RParen() }
+
+%%

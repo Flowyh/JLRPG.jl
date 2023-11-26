@@ -3,8 +3,9 @@ using JLPG
 if isfile("__LEX__.jl")
   include("__LEX__.jl")
 else
-  @debug "Default __LEX__.jl file not found at current directory."
-  @debug "Put generated __LEX__.jl file at current directory or include it at top of the definitions section in your grammar file."
+  @warn "Default __LEX__.jl file not found at current directory."
+  @warn "Please include() generated lexer file at top of parser's definition file."
+  exit(1)
 end
 
 mutable struct __PAR__vars

@@ -9,3 +9,5 @@ end
 function convert_type(::Type{Symbol}, val)
   return Symbol(val)
 end
+
+convert_type(_, other) = other

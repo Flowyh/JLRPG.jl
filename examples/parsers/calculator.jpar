@@ -1,6 +1,8 @@
 #= Token definitions =#
-%token PLUS "+"
-%token TIMES "*"
+%token MULTIPLY "*"
+%token DIVIDE "/"
+%token ADD "+"
+%token SUBTRACT "-"
 %token LPAREN "("
 %token RPAREN ")"
 %token NUMBER
@@ -16,8 +18,10 @@
 %start s
 s -> e         { println($1) }
 e -> e "+" t   { $$ = $1 + $3 }
+   | e "-" t   { $$ = $1 - $3 }
    | t         { $$ = $1 }
 t -> t "*" f   { $$ = $1 * $3 }
+   | t "/" f   { $$ = $1 / $3 }
    | f         { $$ = $1 }
 f -> NUMBER    { $$ = $1.value }
    | "(" e ")" { $$ = $2 }

@@ -25,5 +25,8 @@ function generate_lexer(
 
     write(output_file, output)
   end
+
+  println("Generated lexer path: $(output_path)")
+  nothing
 end
 
