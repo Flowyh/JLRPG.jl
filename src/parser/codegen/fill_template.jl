@@ -62,7 +62,7 @@ function parsing_table_to_named_tuples(
   tupled_action::Vector{NamedTuple} = []
   tupled_goto::Vector{NamedTuple} = []
 
-  for state in keys(table.action)
+  for state in sort(collect(keys(table.action)))
     actions::Vector{NamedTuple} = []
     for (symbol, action) in table.action[state]
       push!(actions, (
@@ -73,7 +73,7 @@ function parsing_table_to_named_tuples(
     push!(tupled_action, (state=state, actions=actions))
   end
 
-  for state in keys(table.goto)
+  for state in sort(collect(keys(table.goto)))
     gotos::Vector{NamedTuple} = [
       (symbol=symbol, goto=goto)
       for (symbol, goto) in table.goto[state]

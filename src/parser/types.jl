@@ -25,9 +25,27 @@ struct ParserProduction <: Comparable
   end
 end
 
+@enum ParserType begin
+  SLR
+  LALR
+  LR
+end
+ParserTypeFromSymbol::Dict{Symbol, ParserType} = Dict(
+  :SLR => SLR,
+  :LR => LR,
+  :LALR => LALR,
+)
 
 struct ParserOptions <: Comparable
-  # TODO: Fill if needed
+  parser_type::ParserType
+
+  function ParserOptions(
+    options::Dict = Dict()
+  )::ParserOptions
+    return new(
+      get(options, :parser_type, SLR)
+    )
+  end
 end
 
 struct Parser <: Comparable
@@ -99,7 +117,7 @@ function augment_parser(
   augmented_symbol_types[AUGMENTED_START] = augmented_symbol_types[parser.starting]
 
   return Parser(
-    parser.terminals,
+    vcat(parser.terminals, [END_OF_INPUT]),
     parser.nonterminals,
     parser.starting,
     augment_productions(parser.starting, parser.symbol_types[parser.starting], parser.productions),
@@ -117,15 +135,15 @@ struct ParsingItem <: Comparable
   lhs::Symbol
   production::Int
   dot::Int
-  lookaheads::Set{Symbol}
+  lookahead::Union{Nothing, Symbol}
 
   function ParsingItem(
     lhs::Symbol,
-    production::Int,
+    production::Int;
     dot::Int = 0,
-    lookaheads::Set{Symbol} = Set{Symbol}()
+    lookahead::Union{Nothing, Symbol} = nothing
   )
-    return new(lhs, production, dot, lookaheads)
+    return new(lhs, production, dot, lookahead)
   end
 end
 

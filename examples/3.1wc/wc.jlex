@@ -1,0 +1,21 @@
+%{
+no_lines::Int = 0
+no_words::Int = 0
+%}
+
+INDENT      [ \t]
+WHITESPACE  [ \t\n]
+
+%%
+
+{INDENT}+                           { }
+\n                                  { global no_lines += 1 }
+[a-zA-Z0-9_-]+                      { global no_words += 1 }
+
+%%
+function __LEX__at_end()
+  println("========= OUTPUT =========")
+  println("Number of lines: ", no_lines)
+  println("Number of words: ", no_words)
+  return 0
+end

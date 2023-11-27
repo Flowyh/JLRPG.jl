@@ -1,4 +1,6 @@
-#= Token definitions =#
+%option LR
+
+#= Lexer token definitions =#
 %token MULTIPLY "*"
 %token DIVIDE "/"
 %token ADD "+"
@@ -11,7 +13,6 @@
 %type <Int> e
 %type <Int> t
 %type <Int> f
-%type <Int> NUMBER
 
 %%
 #= Productions =#
@@ -27,7 +28,3 @@ f -> NUMBER    { $$ = $1.value }
    | "(" e ")" { $$ = $2 }
 
 %%
-
-function __PAR__at_end()
-  return 0
-end

@@ -7,7 +7,7 @@ module JLPG_Parser
   export augment_parser, parser_grammar_symbols
   export ParsingItem
   export ParsingTableAction, Shift, Reduce, Accept, ParsingError
-  export ParsingTable, SlrParsingTable
+  export ParsingTable
   export EMPTY_PRODUCTION, EMPTY_SYMBOL, END_OF_INPUT, AUGMENTED_START
 
   include("definition/reader.jl")
@@ -15,9 +15,15 @@ module JLPG_Parser
 
   include("first_follow.jl")
   export nullable, first_sets, follow_sets
+  export first_set_for_string_of_symbols
 
   include("slr.jl")
   export lr0_closure, lr0_goto, lr0_items
+  export SlrParsingTable
+
+  include("lr1.jl")
+  export lr1_closure, lr1_goto, lr1_items
+  export LrParsingTable
 
   include("codegen/fill_template.jl")
   export fill_parser_template

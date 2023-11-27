@@ -98,12 +98,12 @@
       nonterminals::Vector{Symbol} = [:e, :t, :f]
 
       closure::Vector{ParsingItem} = lr0_closure(
-        [ParsingItem(:e, 1, 1)],
+        [ParsingItem(:e, 1; dot=1)],
         productions,
         nonterminals
       )
 
-      @test closure == [ParsingItem(:e, 1, 1)]
+      @test closure == [ParsingItem(:e, 1; dot=1)]
     end
   end
 
@@ -144,8 +144,8 @@
 
       goto::Vector{ParsingItem} = lr0_goto(
         [
-          ParsingItem(AUGMENTED_START, 1, 1),
-          ParsingItem(:e, 1, 1)
+          ParsingItem(AUGMENTED_START, 1; dot=1),
+          ParsingItem(:e, 1; dot=1)
         ],
         :PLUS,
         productions,
@@ -153,7 +153,7 @@
       )
 
       @test goto == [
-        ParsingItem(:e, 1, 2),
+        ParsingItem(:e, 1; dot=2),
         ParsingItem(:t, 1),
         ParsingItem(:t, 2),
         ParsingItem(:f, 1),
@@ -182,7 +182,7 @@
       nonterminals::Vector{Symbol} = [:e, :t, :f]
 
       goto::Vector{ParsingItem} = lr0_goto(
-        [ParsingItem(:t, 1, 1)],
+        [ParsingItem(:t, 1; dot=1)],
         :PLUS,
         productions,
         nonterminals
@@ -231,18 +231,18 @@
           ParsingItem(:f, 2),
         ],
         [ # I1
-          ParsingItem(AUGMENTED_START, 1, 1),
-          ParsingItem(:e, 1, 1)
+          ParsingItem(AUGMENTED_START, 1; dot=1),
+          ParsingItem(:e, 1; dot=1)
         ],
         [ # I2
-          ParsingItem(:e, 2, 1),
-          ParsingItem(:t, 1, 1)
+          ParsingItem(:e, 2; dot=1),
+          ParsingItem(:t, 1; dot=1)
         ],
         [ # I3
-          ParsingItem(:t, 2, 1)
+          ParsingItem(:t, 2; dot=1)
         ],
         [ # I4
-          ParsingItem(:f, 1, 1),
+          ParsingItem(:f, 1; dot=1),
           ParsingItem(:e, 1),
           ParsingItem(:e, 2),
           ParsingItem(:t, 1),
@@ -251,33 +251,33 @@
           ParsingItem(:f, 2),
         ],
         [ # I5
-          ParsingItem(:f, 2, 1)
+          ParsingItem(:f, 2; dot=1)
         ],
         [ # I6
-          ParsingItem(:e, 1, 2),
+          ParsingItem(:e, 1; dot=2),
           ParsingItem(:t, 1),
           ParsingItem(:t, 2),
           ParsingItem(:f, 1),
           ParsingItem(:f, 2),
         ],
         [ # I7
-          ParsingItem(:t, 1, 2),
+          ParsingItem(:t, 1; dot=2),
           ParsingItem(:f, 1),
           ParsingItem(:f, 2),
         ],
         [ # I8
-          ParsingItem(:f, 1, 2),
-          ParsingItem(:e, 1, 1),
+          ParsingItem(:f, 1; dot=2),
+          ParsingItem(:e, 1; dot=1),
         ],
         [ # I9
-          ParsingItem(:e, 1, 3),
-          ParsingItem(:t, 1, 1)
+          ParsingItem(:e, 1; dot=3),
+          ParsingItem(:t, 1; dot=1)
         ],
         [ # I10
-          ParsingItem(:t, 1, 3)
+          ParsingItem(:t, 1; dot=3)
         ],
         [ # I11
-          ParsingItem(:f, 1, 3)
+          ParsingItem(:f, 1; dot=3)
         ]
       ]
 
@@ -329,7 +329,6 @@
     augmented_parser = augment_parser(parser)
 
     table::ParsingTable = SlrParsingTable(augmented_parser)
-    symbols::Vector{Symbol} = parser_grammar_symbols(augmented_parser)
 
     @test table == ParsingTable(
       Dict{Int, Dict{Symbol, ParsingTableAction}}(

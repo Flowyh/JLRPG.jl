@@ -7,17 +7,22 @@ function nullable(productions::Vector{ParserProduction})::Bool
   return false
 end
 
-function first_sets(parser::Parser)::Dict{Symbol, Set{Symbol}}
+function first_sets(
+  terminals::Vector{Symbol},
+  nonterminals::Vector{Symbol},
+  productions::Dict{Symbol, Vector{ParserProduction}}
+)::Dict{Symbol, Set{Symbol}}
   _first_sets::Dict{Symbol, Set{Symbol}} = Dict()
   _prev::Dict{Symbol, Set{Symbol}} = Dict()
 
   # Repeat until first sets stop changing
   while true
-    for nonterminal in parser.nonterminals
+    for nonterminal in nonterminals
       _first_sets[nonterminal] = _first_set_for_symbol(
         nonterminal,
         _prev,
-        parser,
+        terminals,
+        productions,
         Set{Symbol}()
       )
     end
@@ -29,6 +34,13 @@ function first_sets(parser::Parser)::Dict{Symbol, Set{Symbol}}
     _prev = copy(_first_sets)
   end
 
+  merge!(
+    _first_sets,
+    Dict(
+      symbol => Set(symbol)
+      for symbol in terminals
+    )
+  )
   return _first_sets
 end
 
@@ -40,19 +52,20 @@ end
 function _first_set_for_symbol(
   symbol::Symbol,
   prev_firsts::Dict{Symbol, Set{Symbol}},
-  parser::Parser,
+  terminals::Vector{Symbol},
+  productions::Dict{Symbol, Vector{ParserProduction}},
   visited::Set{Symbol}
 )::Set{Symbol}
   if symbol in visited
     return Set{Symbol}()
   end
 
-  if symbol in parser.terminals
+  if symbol in terminals
     return Set(symbol)
   end
 
   firsts::Set{Symbol} = get(prev_firsts, symbol, Set{Symbol}())
-  for production in parser.productions[symbol]
+  for production in productions[symbol]
     if production.rhs == EMPTY_PRODUCTION
       push!(firsts, EMPTY_SYMBOL)
     else
@@ -75,7 +88,8 @@ function _first_set_for_symbol(
           _first_set_for_symbol(
             rhs_symbol,
             prev_firsts,
-            parser,
+            terminals,
+            productions,
             union(visited, Set(symbol))
           )
         )
@@ -94,7 +108,7 @@ function _first_set_for_symbol(
   return firsts
 end
 
-function _first_set_for_string_of_symbols(
+function first_set_for_string_of_symbols(
   symbols::Vector{Symbol},
   firsts::Dict{Symbol, Set{Symbol}},
 )::Set{Symbol}
@@ -110,17 +124,20 @@ end
 
 function follow_sets(
   firsts::Dict{Symbol, Set{Symbol}},
-  parser::Parser
+  terminals::Vector{Symbol},
+  nonterminals::Vector{Symbol},
+  productions::Dict{Symbol, Vector{ParserProduction}},
+  starting::Symbol
 )::Dict{Symbol, Set{Symbol}}
   _follow_sets::Dict{Symbol, Set{Symbol}} = Dict(
-    parser.starting => Set(END_OF_INPUT)
+    starting => Set(END_OF_INPUT)
   )
   _prev::Dict{Symbol, Set{Symbol}} = Dict()
 
   # Repeat until first sets stop changing
   while true
-    for nonterminal in parser.nonterminals
-      for production in parser.productions[nonterminal]
+    for nonterminal in nonterminals
+      for production in productions[nonterminal]
         if !haskey(_follow_sets, nonterminal)
           _follow_sets[nonterminal] = Set()
         end
@@ -131,7 +148,8 @@ function follow_sets(
             production,
             _prev,
             firsts,
-            parser,
+            terminals,
+            nonterminals
           )
         )
       end
@@ -152,14 +170,15 @@ function _follows_from_prodcution(
   production::ParserProduction,
   prev_follows::Dict{Symbol, Set{Symbol}},
   firsts::Dict{Symbol, Set{Symbol}},
-  parser::Parser,
+  terminals::Vector{Symbol},
+  nonterminals::Vector{Symbol}
 )::Dict{Symbol, Set{Symbol}}
   follow::Dict{Symbol, Set{Symbol}} = copy(prev_follows)
   still_nullable::Bool = true
   lhs::Symbol, rhs::Vector{Symbol} = production.lhs, production.rhs
 
   # If A -> aB is a production, then add follow(A) to follow(B)
-  if rhs[end] in parser.nonterminals
+  if rhs[end] in nonterminals
     if !haskey(follow, rhs[end])
       follow[rhs[end]] = Set()
     end
@@ -172,7 +191,7 @@ function _follows_from_prodcution(
   # If suffix is nullable, then add follow(lhs) to follow(curr)
   for id in length(rhs)-1:-1:1
     rhs_symbol = rhs[id]
-    if rhs_symbol in parser.terminals
+    if rhs_symbol in terminals
       still_nullable = false
       continue
     end
@@ -190,11 +209,11 @@ function _follows_from_prodcution(
     end
 
     next_symbol::Symbol = rhs[id+1]
-    if next_symbol in parser.terminals
+    if next_symbol in terminals
       push!(follow[rhs_symbol], next_symbol)
     else
       union!(follow[rhs_symbol], setdiff(
-        _first_set_for_string_of_symbols(rhs[id+1:end], firsts),
+        first_set_for_string_of_symbols(rhs[id+1:end], firsts),
         EMPTY_SYMBOL
       ))
     end

@@ -6,36 +6,66 @@
     @testset "Left-recusrive grammar 1" begin
       parser = read_parser_definition_file(abspaths("resources/parser/first_follow/left_recursive_1.jpar"))
 
-      firsts = first_sets(parser)
+      terminals, nonterminals = parser.terminals, parser.nonterminals
+      productions = parser.productions
+
+      firsts = first_sets(
+        terminals,
+        nonterminals,
+        productions,
+      )
       @test firsts == Dict(
         :s => Set(:Y),
         :x => Set(:X),
-        :y => Set(:Y)
+        :y => Set(:Y),
+        :X => Set(:X),
+        :Y => Set(:Y)
       )
     end
 
     @testset "Left-recusrive grammar 2" begin
       parser = read_parser_definition_file(abspaths("resources/parser/first_follow/left_recursive_2.jpar"))
 
-      firsts = first_sets(parser)
+      terminals, nonterminals = parser.terminals, parser.nonterminals
+      productions = parser.productions
+
+      firsts = first_sets(
+        terminals,
+        nonterminals,
+        productions,
+      )
       @test firsts == Dict(
         :s => Set(EMPTY_SYMBOL, :X, :Y),
         :x => Set(EMPTY_SYMBOL, :X),
-        :y => Set(EMPTY_SYMBOL, :Y)
+        :y => Set(EMPTY_SYMBOL, :Y),
+        :X => Set(:X),
+        :Y => Set(:Y)
       )
     end
 
     @testset "Dragonbook top-down parser grammar (4.28, p. 217)" begin
       parser = read_parser_definition_file(abspaths("resources/parser/definition_reader/dragonbook_4_28_ll.jpar"))
 
-      firsts = first_sets(parser)
+      terminals, nonterminals = parser.terminals, parser.nonterminals
+      productions = parser.productions
+
+      firsts = first_sets(
+        terminals,
+        nonterminals,
+        productions,
+      )
       @test firsts == Dict(
         Dict(
           :e => Set(:LPAREN, :ID),
           :e_prim => Set(:PLUS, EMPTY_SYMBOL),
           :t => Set(:LPAREN, :ID),
           :t_prim => Set(:TIMES, EMPTY_SYMBOL),
-          :f => Set(:LPAREN, :ID)
+          :f => Set(:LPAREN, :ID),
+          :LPAREN => Set(:LPAREN),
+          :RPAREN => Set(:RPAREN),
+          :ID => Set(:ID),
+          :PLUS => Set(:PLUS),
+          :TIMES => Set(:TIMES),
         ),
       )
     end
@@ -43,24 +73,44 @@
     @testset "All tokens in rhs are nullable" begin
       parser = read_parser_definition_file(abspaths("resources/parser/first_follow/all_nullable.jpar"))
 
-      firsts = first_sets(parser)
+      terminals, nonterminals = parser.terminals, parser.nonterminals
+      productions = parser.productions
+
+      firsts = first_sets(
+        terminals,
+        nonterminals,
+        productions,
+      )
       @test firsts == Dict(
         :s => Set(EMPTY_SYMBOL, :A, :B, :C),
         :a => Set(EMPTY_SYMBOL, :A),
         :b => Set(EMPTY_SYMBOL, :B),
-        :c => Set(EMPTY_SYMBOL, :C)
+        :c => Set(EMPTY_SYMBOL, :C),
+        :A => Set(:A),
+        :B => Set(:B),
+        :C => Set(:C)
       )
     end
 
     @testset "All tokens in rhs are nullable (left recursion)" begin
       parser = read_parser_definition_file(abspaths("resources/parser/first_follow/all_nullable_left_recursion.jpar"))
 
-      firsts = first_sets(parser)
+      terminals, nonterminals = parser.terminals, parser.nonterminals
+      productions = parser.productions
+
+      firsts = first_sets(
+        terminals,
+        nonterminals,
+        productions,
+      )
       @test firsts == Dict(
         :s => Set(EMPTY_SYMBOL, :A, :B, :C),
         :a => Set(EMPTY_SYMBOL, :A),
         :b => Set(EMPTY_SYMBOL, :B),
-        :c => Set(EMPTY_SYMBOL, :C)
+        :c => Set(EMPTY_SYMBOL, :C),
+        :A => Set(:A),
+        :B => Set(:B),
+        :C => Set(:C),
       )
     end
   end
@@ -70,8 +120,21 @@
     @testset "Left-recusrive grammar 1" begin
       parser = read_parser_definition_file(abspaths("resources/parser/first_follow/left_recursive_1.jpar"))
 
-      firsts = first_sets(parser)
-      follows = follow_sets(firsts, parser)
+      terminals, nonterminals = parser.terminals, parser.nonterminals
+      productions = parser.productions
+
+      firsts = first_sets(
+        terminals,
+        nonterminals,
+        productions,
+      )
+      follows = follow_sets(
+        firsts,
+        terminals,
+        nonterminals,
+        productions,
+        parser.starting
+      )
       @test follows == Dict(
         :s => Set(END_OF_INPUT, :X),
         :x => Set(END_OF_INPUT, :X),
@@ -82,8 +145,21 @@
     @testset "Left-recusrive grammar 2" begin
       parser = read_parser_definition_file(abspaths("resources/parser/first_follow/left_recursive_2.jpar"))
 
-      firsts = first_sets(parser)
-      follows = follow_sets(firsts, parser)
+      terminals, nonterminals = parser.terminals, parser.nonterminals
+      productions = parser.productions
+
+      firsts = first_sets(
+        terminals,
+        nonterminals,
+        productions,
+      )
+      follows = follow_sets(
+        firsts,
+        terminals,
+        nonterminals,
+        productions,
+        parser.starting
+      )
       @test follows == Dict(
         :s => Set(END_OF_INPUT, :X),
         :x => Set(END_OF_INPUT, :X),
@@ -94,8 +170,21 @@
     @testset "Dragonbook top-down parser grammar (4.28, p. 217)" begin
       parser = read_parser_definition_file(abspaths("resources/parser/definition_reader/dragonbook_4_28_ll.jpar"))
 
-      firsts = first_sets(parser)
-      follows = follow_sets(firsts, parser)
+      terminals, nonterminals = parser.terminals, parser.nonterminals
+      productions = parser.productions
+
+      firsts = first_sets(
+        terminals,
+        nonterminals,
+        productions,
+      )
+      follows = follow_sets(
+        firsts,
+        terminals,
+        nonterminals,
+        productions,
+        parser.starting
+      )
       @test follows == Dict(
         :e => Set(:RPAREN, END_OF_INPUT),
         :e_prim => Set(:RPAREN, END_OF_INPUT),
@@ -108,8 +197,21 @@
     @testset "All tokens in rhs are nullable" begin
       parser = read_parser_definition_file(abspaths("resources/parser/first_follow/all_nullable.jpar"))
 
-      firsts = first_sets(parser)
-      follows = follow_sets(firsts, parser)
+      terminals, nonterminals = parser.terminals, parser.nonterminals
+      productions = parser.productions
+
+      firsts = first_sets(
+        terminals,
+        nonterminals,
+        productions,
+      )
+      follows = follow_sets(
+        firsts,
+        terminals,
+        nonterminals,
+        productions,
+        parser.starting
+      )
       @test follows == Dict(
         :s => Set(END_OF_INPUT),
         :a => Set(END_OF_INPUT, :B, :C),
@@ -121,8 +223,21 @@
     @testset "All tokens in rhs are nullable (left recursion)" begin
       parser = read_parser_definition_file(abspaths("resources/parser/first_follow/all_nullable_left_recursion.jpar"))
 
-      firsts = first_sets(parser)
-      follows = follow_sets(firsts, parser)
+      terminals, nonterminals = parser.terminals, parser.nonterminals
+      productions = parser.productions
+
+      firsts = first_sets(
+        terminals,
+        nonterminals,
+        productions,
+      )
+      follows = follow_sets(
+        firsts,
+        terminals,
+        nonterminals,
+        productions,
+        parser.starting
+      )
       @test follows == Dict(
         :s => Set(END_OF_INPUT),
         :a => Set(END_OF_INPUT, :A, :B, :C),

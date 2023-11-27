@@ -1,0 +1,15 @@
+#= Definitions section =#
+%option LR
+
+#= Token definitions =#
+%token C
+%token D
+
+%%
+#= Productions =#
+%start s
+s -> c c
+c -> C c
+   | D
+
+%%

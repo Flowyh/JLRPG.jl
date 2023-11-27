@@ -10,7 +10,7 @@ using Parameters: @consts
 
   PARSER_SECTION_REGEX = r"%%"
   PARSER_CODE_BLOCK_REGEX = r"%{((?s:.)*?)%}"
-  PARSER_OPTION_REGEX = r"%option[ \t]+((?:\w+ ?)+)"
+  PARSER_OPTION_REGEX = r"%option[ \t]+(?<value>\w+)"
   TOKEN_REGEX = r"%token[ \t]+(?<name>\w+)(?:[ \t]+\"(?<alias>[^\"]+)\")?"
   TYPE_REGEX = r"%type[ \t]+<(?<type>(?:\w|\{|\})+)>(?:[ \t]+(?<symbol>\w+))?"
   START_REGEX = r"%start[ \t]+(?<symbol>\w+)"
@@ -154,7 +154,7 @@ function _read_parser_definition_file(
   lexer_tokens::Set{Symbol} = Set()
   lexer_token_aliases::Dict{Symbol, Symbol} = Dict()
   code_blocks::Vector{String} = []
-  options = ParserOptions() # TODO: Fill if needed
+  options = Dict() # TODO: Fill if needed
 
   while !cursor_is_eof(c)
     did_match::Bool = false
@@ -178,7 +178,9 @@ function _read_parser_definition_file(
           c, "Option outside of definitions section";
           erroneous_slice=matched
         )
-        # TODO: Fill if needed
+        if m[:value] in ["SLR", "LR", "LALR"]
+          options[:parser_type] = ParserTypeFromSymbol[Symbol(m[:value])]
+        end
       elseif definition == token
         _parser_section_guard(
           current_section,
@@ -390,6 +392,6 @@ function _read_parser_definition_file(
     lexer_tokens,
     lexer_token_aliases,
     code_blocks,
-    options
+    ParserOptions(options)
   )
 end

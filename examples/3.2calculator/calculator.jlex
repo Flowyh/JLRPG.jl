@@ -1,9 +1,9 @@
-WHITESPACE [ \t\r\n]+
+WHITESPACE (\s|\n)
 NUMBER     0|[1-9]+[0-9]*
 
 %%
 
-{WHITESPACE}             { # Ignore }
+{WHITESPACE}+            { # Ignore }
 {NUMBER}                 {
   val::Int = parse(Int, $$)
   return Number(::Int=val)

@@ -28,9 +28,12 @@ function __PAR__main()
       try
         __PAR__simulate(tokens, PARSING_TABLE)
       catch e
-        e = ErrorException(replace(e.msg, r"\n       " => "\n"))
+        if e isa ErrorException
+          e = ErrorException(replace(e.msg, r"\n       " => "\n"))
+          @error "Error while parsing tokens" exception=(e, catch_backtrace())
+          exit(1)
+        end
         @error "Error while parsing tokens" exception=(e, catch_backtrace())
-        exit(1)
       end
     end
   end

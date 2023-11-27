@@ -10,7 +10,16 @@ function generate_parser(
   end
 
   parser = augment_parser(parser)
-  table = SlrParsingTable(parser)
+
+  if parser.options.parser_type == SLR
+    table = SlrParsingTable(parser)
+  elseif parser.options.parser_type == LR
+    table = LrParsingTable(parser)
+  elseif parser.options.parser_type == LALR
+    table = LrParsingTable(parser)
+  else
+    error("Unknown parser type: $(parser.options.parser_type)")
+  end
 
   open(output_path, "w") do output_file
     filled_template = fill_parser_template(

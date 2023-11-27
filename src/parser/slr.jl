@@ -58,7 +58,7 @@ function lr0_goto(
     next_symbol_index::Int = dot + 1
     next_symbol::Symbol = rhs[next_symbol_index]
     if next_symbol == symbol
-      push!(new_items, ParsingItem(lhs, id, next_symbol_index))
+      push!(new_items, ParsingItem(lhs, id; dot=next_symbol_index))
     end
   end
 
@@ -119,12 +119,23 @@ end
 function SlrParsingTable(
   augmented_parser::Parser
 )::ParsingTable
-  productions, nonterminals = augmented_parser.productions, augmented_parser.nonterminals
+  terminals, nonterminals = augmented_parser.terminals, augmented_parser.nonterminals
+  productions = augmented_parser.productions
   grammar_symbols = parser_grammar_symbols(augmented_parser)
   lr0_item_sets, lr0_gotos = lr0_items(productions, nonterminals, grammar_symbols)
 
-  _first = first_sets(augmented_parser)
-  _follow = follow_sets(_first, augmented_parser)
+  _first = first_sets(
+    terminals,
+    nonterminals,
+    productions
+  )
+  _follow = follow_sets(
+    _first,
+    terminals,
+    nonterminals,
+    productions,
+    augmented_parser.starting
+  )
 
   action::Dict{Int, Dict{Symbol, ParsingTableAction}} = Dict()
   goto::Dict{Int, Dict{Symbol, Int}} = Dict()
@@ -155,8 +166,13 @@ function SlrParsingTable(
         next_symbol_index::Int = dot + 1
         next_symbol::Symbol = rhs[next_symbol_index]
         if next_symbol in augmented_parser.terminals && haskey(lr0_gotos, i) && haskey(lr0_gotos[i], next_symbol)
-          if haskey(action[i], next_symbol)
-            error("Conflict in parsing table. Shift-$(typeof(action[i][next_symbol])) conflict at state $i, symbol $next_symbol")
+          if haskey(action[i], next_symbol) && action[i][next_symbol] != Shift(lr0_gotos[i][next_symbol])
+            error(
+              "Conflict in parsing table. " *
+              "Shift-$(typeof(action[i][next_symbol])) conflict at state $i, " *
+              "symbol $next_symbol.\nCurrent action $(action[i][next_symbol]), " *
+              "new action: Shift($(lr0_gotos[i][next_symbol]))."
+            )
           end
           action[i][next_symbol] = Shift(lr0_gotos[i][next_symbol])
         end
