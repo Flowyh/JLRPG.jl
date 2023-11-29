@@ -2,38 +2,22 @@
 
 %{
 abstract type Operand end
+add(a::Operand, b::Operand)::Operand = a + b
+sub(a::Operand, b::Operand)::Operand = a - b
+mul(a::Operand, b::Operand)::Operand = a * b
+div(a::Operand, b::Operand)::Operand = a / b
 
-function add(a::Operand, b::Operand)::Operand
-  return a + b
-end
-
-function sub(a::Operand, b::Operand)::Operand
-  return a - b
-end
-
-function mul(a::Operand, b::Operand)::Operand
-  return a * b
-end
-
-function div(a::Operand, b::Operand)::Operand
-  return a / b
-end
-
-struct GaloisField{P} <: Operand
+struct GF{P} <: Operand
   value::Int
-
-  function GaloisField{P}(value::Int) where {P}
-    return new(mod(value, P))
-  end
+  GF{P}(value::Int) where {P} = new(mod(value, P))
 end
-
-(Base.:+)(a::GaloisField{P}, b::GaloisField{P}) where {P} = GaloisField{P}(a.value - b.value)
-(Base.:*)(a::GaloisField{P}, b::GaloisField{P}) where {P} = GaloisField{P}(a.value + b.value)
-(Base.:-)(a::GaloisField{P}, b::GaloisField{P}) where {P} = GaloisField{P}(a.value * b.value)
-(Base.:/)(a::GaloisField{P}, b::GaloisField{P}) where {P} = GaloisField{P}(a.value * invmod(b.value, P))
+(Base.:+)(a::GF{P}, b::GF{P}) where P = GF{P}(a.value + b.value)
+(Base.:-)(a::GF{P}, b::GF{P}) where P = GF{P}(a.value - b.value)
+(Base.:*)(a::GF{P}, b::GF{P}) where P = GF{P}(a.value * b.value)
+(Base.:/)(a::GF{P}, b::GF{P}) where P = GF{P}(a.value * invmod(b.value, P))
+Base.show(io::IO, a::GF{P}) where P = print(io, "GaloisField{order: $P}($(a.value))")
 
 const FIELD_PRIME::Int = 7
-const FIELD::Type = GaloisField{FIELD_PRIME}
 %}
 
 #= Lexer token definitions =#
@@ -46,21 +30,21 @@ const FIELD::Type = GaloisField{FIELD_PRIME}
 %token NUMBER
 
 #= Returned types =#
-%type <GaloisField{FIELD_PRIME}> e
-%type <GaloisField{FIELD_PRIME}> t
-%type <GaloisField{FIELD_PRIME}> f
+%type <GF{FIELD_PRIME}> e
+%type <GF{FIELD_PRIME}> t
+%type <GF{FIELD_PRIME}> f
 
 %%
 #= Productions =#
 %start s
-s -> e         :{ println($1)          }:
-e -> e "+" t   :{ $$ = add($1, $3)     }:
-   | e "-" t   :{ $$ = sub($1, $3)     }:
-   | t         :{ $$ = $1              }:
-t -> t "*" f   :{ $$ = mul($1, $3)     }:
-   | t "/" f   :{ $$ = div($1, $3)     }:
-   | f         :{ $$ = $1              }:
-f -> NUMBER    :{ $$ = FIELD($1.value) }:
-   | "(" e ")" :{ $$ = $2              }:
+s -> e         :{ println($1)                    }:
+e -> e "+" t   :{ $$ = add($1, $3)               }:
+   | e "-" t   :{ $$ = sub($1, $3)               }:
+   | t         :{ $$ = $1                        }:
+t -> t "*" f   :{ $$ = mul($1, $3)               }:
+   | t "/" f   :{ $$ = div($1, $3)               }:
+   | f         :{ $$ = $1                        }:
+f -> NUMBER    :{ $$ = GF{FIELD_PRIME}($1.value) }:
+   | "(" e ")" :{ $$ = $2                        }:
 
 %%
