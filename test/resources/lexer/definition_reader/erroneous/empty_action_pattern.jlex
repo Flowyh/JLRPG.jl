@@ -1,8 +1,8 @@
 %%
 
-"Test" { return "Test" }
-[0-9]+ { return Number($$) }
-       { return NotValid() }
-.*     { return Error() }
+"Test" :{ return "Test"     }:
+[0-9]+ :{ return Number($$) }:
+       :{ return NotValid() }:
+.*     :{ return Error()    }:
 
 %%

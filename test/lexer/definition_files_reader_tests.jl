@@ -29,21 +29,21 @@
     @testset "Action outside actions section" begin
       path = abspaths("resources/lexer/definition_reader/erroneous/action_outside_actions.jlex")
       error_msg = raw"Action outside of actions section" * "\n" *
-                  raw"       \"\"test\" { return Test($$) }\" at " * "$(unexpanduser(path)):3:1"
+                  raw"       \"\"test\" :{ return Test($$) }:\" at " * "$(unexpanduser(path)):3:1"
       @test_throws error_msg read_lexer_definition_file(path)
     end
 
     @testset "Invalid character/s in definition file" begin
       path = abspaths("resources/lexer/definition_reader/erroneous/invalid_chars.jlex")
       error_msg = "Invalid character/s in definition file" * "\n" *
-                  "       \"/\" at $(unexpanduser(path)):3:43"
+                  "       \"/\" at $(unexpanduser(path)):3:45"
       @test_throws error_msg read_lexer_definition_file(path)
     end
 
     @testset "Actions with empty patterns are invalid" begin
       path = abspaths("resources/lexer/definition_reader/erroneous/empty_action_pattern.jlex")
       error_msg = "Invalid character/s in definition file" * "\n" *
-                  "       \"{\" at $(unexpanduser(path)):5:8"
+                  "       \":\" at $(unexpanduser(path)):5:8"
       @test_throws error_msg read_lexer_definition_file(path)
     end
   end

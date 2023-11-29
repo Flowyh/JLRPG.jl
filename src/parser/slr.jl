@@ -122,7 +122,6 @@ function SlrParsingTable(
   terminals, nonterminals = augmented_parser.terminals, augmented_parser.nonterminals
   productions = augmented_parser.productions
   grammar_symbols = parser_grammar_symbols(augmented_parser)
-  lr0_item_sets, lr0_gotos = lr0_items(productions, nonterminals, grammar_symbols)
 
   _first = first_sets(
     terminals,
@@ -137,6 +136,8 @@ function SlrParsingTable(
     augmented_parser.starting
   )
 
+  lr0_item_sets, lr0_gotos = lr0_items(productions, nonterminals, grammar_symbols)
+
   action::Dict{Int, Dict{Symbol, ParsingTableAction}} = Dict()
   goto::Dict{Int, Dict{Symbol, Int}} = Dict()
 
@@ -146,7 +147,6 @@ function SlrParsingTable(
   for (set_id, item_set) in enumerate(lr0_item_sets)
     i = set_id - 1
     action[i] = Dict()
-    goto[i] = Dict()
     for item in item_set
       lhs, id, dot = item.lhs, item.production, item.dot
       rhs = productions[lhs][id].rhs
@@ -181,9 +181,6 @@ function SlrParsingTable(
 
     if isempty(action[i])
       delete!(action, i)
-    end
-    if isempty(goto[i])
-      delete!(goto, i)
     end
   end
 

@@ -23,14 +23,14 @@
 %%
 #= Productions =#
 %start start
-start -> expr END { println($1) }
-       | %empty   { println("Empty input") }
-expr -> expr "+" expr { $$ = $1 + $3 }
-      | expr "-" expr { $$ = $1 - $3 }
-      | expr "*" expr { $$ = $1 * $3 }
-      | expr "/" expr { $$ = $1 / $3 }
-      | "(" expr ")" { $$ = $2 }
-      | NUMBER { $$ = $1.value }
+start -> expr END     :{ println($1)            }:
+       | %empty       :{ println("Empty input") }:
+expr -> expr "+" expr :{ $$ = $1 + $3           }:
+      | expr "-" expr :{ $$ = $1 - $3           }:
+      | expr "*" expr :{ $$ = $1 * $3           }:
+      | expr "/" expr :{ $$ = $1 / $3           }:
+      | "(" expr ")"  :{ $$ = $2                }:
+      | NUMBER        :{ $$ = $1.value          }:
 %%
 
 function factorial(n::Int)::Int

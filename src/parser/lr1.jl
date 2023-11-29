@@ -137,6 +137,7 @@ function LrParsingTable(
 )::ParsingTable
   terminals, nonterminals = augmented_parser.terminals, augmented_parser.nonterminals
   productions = augmented_parser.productions
+  grammar_symbols = parser_grammar_symbols(augmented_parser)
 
   _first = first_sets(
     terminals,
@@ -144,7 +145,6 @@ function LrParsingTable(
     productions,
   )
 
-  grammar_symbols = parser_grammar_symbols(augmented_parser)
   lr1_item_sets, lr1_gotos = lr1_items(productions, nonterminals, grammar_symbols, _first)
 
   action::Dict{Int, Dict{Symbol, ParsingTableAction}} = Dict()
@@ -156,7 +156,6 @@ function LrParsingTable(
   for (set_id, item_set) in enumerate(lr1_item_sets)
     i = set_id - 1
     action[i] = Dict()
-    goto[i] = Dict()
     for item in item_set
       lhs, id, dot = item.lhs, item.production, item.dot
       lookahead = item.lookahead
@@ -190,9 +189,6 @@ function LrParsingTable(
 
     if isempty(action[i])
       delete!(action, i)
-    end
-    if isempty(goto[i])
-      delete!(goto, i)
     end
   end
 

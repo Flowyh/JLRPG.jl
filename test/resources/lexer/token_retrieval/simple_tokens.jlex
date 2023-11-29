@@ -1,9 +1,9 @@
 %%
 
-"5"   { return Five(5) }
-"123" { return OneTwoThree(1, 2, 3) }
-[0-9] { return Digit($$) }
-"def" { return Function(func($$)) }
-.*    { return Error() }
+"5"   :{ return Five(5) }:
+"123" :{ return OneTwoThree(1, 2, 3) }:
+[0-9] :{ return Digit($$) }:
+"def" :{ return Function(func($$)) }:
+.*    :{ return Error() }:
 
 %%

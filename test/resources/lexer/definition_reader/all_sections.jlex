@@ -18,14 +18,14 @@ IDENTIFIER [_a-z]+
   println("Code in actions :o")
 %}
 
-{WHITESPACE} { test += 1 }
-{NUM}        {
+{WHITESPACE} :{ test += 1 }:
+{NUM}        :{
   test += 2
   return Num(5)
-}
-"text"{NUM}  { test += 3 }
-"+"          { return Operator("+") }
-.*           { return Error() }
+}:
+"text"{NUM}  :{ test += 3 }:
+"+"          :{ return Operator("+") }:
+.*           :{ return Error() }:
 
 %%
 

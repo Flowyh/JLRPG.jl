@@ -7,11 +7,11 @@ IDENTIFIER      {CHAR}({CHAR}|{DIGIT})*
 
 %%
 
-{IDENTIFIER}                        { return Id($$) }
-{NUMBER}                            { return Number($$) }
-"**HELLO**"{WHITESPACE}+"++WORLD++" { return Hello() }
-.*                                  { return Error() }
-"a"              "b"                { return AB() }
+{IDENTIFIER}                        :{ return Id($$)     }:
+{NUMBER}                            :{ return Number($$) }:
+"**HELLO**"{WHITESPACE}+"++WORLD++" :{ return Hello()    }:
+.*                                  :{ return Error()    }:
+"a"              "b"                :{ return AB()       }:
 
 %%
 

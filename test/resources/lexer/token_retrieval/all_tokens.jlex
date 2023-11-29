@@ -1,11 +1,11 @@
 %%
 
-"invalid return"       { return Omitted }
-"missing parenthesis"  { return Omitted( }
-[0-9]                  { return Digit($$) }
-[0-9]+                 { return Number(::Int=$$) }
-[_a-zA-Z][_a-zA-Z0-9]* { return Identifier(name=$$, line::Int=15) }
-"all arg types"        { return AllArgs(a::Int=1, ::Float64=2.0, "3") }
-.*                     { return Error(match=$$) }
+"invalid return"       :{ return Omitted }:
+"missing parenthesis"  :{ return Omitted( }:
+[0-9]                  :{ return Digit($$) }:
+[0-9]+                 :{ return Number(::Int=$$) }:
+[_a-zA-Z][_a-zA-Z0-9]* :{ return Identifier(name=$$, line::Int=15) }:
+"all arg types"        :{ return AllArgs(a::Int=1, ::Float64=2.0, "3") }:
+.*                     :{ return Error(match=$$) }:
 
 %%

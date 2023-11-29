@@ -8,9 +8,9 @@ WHITESPACE  [ \t\n]
 
 %%
 
-{INDENT}+                           { }
-\n                                  { global no_lines += 1 }
-[a-zA-Z0-9_-]+                      { global no_words += 1 }
+{INDENT}+                           :{ }:
+\n                                  :{ global no_lines += 1 }:
+[a-zA-Z0-9_-]+                      :{ global no_words += 1 }:
 
 %%
 function __LEX__at_end()

@@ -1,6 +1,6 @@
 #= Definitions =#
 
-"test" { return Test($$) }
+"test" :{ return Test($$) }:
 %%
 #= Actions =#
 

@@ -16,7 +16,7 @@ function generate_parser(
   elseif parser.options.parser_type == LR
     table = LrParsingTable(parser)
   elseif parser.options.parser_type == LALR
-    table = LrParsingTable(parser)
+    table = LalrParsingTable(parser)
   else
     error("Unknown parser type: $(parser.options.parser_type)")
   end

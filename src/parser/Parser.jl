@@ -25,6 +25,10 @@ module JLPG_Parser
   export lr1_closure, lr1_goto, lr1_items
   export LrParsingTable
 
+  include("lalr.jl")
+  export lr1_cores, merge_lr1_cores
+  export LalrParsingTable
+
   include("codegen/fill_template.jl")
   export fill_parser_template
 

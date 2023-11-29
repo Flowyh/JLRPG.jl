@@ -14,9 +14,9 @@ using Parameters: @consts
   TOKEN_REGEX = r"%token[ \t]+(?<name>\w+)(?:[ \t]+\"(?<alias>[^\"]+)\")?"
   TYPE_REGEX = r"%type[ \t]+<(?<type>(?:\w|\{|\})+)>(?:[ \t]+(?<symbol>\w+))?"
   START_REGEX = r"%start[ \t]+(?<symbol>\w+)"
-  PRODUCTION_REGEX = r"(?<lhs>\w+)\s+->\s+(?<production>[^{}\n]+?)\s+{(?<action>(?s:.)*?)}"
+  PRODUCTION_REGEX = r"(?<lhs>\w+)\s+->\s+(?<production>[^{}\n]+?)\s+:{(?<action>(?s:.)*?)}:"
   EMPTY_CALLBACK_PRODUCTION_REGEX = r"(?<lhs>\w+)\s+->\s+(?<production>[^{}\n]+)"
-  PRODUCTION_ALT_REGEX = r"\|\s+(?<production>[^{}\n]+)\s+{(?<action>(?s:.)*?)}"
+  PRODUCTION_ALT_REGEX = r"\|\s+(?<production>[^{}\n]+)\s+:{(?<action>(?s:.)*?)}:"
   EMPTY_CALLBACK_PRODUCTION_ALT_REGEX = r"\|\s+(?<production>[^{}\n]+)"
   PARSER_COMMENT_REGEX = r"\s*#=[^\n]*=#\s*"
 

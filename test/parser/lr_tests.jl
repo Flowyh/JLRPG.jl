@@ -1,4 +1,4 @@
-@testset "LR(1) LR" begin
+@testset "LR(1)" begin
   @testset "Throws errors for invalid grammars" begin
     @testset "No augmented start for computing LR(1) items" begin
       productions::Dict{Symbol, Vector{ParserProduction}} = Dict(
@@ -221,7 +221,7 @@
     end
   end
 
-  @testset "Correctly computes all lr0 items" begin
+  @testset "Correctly computes all lr1 items" begin
     @testset "Dragonbook example (4.54, p. 263-264)" begin
       productions::Dict{Symbol, Vector{ParserProduction}} = Dict(
         AUGMENTED_START => [

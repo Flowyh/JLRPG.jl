@@ -5,19 +5,19 @@ IDENTIFIER [_a-zA-Z]([_a-zA-Z]|{NUM})+
 
 %%
 
-{WHITESPACE}               { # Ignore }
-{CHAR}                     {
+{WHITESPACE}               :{ # Ignore }:
+{CHAR}                     :{
   println("Got a Char! ", $$)
   return Char(char::AbstractChar=$$[2])
-}
-{IDENTIFIER}               {
+}:
+{IDENTIFIER}               :{
   println("Got an Id! ", $$)
   return Id($$)
-}
-{NUM}+                     {
+}:
+{NUM}+                     :{
   println("Got a Number! ", $$)
   return Number(val::Int=$$)
-}
-.                          { return Error(char::AbstractChar=$$) }
+}:
+.                          :{ return Error(char::AbstractChar=$$) }:
 
 %%

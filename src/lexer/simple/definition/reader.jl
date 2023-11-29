@@ -12,7 +12,7 @@ using Parameters: @consts
   LEXER_CODE_BLOCK_REGEX = r"%{((?s:.)*?)%}"
   LEXER_OPTION_REGEX = r"%option[ \t]+((?:\w+ ?)+)"
   REGEX_ALIAS_REGEX = r"(?<name>[A-Z0-9_-]+)\s+(?<pattern>.+)"
-  ACTION_REGEX = r"(?<pattern>.+?)\s+{(?<body>(?s:.)+?)}"
+  ACTION_REGEX = r"(?<pattern>.+?)\s+:{(?<body>(?s:.)+?)}:"
   LEXER_COMMENT_REGEX = r"\s*#=[^\n]*=#\s*"
 
   SpecialDefinitionPatterns::Vector{Pair{LexerSpecialDefinition, Regex}} = [

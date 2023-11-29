@@ -1,10 +1,10 @@
 %%
 
-"5.0"     { return Five(five::Float64=5.0) }
-"123"     { return OneTwoThree(one::Int=1, two::Float32=2, three::Int16=3) }
-[0-9]     { return Digit(::Int=$$) }
-"def"     { return Function(func_call::String=func($$)) }
-[a-zA-Z]+ { return Message(msg::String=$$) }
-.*        { return Error() }
+"5.0"     :{ return Five(five::Float64=5.0) }:
+"123"     :{ return OneTwoThree(one::Int=1, two::Float32=2, three::Int16=3) }:
+[0-9]     :{ return Digit(::Int=$$) }:
+"def"     :{ return Function(func_call::String=func($$)) }:
+[a-zA-Z]+ :{ return Message(msg::String=$$) }:
+.*        :{ return Error() }:
 
 %%

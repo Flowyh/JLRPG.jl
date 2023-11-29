@@ -1,4 +1,40 @@
-%option LR
+%option LALR
+
+%{
+abstract type Operand end
+
+function add(a::Operand, b::Operand)::Operand
+  return a + b
+end
+
+function sub(a::Operand, b::Operand)::Operand
+  return a - b
+end
+
+function mul(a::Operand, b::Operand)::Operand
+  return a * b
+end
+
+function div(a::Operand, b::Operand)::Operand
+  return a / b
+end
+
+struct GaloisField{P} <: Operand
+  value::Int
+
+  function GaloisField{P}(value::Int) where {P}
+    return new(mod(value, P))
+  end
+end
+
+(Base.:+)(a::GaloisField{P}, b::GaloisField{P}) where {P} = GaloisField{P}(a.value - b.value)
+(Base.:*)(a::GaloisField{P}, b::GaloisField{P}) where {P} = GaloisField{P}(a.value + b.value)
+(Base.:-)(a::GaloisField{P}, b::GaloisField{P}) where {P} = GaloisField{P}(a.value * b.value)
+(Base.:/)(a::GaloisField{P}, b::GaloisField{P}) where {P} = GaloisField{P}(a.value * invmod(b.value, P))
+
+const FIELD_PRIME::Int = 7
+const FIELD::Type = GaloisField{FIELD_PRIME}
+%}
 
 #= Lexer token definitions =#
 %token MULTIPLY "*"
@@ -10,21 +46,21 @@
 %token NUMBER
 
 #= Returned types =#
-%type <Int> e
-%type <Int> t
-%type <Int> f
+%type <GaloisField{FIELD_PRIME}> e
+%type <GaloisField{FIELD_PRIME}> t
+%type <GaloisField{FIELD_PRIME}> f
 
 %%
 #= Productions =#
 %start s
-s -> e         { println($1) }
-e -> e "+" t   { $$ = $1 + $3 }
-   | e "-" t   { $$ = $1 - $3 }
-   | t         { $$ = $1 }
-t -> t "*" f   { $$ = $1 * $3 }
-   | t "/" f   { $$ = $1 / $3 }
-   | f         { $$ = $1 }
-f -> NUMBER    { $$ = $1.value }
-   | "(" e ")" { $$ = $2 }
+s -> e         :{ println($1)          }:
+e -> e "+" t   :{ $$ = add($1, $3)     }:
+   | e "-" t   :{ $$ = sub($1, $3)     }:
+   | t         :{ $$ = $1              }:
+t -> t "*" f   :{ $$ = mul($1, $3)     }:
+   | t "/" f   :{ $$ = div($1, $3)     }:
+   | f         :{ $$ = $1              }:
+f -> NUMBER    :{ $$ = FIELD($1.value) }:
+   | "(" e ")" :{ $$ = $2              }:
 
 %%
