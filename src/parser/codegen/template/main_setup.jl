@@ -29,7 +29,7 @@ function __PAR__main()
     end
     # Parse
     try
-      __PAR__simulate(tokens, PARSING_TABLE)
+      __PAR__simulate(tokens)
     catch e
       if e isa ErrorException
         e = ErrorException(replace(e.msg, r"\n       " => "\n"))

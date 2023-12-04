@@ -1,6 +1,6 @@
 function __PAR__simulate(
   tokens::Vector{LexerToken},
-  table::ParsingTable
+  table::ParsingTable = __PAR__PARSING_TABLE
 )
   @debug "<<<<< START OF PARSER SIMULATION >>>>>"
   states::Vector{Int} = [0] # Stack
@@ -26,19 +26,19 @@ function __PAR__simulate(
       @debug "Reduce with production $(lhs), $(production)"
 
       symbols_slice::Vector = []
-      for _ in 1:LHS_ID_TO_RHS_LENGTH[lhs][production]
+      for _ in 1:__PAR__LHS_ID_TO_RHS_LENGTH[lhs][production]
         pop!(states)
         pushfirst!(symbols_slice, pop!(symbols)) # Push first for convenience of indexing with $1, $2, ...
       end
       s = states[end]
       push!(states, table.goto[s][lhs])
-      returned_symbol = LHS_ID_TO_ACTION[lhs][production](symbols_slice)
+      returned_symbol = __PAR__LHS_ID_TO_ACTION[lhs][production](symbols_slice)
       push!(symbols, returned_symbol)
     elseif current_action isa Accept
       @debug "Accept!"
       break
     elseif current_action isa ParsingError
-      if tokens[current_token] isa __LEX__EOI
+      if token_symbol(tokens[current_token]) == END_OF_INPUT
         error("Not enough tokens to parse")
       else
         token = tokens[current_token]

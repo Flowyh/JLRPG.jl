@@ -1,17 +1,17 @@
-#=== START OF ENVIRONEMNT SETUP ===#
+#=== START OF __LEX__ ENVIRONEMNT SETUP ===#
 {{{:env}}}
-#===   END OF ENVIRONEMNT SETUP ===#
+#===   END OF __LEX__ ENVIRONEMNT SETUP ===#
 
-#=== START OF CODE BLOCKS DEFINED IN LEXER (INSERTED IN ORDER OF DEFINITION)===#
+#=== START OF CODE BLOCKS DEFINED IN __LEX__ LEXER (INSERTED IN ORDER OF DEFINITION)===#
 {{#:codeblocks}}
 {{{.}}}
 {{^.[end]}}
 
 {{/.[end]}}
 {{/:codeblocks}}
-#===   END OF CODE BLOCKS DEFINED IN LEXER (INSERTED IN ORDER OF DEFINITION)===#
+#===   END OF CODE BLOCKS DEFINED IN __LEX__ LEXER (INSERTED IN ORDER OF DEFINITION)===#
 
-#=== START OF TOKENS RETURNED BY LEXER ACTIONS ===#
+#=== START OF TOKENS RETURNED BY __LEX__ LEXER ACTIONS ===#
 {{#:tokens}}
 #<<< DECL __LEX__{{:name}} >>>#
 struct __LEX__{{:name}} <: LexerToken
@@ -48,7 +48,7 @@ function __LEX__EOI()::__LEX__EOI
   )
 end
 #<<< EODL __LEX__ END OF INPUT >>>#
-#===   END OF TOKENS RETURNED BY LEXER ACTIONS ===#
+#===   END OF TOKENS RETURNED BY __LEX__ LEXER ACTIONS ===#
 
 #=== START OF __LEX__ ACTIONS ===#
 {{#:actions}}
@@ -64,9 +64,9 @@ const __LEX__PATTERN_TO_ACTION = Dict(
   r"{{{:pattern}}}" => __LEX__action{{#:counter}}{{/:counter}}{{^.[end]}}, {{/.[end]}}
   {{/:actions}}
 )
-#===   END OF ACTIONS ===#
+#===   END OF __LEX__ ACTIONS ===#
 
-#=== START OF TOKENIZE LOOP ===#
+#=== START OF __LEX__ TOKENIZE LOOP ===#
 const __LEX__ACTION_PATTERNS = [
   {{#:actions}}
   r"{{{:pattern}}}"{{^.[end]}}, {{/.[end]}}
@@ -74,8 +74,8 @@ const __LEX__ACTION_PATTERNS = [
 ]
 
 {{{:tokenize}}}
-#===   END OF TOKENIZE LOOP ===#
+#===   END OF __LEX__ TOKENIZE LOOP ===#
 
-#=== START OF MAIN FUNCTION ===#
+#=== START OF __LEX__ MAIN FUNCTION ===#
 {{{:main}}}
-#===   END OF MAIN FUNCTION ===#
+#===   END OF __LEX__ MAIN FUNCTION ===#

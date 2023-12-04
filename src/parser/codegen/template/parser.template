@@ -1,18 +1,18 @@
-#=== START OF ENVIRONEMNT SETUP ===#
+#=== START OF __PAR__ ENVIRONEMNT SETUP ===#
 {{{:env}}}
-#===   END OF ENVIRONEMNT SETUP ===#
+#===   END OF __PAR__ ENVIRONEMNT SETUP ===#
 
-#=== START OF CODE BLOCKS DEFINED IN PARSER (INSERTED IN ORDER OF DEFINITION)===#
+#=== START OF CODE BLOCKS DEFINED IN __PAR__ PARSER (INSERTED IN ORDER OF DEFINITION)===#
 {{#:codeblocks}}
 {{{.}}}
 {{^.[end]}}
 
 {{/.[end]}}
 {{/:codeblocks}}
-#===   END OF CODE BLOCKS DEFINED IN PARSER (INSERTED IN ORDER OF DEFINITION)===#
+#===   END OF CODE BLOCKS DEFINED IN __PAR__ PARSER (INSERTED IN ORDER OF DEFINITION)===#
 
-#=== START OF PARSING TABLE ===#
-const PARSING_TABLE = ParsingTable(
+#=== START OF __PAR__ PARSING TABLE ===#
+const __PAR__PARSING_TABLE = ParsingTable(
   Dict(
     {{#:action}}
     {{:state}} => Dict(
@@ -32,14 +32,14 @@ const PARSING_TABLE = ParsingTable(
     {{/:goto}}
   )
 )
-#===  END OF PARSING TABLE ===#
+#===  END OF __PAR__ PARSING TABLE ===#
 
-#=== START OF PRODUCTION ACTIONS ===#
+#=== START OF __PAR__ PRODUCTION ACTIONS ===#
 {{#:productions}}
 #<<< START OF ACTIONS WITH LEFT-HAND SIDE {{:lhs}} >>>#
 {{#:actions}}
 # {{:lhs}} -> {{:rhs}}
-function action_{{:lhs}}_{{:id}}(__PAR__symbols_slice::Vector)::{{:type}}
+function __PAR__action_{{:lhs}}_{{:id}}(__PAR__symbols_slice::Vector)::{{:type}}
   __PAR__action_result::Union{Nothing, {{:type}}} = nothing
   {{{:action}}}
   return __PAR__action_result
@@ -47,29 +47,29 @@ end
 {{/:actions}}#<<<   END OF ACTIONS WITH LEFT-HAND SIDE {{:lhs}} >>>#
 
 {{/:productions}}
-#<<< (LHS, ID) TO ACTION FUNCTION MAPPINGS >>>#
-const LHS_ID_TO_ACTION = Dict(
+#<<< __PAR__ (LHS, ID) TO ACTION FUNCTION MAPPINGS >>>#
+const __PAR__LHS_ID_TO_ACTION = Dict(
   {{#:productions}}
   Symbol(raw"{{:lhs}}") => [
     {{#:actions}}
-    action_{{:lhs}}_{{:id}},
+    __PAR__action_{{:lhs}}_{{:id}},
     {{/:actions}}
   ],
   {{/:productions}}
 )
 
-#<<< (LHS, ID) TO RHS LENGTHS >>>#
-const LHS_ID_TO_RHS_LENGTH = Dict(
+#<<< __PAR__ (LHS, ID) TO RHS LENGTHS >>>#
+const __PAR__LHS_ID_TO_RHS_LENGTH = Dict(
   {{#:productions}}
   Symbol(raw"{{:lhs}}") => [{{#:lengths}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:lengths}}],
   {{/:productions}}
 )
-#===   END OF PRODUCTION ACTIONS ===#
+#===   END OF __PAR__ PRODUCTION ACTIONS ===#
 
-#=== START OF SIMULATION LOOP ===#
+#=== START OF __PAR__ SIMULATION LOOP ===#
 {{{:simulation}}}
-#===   END OF SIMULATION LOOP ===#
+#===   END OF __PAR__ SIMULATION LOOP ===#
 
-#=== START OF MAIN FUNCTION ===#
+#=== START OF __PAR__ MAIN FUNCTION ===#
 {{{:main}}}
-#===   END OF MAIN FUNCTION ===#
+#===   END OF __PAR__ MAIN FUNCTION ===#
