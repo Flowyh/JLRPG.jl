@@ -14,18 +14,20 @@ function replace_token_args_in_actions(
       continue
     end
 
-    tag  = Symbol(m[:tag])
-    args = m[:args]
-    if isempty(args)
-      push!(replaced_actions, action)
-      continue
-    end
+    tag_str = m[:tag]
+    tag = Symbol(tag_str)
 
-    new_args = [
-      "$name=$value"
-      for (name, _, value) in defined_tokens[tag]
-    ]
-    new_return = replace(m.match, args => ";$(join(new_args, ", "))")
+    new_tag = "__LEX__" * tag_str
+    new_return = replace(m.match, tag_str => new_tag)
+
+    args = m[:args]
+    if !isempty(args)
+      new_args = [
+        "$name=$value"
+        for (name, _, value) in defined_tokens[tag]
+      ]
+      new_return = replace(new_return, args => ";$(join(new_args, ", "))")
+    end
 
     push!(replaced_actions, LexerAction(
       pattern,

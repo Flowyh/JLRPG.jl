@@ -18,11 +18,11 @@
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       lexer = replace_token_args_in_lexer(lexer, returned_tokens)
       @test lexer.actions == [
-        LexerAction("\"5\"", "return Five(;value=5)"),
-        LexerAction("\"123\"", "return OneTwoThree(;value1=1, value2=2, value3=3)"),
-        LexerAction("[0-9]", raw"return Digit(;value=$$)"),
-        LexerAction("\"def\"", raw"return Function(;value=func($$))"),
-        LexerAction(".*", "return Error()")
+        LexerAction("\"5\"", "return __LEX__Five(;value=5)"),
+        LexerAction("\"123\"", "return __LEX__OneTwoThree(;value1=1, value2=2, value3=3)"),
+        LexerAction("[0-9]", raw"return __LEX__Digit(;value=$$)"),
+        LexerAction("\"def\"", raw"return __LEX__Function(;value=func($$))"),
+        LexerAction(".*", "return __LEX__Error()")
       ]
     end
 
@@ -32,12 +32,12 @@
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       lexer = replace_token_args_in_lexer(lexer, returned_tokens)
       @test lexer.actions == [
-        LexerAction("\"5.0\"", "return Five(;value=5.0)"),
-        LexerAction("\"123\"", "return OneTwoThree(;value1=1, value2=2, value3=3)"),
-        LexerAction("[0-9]", raw"return Digit(;value=$$)"),
-        LexerAction("\"def\"", raw"return Function(;value=func($$))"),
-        LexerAction("[a-zA-Z]+", raw"return Message(;value=$$)"),
-        LexerAction(".*", "return Error()")
+        LexerAction("\"5.0\"", "return __LEX__Five(;value=5.0)"),
+        LexerAction("\"123\"", "return __LEX__OneTwoThree(;value1=1, value2=2, value3=3)"),
+        LexerAction("[0-9]", raw"return __LEX__Digit(;value=$$)"),
+        LexerAction("\"def\"", raw"return __LEX__Function(;value=func($$))"),
+        LexerAction("[a-zA-Z]+", raw"return __LEX__Message(;value=$$)"),
+        LexerAction(".*", "return __LEX__Error()")
       ]
     end
 
@@ -47,12 +47,12 @@
       returned_tokens = retrieve_tokens_from_lexer(lexer)
       lexer = replace_token_args_in_lexer(lexer, returned_tokens)
       @test lexer.actions == [
-        LexerAction("\"5.0\"", "return Five(;five=5.0)"),
-        LexerAction("\"123\"", "return OneTwoThree(;one=1, two=2, three=3)"),
-        LexerAction("[0-9]", raw"return Digit(;value=$$)"),
-        LexerAction("\"def\"", raw"return Function(;func_call=func($$))"),
-        LexerAction("[a-zA-Z]+", raw"return Message(;msg=$$)"),
-        LexerAction(".*", "return Error()")
+        LexerAction("\"5.0\"", "return __LEX__Five(;five=5.0)"),
+        LexerAction("\"123\"", "return __LEX__OneTwoThree(;one=1, two=2, three=3)"),
+        LexerAction("[0-9]", raw"return __LEX__Digit(;value=$$)"),
+        LexerAction("\"def\"", raw"return __LEX__Function(;func_call=func($$))"),
+        LexerAction("[a-zA-Z]+", raw"return __LEX__Message(;msg=$$)"),
+        LexerAction(".*", "return __LEX__Error()")
       ]
     end
 
@@ -64,11 +64,11 @@
       @test lexer.actions == [
         LexerAction("\"invalid return\"", "return Omitted"),
         LexerAction("\"missing parenthesis\"", "return Omitted("),
-        LexerAction("[0-9]", raw"return Digit(;value=$$)"),
-        LexerAction("[0-9]+", raw"return Number(;value=$$)"),
-        LexerAction("[_a-zA-Z][_a-zA-Z0-9]*", raw"return Identifier(;name=$$, line=15)"),
-        LexerAction("\"all arg types\"", "return AllArgs(;a=1, value2=2.0, value3=\"3\")"),
-        LexerAction(".*", raw"return Error(;match=$$)")
+        LexerAction("[0-9]", raw"return __LEX__Digit(;value=$$)"),
+        LexerAction("[0-9]+", raw"return __LEX__Number(;value=$$)"),
+        LexerAction("[_a-zA-Z][_a-zA-Z0-9]*", raw"return __LEX__Identifier(;name=$$, line=15)"),
+        LexerAction("\"all arg types\"", "return __LEX__AllArgs(;a=1, value2=2.0, value3=\"3\")"),
+        LexerAction(".*", raw"return __LEX__Error(;match=$$)")
       ]
     end
   end

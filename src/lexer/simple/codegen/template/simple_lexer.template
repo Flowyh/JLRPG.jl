@@ -13,27 +13,27 @@
 
 #=== START OF TOKENS RETURNED BY LEXER ACTIONS ===#
 {{#:tokens}}
-#<<< DECL {{:name}} >>>#
-struct {{:name}} <: LexerToken
+#<<< DECL __LEX__{{:name}} >>>#
+struct __LEX__{{:name}} <: LexerToken
   symbol::Symbol
   values::Dict
   file_pos::String
 end
 
-function {{:name}}(;{{#arguments}}{{:name}}::{{:type}}, {{/arguments}})::{{:name}}
-  return {{:name}}(
+function __LEX__{{:name}}(;{{#arguments}}{{:name}}::{{:type}}, {{/arguments}})::__LEX__{{:name}}
+  return __LEX__{{:name}}(
     Symbol(uppercase(raw"{{:name}}")),
     Dict({{#arguments}}:{{:name}} => {{:name}},{{/arguments}}),
     __LEX__file_pos_before_match()
   )
 end
-#<<< EODL {{:name}} >>>#
+#<<< EODL __LEX__{{:name}} >>>#
 {{^.[end]}}
 
 {{/.[end]}}
 {{/:tokens}}
 
-#<<< DECL END OF INPUT >>>#
+#<<< DECL __LEX__ END OF INPUT >>>#
 struct __LEX__EOI <: LexerToken
   symbol::Symbol
   values::Dict
@@ -47,27 +47,27 @@ function __LEX__EOI()::__LEX__EOI
     ""
   )
 end
-#<<< EODL END OF INPUT >>>#
+#<<< EODL __LEX__ END OF INPUT >>>#
 #===   END OF TOKENS RETURNED BY LEXER ACTIONS ===#
 
-#=== START OF ACTIONS ===#
+#=== START OF __LEX__ ACTIONS ===#
 {{#:actions}}
 #<<< {{{:pattern}}} >>>#
-function action{{#:counter}}{{/:counter}}()::Union{LexerToken, Any}
+function __LEX__action{{#:counter}}{{/:counter}}()::Union{LexerToken, Any}
   {{{:body}}}
 end
 
 {{/:actions}}{{#:reset_counter}}{{/:reset_counter}}
-#<<< PATTERN TO ACTION FUNCTION MAPPINGS >>>#
-const PATTERN_TO_ACTION = Dict(
+#<<< __LEX__ PATTERN TO ACTION FUNCTION MAPPINGS >>>#
+const __LEX__PATTERN_TO_ACTION = Dict(
   {{#:actions}}
-  r"{{{:pattern}}}" => action{{#:counter}}{{/:counter}}{{^.[end]}}, {{/.[end]}}
+  r"{{{:pattern}}}" => __LEX__action{{#:counter}}{{/:counter}}{{^.[end]}}, {{/.[end]}}
   {{/:actions}}
 )
 #===   END OF ACTIONS ===#
 
 #=== START OF TOKENIZE LOOP ===#
-const ACTION_PATTERNS = [
+const __LEX__ACTION_PATTERNS = [
   {{#:actions}}
   r"{{{:pattern}}}"{{^.[end]}}, {{/.[end]}}
   {{/:actions}}
