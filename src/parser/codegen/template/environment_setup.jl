@@ -31,6 +31,8 @@ function __PAR__cursor()::Union{Nothing, Cursor}
   return getfield(__PAR__, :c)
 end
 
+# <<: at_end start :>>
 function __PAR__at_end()
   return false
 end
+# <<: at_end end :>>

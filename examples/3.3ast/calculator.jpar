@@ -19,6 +19,39 @@ Base.show(io::IO, a::GF{P}) where P = print(io, "GaloisField{order=$P}($(a.value
 
 FIELD_PRIME::Int = 7
 %}
+%{
+abstract type Node end
+
+struct Num <: Node
+  value::Operand
+end
+
+struct AddExpr <: Node
+  left::Node
+  right::Node
+end
+
+struct SubExpr <: Node
+  left::Node
+  right::Node
+end
+
+struct MulExpr <: Node
+  left::Node
+  right::Node
+end
+
+struct DivExpr <: Node
+  left::Node
+  right::Node
+end
+
+eval(n::Num)::Operand     = n.value
+eval(n::AddExpr)::Operand = add(eval(n.left), eval(n.right))
+eval(n::SubExpr)::Operand = sub(eval(n.left), eval(n.right))
+eval(n::MulExpr)::Operand = mul(eval(n.left), eval(n.right))
+eval(n::DivExpr)::Operand = div(eval(n.left), eval(n.right))
+%}
 
 #= Lexer token definitions =#
 %token MULTIPLY "*"
@@ -30,22 +63,22 @@ FIELD_PRIME::Int = 7
 %token NUMBER
 
 #= Returned types =#
-%type <GF{FIELD_PRIME}> e
-%type <GF{FIELD_PRIME}> t
-%type <GF{FIELD_PRIME}> f
+%type <Node> e
+%type <Node> t
+%type <Node> f
 
 %%
 #= Productions =#
 %start s
-s -> e         :{ println($1)                    }:
-e -> e "+" t   :{ $$ = add($1, $3)               }:
-   | e "-" t   :{ $$ = sub($1, $3)               }:
-   | t         :{ $$ = $1                        }:
-t -> t "*" f   :{ $$ = mul($1, $3)               }:
-   | t "/" f   :{ $$ = div($1, $3)               }:
-   | f         :{ $$ = $1                        }:
-f -> NUMBER    :{ $$ = GF{FIELD_PRIME}($1.value) }:
-   | "(" e ")" :{ $$ = $2                        }:
+s -> e         :{ println($1); println(eval($1))      }:
+e -> e "+" t   :{ $$ = AddExpr($1, $3)                }:
+   | e "-" t   :{ $$ = SubExpr($1, $3)                }:
+   | t         :{ $$ = $1                             }:
+t -> t "*" f   :{ $$ = MulExpr($1, $3)                }:
+   | t "/" f   :{ $$ = DivExpr($1, $3)                }:
+   | f         :{ $$ = $1                             }:
+f -> NUMBER    :{ $$ = Num(GF{FIELD_PRIME}($1.value)) }:
+   | "(" e ")" :{ $$ = $2                             }:
 
 %%
 

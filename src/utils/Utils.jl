@@ -13,7 +13,7 @@ module JLPG_Utils
   include("set_extensions.jl")
 
   include("regexes.jl")
-  export full_function_pattern
+  export full_function_pattern, function_definition, function_name
 
   include("cursor.jl")
   @reexport using .Cursors

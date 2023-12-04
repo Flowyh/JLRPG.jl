@@ -1,22 +1,22 @@
-function lr1_cores(
+function lr1_kernels(
   lr1_item_sets::Vector{Vector{ParsingItem}}
 )::Vector{Vector{ParsingItem}}
-  lr1_cores::Vector{Vector{ParsingItem}} = []
+  lr1_kernels::Vector{Vector{ParsingItem}} = []
   for item_set in lr1_item_sets
     core::Vector{ParsingItem} = []
     for item in item_set
       push!(core, ParsingItem(item.lhs, item.production))
     end
-    push!(lr1_cores, unique(core))
+    push!(lr1_kernels, unique(core))
   end
-  return lr1_cores
+  return lr1_kernels
 end
 
-# TODO: change sets to mappings (for all same_cores => length(merged_lr1_item_sets))
-function merge_lr1_cores(
+# TODO: change sets to mappings (for all same_kernels => length(merged_lr1_item_sets))
+function merge_lr1_kernels(
   lr1_item_sets::Vector{Vector{ParsingItem}},
   lr1_gotos::Dict{Int, Dict{Symbol, Int}},
-  lr1_cores::Vector{Vector{ParsingItem}}
+  lr1_kernels::Vector{Vector{ParsingItem}}
 )::Tuple
   merged_lr1_item_sets::Vector{Vector{ParsingItem}} = []
   merged_lr1_gotos::Dict{Int, Dict{Symbol, Int}} = Dict()
@@ -25,34 +25,34 @@ function merge_lr1_cores(
   merged_mappings::Dict{Int, Int} = Dict()
   already_merged::BitArray = falses(length(lr1_item_sets))
 
-  for (i, core) in enumerate(lr1_cores)
-    # Omit already merged cores
+  for (i, core) in enumerate(lr1_kernels)
+    # Omit already merged kernels
     if already_merged[i]
       continue
     end
 
-    same_cores = findall(x -> issetequal(x, core), lr1_cores)
+    same_kernels = findall(x -> issetequal(x, core), lr1_kernels)
 
     # If there are more than one core with the same core, merge them
-    if length(same_cores) > 1
-      # Mark the cores as already merged
-      for j in same_cores
+    if length(same_kernels) > 1
+      # Mark the kernels as already merged
+      for j in same_kernels
         already_merged[j] = true
       end
 
-      # Merge the cores
+      # Merge the kernels
       merged_item_set::Vector{ParsingItem} = union(
-        [lr1_item_sets[j] for j in same_cores]...
+        [lr1_item_sets[j] for j in same_kernels]...
       )
 
       # Update the merged item sets
       push!(merged_lr1_item_sets, merged_item_set)
-      for j in same_cores
+      for j in same_kernels
         merged_mappings[j - 1] = merged_items
       end
 
       # Merge gotos
-      merged_gotos = merge([get(lr1_gotos, j - 1, Dict()) for j in same_cores]...)
+      merged_gotos = merge([get(lr1_gotos, j - 1, Dict()) for j in same_kernels]...)
       if !isempty(merged_gotos)
         merged_lr1_gotos[merged_items] = merged_gotos
       end
@@ -70,25 +70,6 @@ function merge_lr1_cores(
   return merged_lr1_item_sets, merged_lr1_gotos, merged_mappings
 end
 
-function merge_lr1_gotos(
-  lr1_gotos::Dict{Int, Dict{Symbol, Int}},
-  merged_mappings::Dict{Int, Int}
-)::Dict{Int, Dict{Symbol, Int}}
-  merged_gotos::Dict{Int, Dict{Symbol, Int}} = Dict()
-  for (from, gotos) in lr1_gotos
-    for (symbol, to) in gotos
-      merged_from = merged_mappings[from]
-      merged_to = merged_mappings[to]
-      if !haskey(merged_gotos, merged_from)
-        merged_gotos[merged_from] = Dict()
-      end
-      merged_gotos[merged_from][symbol] = merged_to
-    end
-  end
-
-  return merged_gotos
-end
-
 function LalrParsingTable(
   augmented_parser::Parser
 )::ParsingTable
@@ -103,12 +84,12 @@ function LalrParsingTable(
   )
 
   _lr1_item_sets, _lr1_gotos = lr1_items(productions, nonterminals, grammar_symbols, _first)
-  _lr1_cores = lr1_cores(_lr1_item_sets)
+  _lr1_kernels = lr1_kernels(_lr1_item_sets)
   # Replace item sets and gotos with merged ones
-  lr1_item_sets, lr1_gotos, merged_mappings = merge_lr1_cores(
+  lr1_item_sets, lr1_gotos, merged_mappings = merge_lr1_kernels(
     _lr1_item_sets,
     _lr1_gotos,
-    _lr1_cores
+    _lr1_kernels
   )
 
   action::Dict{Int, Dict{Symbol, ParsingTableAction}} = Dict()

@@ -1,5 +1,8 @@
 module JLPG_Parser
-  using ..JLPG: Comparable, full_function_pattern
+  using ..JLPG_Utils: Comparable
+  using ..JLPG_Utils: function_definition, function_name
+  using ..JLPG_Utils: SPECIAL_FUNCTION_START, SPECIAL_FUNCTION_END,
+                      SPECIAL_FUNCTION_OVERLOAD_MSG
   using ..JLPG_Utils.Cursors
 
   include("types.jl")
@@ -26,7 +29,7 @@ module JLPG_Parser
   export LrParsingTable
 
   include("lalr.jl")
-  export lr1_cores, merge_lr1_cores
+  export lr1_kernels, merge_lr1_kernels
   export LalrParsingTable
 
   include("codegen/fill_template.jl")

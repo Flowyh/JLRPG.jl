@@ -30,14 +30,20 @@ function replace_overloaded_functions_in_generated_parser(
   generated_parser::String
 )::String
   for special_function in PARSER_SPECIAL_FUNCTIONS_PATTERNS
-    found_overloads = findall(full_function_pattern(special_function), generated_parser)
+    found_overloads = findall(function_definition(special_function), generated_parser)
     if length(found_overloads) <= 1
       continue
     end
-    # Only last overload applies
-    for overload in found_overloads[1:end-1]
-      generated_parser = replace(generated_parser, generated_parser[overload] => "")
-    end
+    fn_name = match(function_name, generated_parser[found_overloads[1]])[:name]
+    fn_name = replace(fn_name, PARSER_SPECIAL_FUNCTION_PREFIX => "")
+
+    # Replace code between start and end for # <<: OVERLOADED :>>
+    to_replace   = SPECIAL_FUNCTION_START(fn_name) *
+                   r"[\S\s]*" *
+                   SPECIAL_FUNCTION_END(fn_name)
+    replaced_msg = SPECIAL_FUNCTION_OVERLOAD_MSG(fn_name)
+
+    generated_parser = replace(generated_parser, to_replace => replaced_msg)
   end
 
   return generated_parser

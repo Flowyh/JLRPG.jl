@@ -51,16 +51,45 @@
   end
 
   @testset "Correctly replaces overloaded functions in generated code" begin
-    @testset "Empty string" begin
+    @testset "Overload special function" begin
       @test replace_overloaded_functions_in_generated_lexer(raw"""
+      function __LEX__at_end()
+        error("I overloaded it!")
+      end
+
+      # <<: at_end start :>>
       function __LEX__at_end()
         return getfield(__LEX__, :current_match) == ""
       end
+      # <<: at_end end :>>
+      """) == raw"""
+      function __LEX__at_end()
+        error("I overloaded it!")
+      end
+
+      # <<: at_end start :>>
+      # <<: OVERLOADED :>>
+      # <<: at_end end :>>
+      """
+    end
+
+    @testset "Overload special function (reverse order)" begin
+      @test replace_overloaded_functions_in_generated_lexer(raw"""
+      # <<: at_end start :>>
+      function __LEX__at_end()
+        return getfield(__LEX__, :current_match) == ""
+      end
+      # <<: at_end end :>>
 
       function __LEX__at_end()
         error("I overloaded it!")
       end
-      """) == raw"""function __LEX__at_end()
+      """) == raw"""
+      # <<: at_end start :>>
+      # <<: OVERLOADED :>>
+      # <<: at_end end :>>
+
+      function __LEX__at_end()
         error("I overloaded it!")
       end
       """

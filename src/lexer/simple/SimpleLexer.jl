@@ -1,5 +1,8 @@
 module JLPG_SimpleLexer
-  using ..JLPG: Comparable, full_function_pattern
+  using ..JLPG_Utils: Comparable
+  using ..JLPG_Utils: function_definition, function_name
+  using ..JLPG_Utils: SPECIAL_FUNCTION_START, SPECIAL_FUNCTION_END,
+                      SPECIAL_FUNCTION_OVERLOAD_MSG
   using ..JLPG_Utils.Cursors
 
   include("types.jl")
