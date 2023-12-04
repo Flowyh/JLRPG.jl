@@ -5,9 +5,9 @@ using Parameters: @consts
     raw"$$" => "__LEX__current_match()"
   ]
 
-  LEXER_SPECIAL_FUNCTION_PREFIX = r"__LEX__"
+  LEXER_SPECIAL_TAG = r"__LEX__"
 
-  LEXER_SPECIAL_FUNCTIONS_PATTERNS = [LEXER_SPECIAL_FUNCTION_PREFIX * fn for fn in [
+  LEXER_SPECIAL_FUNCTIONS_PATTERNS = [LEXER_SPECIAL_TAG * fn for fn in [
     r"at_end",
     r"main"
   ]]
@@ -31,7 +31,7 @@ function replace_overloaded_functions_in_generated_lexer(
       continue
     end
     fn_name = match(function_name, generated_lexer[found_overloads[1]])[:name]
-    fn_name = replace(fn_name, LEXER_SPECIAL_FUNCTION_PREFIX => "")
+    fn_name = replace(fn_name, LEXER_SPECIAL_TAG => "")
 
     # Replace code between start and end for # <<: OVERLOADED :>>
     to_replace   = SPECIAL_FUNCTION_START(fn_name) *
@@ -42,5 +42,18 @@ function replace_overloaded_functions_in_generated_lexer(
     generated_lexer = replace(generated_lexer, to_replace => replaced_msg)
   end
 
+  return generated_lexer
+end
+
+function replace_special_tag_in_generated_lexer(
+  generated_lexer::String,
+  tag::String
+)::String
+  if tag != LEXER_SPECIAL_TAG
+    generated_lexer = replace(
+      generated_lexer,
+      LEXER_SPECIAL_TAG => tag
+    )
+  end
   return generated_lexer
 end

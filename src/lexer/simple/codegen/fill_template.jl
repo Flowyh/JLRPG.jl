@@ -30,6 +30,7 @@ function fill_lexer_template(
   return rendered
 end
 
+# TODO: replace this dirty hack with some proper solution
 # Counter for tagging action functions
 let
   global counter

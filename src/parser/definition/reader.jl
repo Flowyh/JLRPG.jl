@@ -10,6 +10,7 @@ using Parameters: @consts
 
   PARSER_SECTION_REGEX = r"%%"
   PARSER_CODE_BLOCK_REGEX = r"%{((?s:.)*?)%}"
+  PARSER_KW_OPTION_REGEX = r"%option[ \t]+(?<name>\w+)=\"(?<value>\w+)\""
   PARSER_OPTION_REGEX = r"%option[ \t]+(?<value>\w+)"
   TOKEN_REGEX = r"%token[ \t]+(?<name>\w+)(?:[ \t]+\"(?<alias>[^\"]+)\")?"
   TYPE_REGEX = r"%type[ \t]+<(?<type>(?:\w|\{|\})+)>(?:[ \t]+(?<symbol>\w+))?"
@@ -24,6 +25,7 @@ using Parameters: @consts
 
   SpecialDefinitionPatterns::Vector{Pair{ParserSpecialDefinition, Regex}} = [
     section => PARSER_SECTION_REGEX,
+    option => PARSER_KW_OPTION_REGEX,
     option => PARSER_OPTION_REGEX,
     token => TOKEN_REGEX,
     type => TYPE_REGEX,
@@ -178,8 +180,16 @@ function _read_parser_definition_file(
           c, "Option outside of definitions section";
           erroneous_slice=matched
         )
-        if m[:value] in ["SLR", "LR", "LALR"]
-          options[:parser_type] = ParserTypeFromSymbol[Symbol(m[:value])]
+        if haskey(m, :name) # KW option
+          if m[:name] == "tag"
+            options[:tag] = m[:value]
+          elseif m[:name] == "lexer_tag"
+            options[:lexer_tag] = m[:value]
+          end
+        else
+          if m[:value] in ["SLR", "LR", "LALR"]
+            options[:parser_type] = ParserTypeFromSymbol[Symbol(m[:value])]
+          end
         end
       elseif definition == token
         _parser_section_guard(

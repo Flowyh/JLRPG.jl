@@ -21,6 +21,10 @@ function generate_parser(
     error("Unknown parser type: $(parser.options.parser_type)")
   end
 
+  tag = parser.options.tag
+  lexer_tag = parser.options.lexer_tag
+  output_path = replace(output_path, PARSER_SPECIAL_TAG => tag)
+
   open(output_path, "w") do output_file
     filled_template = fill_parser_template(
       parser.code_blocks,
@@ -28,9 +32,11 @@ function generate_parser(
       parser.productions,
       parser.symbol_types
     )
+
     output = filled_template |>
       replace_special_variables_in_generated_parser |>
-      replace_overloaded_functions_in_generated_parser
+      replace_overloaded_functions_in_generated_parser |>
+      x -> replace_special_tag_in_generated_parser(x, tag, lexer_tag)
 
     write(output_file, output)
   end

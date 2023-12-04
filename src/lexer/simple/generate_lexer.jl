@@ -13,6 +13,9 @@ function generate_lexer(
   returned_tokens = retrieve_tokens_from_lexer(lexer)
   lexer = replace_token_args_in_lexer(lexer, returned_tokens)
 
+  tag = lexer.options.tag
+  output_path = replace(output_path, LEXER_SPECIAL_TAG => tag)
+
   open(output_path, "w") do output_file
     filled_template = fill_lexer_template(
       returned_tokens,
@@ -21,7 +24,8 @@ function generate_lexer(
     )
     output = filled_template |>
       replace_special_variables_in_generated_lexer |>
-      replace_overloaded_functions_in_generated_lexer
+      replace_overloaded_functions_in_generated_lexer |>
+      x -> replace_special_tag_in_generated_lexer(x, tag)
 
     write(output_file, output)
   end

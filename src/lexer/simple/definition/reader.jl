@@ -10,7 +10,8 @@ using Parameters: @consts
 
   LEXER_SECTION_REGEX = r"%%"
   LEXER_CODE_BLOCK_REGEX = r"%{((?s:.)*?)%}"
-  LEXER_OPTION_REGEX = r"%option[ \t]+((?:\w+ ?)+)"
+  LEXER_KW_OPTION_REGEX = r"%option[ \t]+(?<name>\w+)=\"(?<value>\w+)\""
+  LEXER_OPTION_REGEX = r"%option[ \t]+(?<value>\w+)"
   REGEX_ALIAS_REGEX = r"(?<name>[A-Z0-9_-]+)\s+(?<pattern>.+)"
   ACTION_REGEX = r"(?<pattern>.+?)\s+:{(?<body>(?s:.)+?)}:"
   LEXER_COMMENT_REGEX = r"\s*#=[^\n]*=#\s*"
@@ -20,6 +21,7 @@ using Parameters: @consts
     code_block => LEXER_CODE_BLOCK_REGEX,
     comment => LEXER_COMMENT_REGEX,
     regex_alias => REGEX_ALIAS_REGEX,
+    option => LEXER_KW_OPTION_REGEX,
     option => LEXER_OPTION_REGEX,
     action => ACTION_REGEX,
   ]
@@ -76,7 +78,7 @@ function _read_lexer_definition_file(
   current_section = definitions
   aliases::Vector{RegexAlias} = []
   lexer_actions::Vector{LexerAction} = []
-  options = LexerOptions() # TODO: Fill if needed
+  options = Dict()
   code_blocks::Vector{String} = []
 
   while !cursor_is_eof(c)
@@ -101,7 +103,13 @@ function _read_lexer_definition_file(
           c, "Option outside of definitions section";
           erroneous_slice=matched
         )
-        # TODO: Fill options if needed
+        if haskey(m, :name) # KW option
+          if m[:name] == "tag"
+            options[:tag] = m[:value]
+          end
+        else
+          # TODO: Fill options if needed
+        end
       elseif definition == regex_alias
         _lexer_section_guard(
           current_section,
@@ -159,6 +167,6 @@ function _read_lexer_definition_file(
     lexer_actions,
     aliases,
     code_blocks,
-    options
+    LexerOptions(options)
   )
 end

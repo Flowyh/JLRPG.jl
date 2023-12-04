@@ -38,12 +38,16 @@ ParserTypeFromSymbol::Dict{Symbol, ParserType} = Dict(
 
 struct ParserOptions <: Comparable
   parser_type::ParserType
+  tag::String
+  lexer_tag::String
 
   function ParserOptions(
     options::Dict = Dict()
   )::ParserOptions
     return new(
-      get(options, :parser_type, SLR)
+      get(options, :parser_type, SLR),
+      get(options, :tag, "__PAR__"),
+      get(options, :lexer_tag, "__LEX__")
     )
   end
 end

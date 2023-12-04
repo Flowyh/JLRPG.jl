@@ -10,8 +10,16 @@ struct LexerAction
   body::String
 end
 
-struct LexerOptions
-  # TODO: Fill if needed
+struct LexerOptions <: Comparable
+  tag::String
+
+  function LexerOptions(
+    options::Dict = Dict()
+  )::LexerOptions
+    return new(
+      get(options, :tag, "__LEX__")
+    )
+  end
 end
 
 struct Lexer <: Comparable

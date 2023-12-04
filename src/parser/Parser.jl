@@ -4,6 +4,7 @@ module JLPG_Parser
   using ..JLPG_Utils: SPECIAL_FUNCTION_START, SPECIAL_FUNCTION_END,
                       SPECIAL_FUNCTION_OVERLOAD_MSG
   using ..JLPG_Utils.Cursors
+  using ..JLPG_SimpleLexer: LEXER_SPECIAL_TAG
 
   include("types.jl")
   export Parser, ParserOptions, ParserProduction
@@ -38,6 +39,8 @@ module JLPG_Parser
   include("codegen/special_replacements.jl")
   export replace_special_variables_in_generated_parser
   export replace_overloaded_functions_in_generated_parser
+  export replace_special_tag_in_generated_parser
+  export PARSER_SPECIAL_TAG
 
   include("generate_parser.jl")
   export generate_parser
