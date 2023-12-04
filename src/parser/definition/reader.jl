@@ -19,7 +19,7 @@ using Parameters: @consts
   EMPTY_CALLBACK_PRODUCTION_REGEX = r"(?<lhs>\w+)\s+->\s+(?<production>[^{}\n]+)"
   PRODUCTION_ALT_REGEX = r"\|\s+(?<production>[^{}\n]+)\s+:{(?<action>(?s:.)*?)}:"
   EMPTY_CALLBACK_PRODUCTION_ALT_REGEX = r"\|\s+(?<production>[^{}\n]+)"
-  PARSER_COMMENT_REGEX = r"\s*#=[^\n]*=#\s*"
+  PARSER_COMMENT_REGEX = r"#=[^\n]*=#"
 
   DOUBLE_QUOTES_ALIAS = r"\"(?<alias>[^\"]+)\""
 
@@ -368,12 +368,14 @@ function _read_parser_definition_file(
       break
     end
 
+    # Omit whitespace
+    whitespace = cursor_findnext_and_move(c, r"[\r\t\f\v\n ]+")
+    if whitespace !== nothing
+      did_match = true
+    end
+
     if !did_match
-      # Omit whitespace
-      whitespace = cursor_findnext_and_move(c, r"[\r\t\f\v\n ]+")
-      if whitespace === nothing
-        cursor_error(c, "Invalid character/s in definition file")
-      end
+      cursor_error(c, "Invalid character/s in definition file")
     end
   end
 

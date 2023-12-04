@@ -29,8 +29,8 @@ TODO
 src/utils/macros
 
 # Generated files (default names)
-__LEX__.jl
-__PAR__.jl
+*_LEX_*.jl
+*_PAR_*.jl
 test_input
 
 # DISCONTINUED UNTIL I FINISH MY BACHELOR DEGREE

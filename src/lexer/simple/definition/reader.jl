@@ -14,7 +14,7 @@ using Parameters: @consts
   LEXER_OPTION_REGEX = r"%option[ \t]+(?<value>\w+)"
   REGEX_ALIAS_REGEX = r"(?<name>[A-Z0-9_-]+)\s+(?<pattern>.+)"
   ACTION_REGEX = r"(?<pattern>.+?)\s+:{(?<body>(?s:.)+?)}:"
-  LEXER_COMMENT_REGEX = r"\s*#=[^\n]*=#\s*"
+  LEXER_COMMENT_REGEX = r"#=[^\n]*=#"
 
   SpecialDefinitionPatterns::Vector{Pair{LexerSpecialDefinition, Regex}} = [
     section => LEXER_SECTION_REGEX,
@@ -150,12 +150,14 @@ function _read_lexer_definition_file(
       break
     end
 
+    # Omit whitespace
+    whitespace = cursor_findnext_and_move(c, r"[\r\t\f\v\n ]+")
+    if whitespace !== nothing
+      did_match = true
+    end
+
     if !did_match
-      # Omit whitespace
-      whitespace = cursor_findnext_and_move(c, r"[\r\t\f\v\n ]+")
-      if whitespace === nothing
-        cursor_error(c, "Invalid character/s in definition file")
-      end
+      cursor_error(c, "Invalid character/s in definition file")
     end
   end
 
