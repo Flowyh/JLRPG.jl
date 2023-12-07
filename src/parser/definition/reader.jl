@@ -230,9 +230,9 @@ function _read_parser_definition_file(
           erroneous_slice=matched
         )
 
-        if !isuppercased(m[:symbol]) && !islowercased(m[:symbol])
+        if !islowercased(m[:symbol])
           cursor_error(
-            c, "Typed symbol must be either uppercase or lowercase";
+            c, "Typed symbol must be either lowercase (nonterminal)";
             erroneous_slice=matched
           )
         end
@@ -393,6 +393,10 @@ function _read_parser_definition_file(
 
   if starting === nothing
     error("No start symbol detected")
+  end
+
+  if !(starting in nonterminals)
+    error("Start symbol not a valid nonterminal")
   end
 
   return Parser(

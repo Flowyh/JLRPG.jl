@@ -1,0 +1,8 @@
+#= Definitions =#
+
+%type <Int> NotLowercase
+%%
+#= Productions =#
+
+%%
+#= User code =#

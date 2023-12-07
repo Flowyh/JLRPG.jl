@@ -1,8 +1,8 @@
 #= Definitions =#
 
-%type <Int> NeitherUppercaseNorLowercase
 %%
 #= Productions =#
+%start invalid_nonterminal
 
 %%
 #= User code =#

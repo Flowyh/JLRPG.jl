@@ -30,9 +30,9 @@
     end
 
     @testset "%Type neither uppercase nor lowercase" begin
-      path = abspaths("resources/parser/definition_reader/erroneous/type_neither_uppercase_nor_lowercase.jpar")
-      error_msg = raw"Typed symbol must be either uppercase or lowercase" * "\n" *
-                  raw"       \"%type <Int> NeitherUppercaseNorLowercase\" at " * "$(unexpanduser(path)):3:1"
+      path = abspaths("resources/parser/definition_reader/erroneous/type_not_lowercase.jpar")
+      error_msg = raw"Typed symbol must be either lowercase (nonterminal)" * "\n" *
+                  raw"       \"%type <Int> NotLowercase\" at " * "$(unexpanduser(path)):3:1"
       @test_throws error_msg read_parser_definition_file(path)
     end
 
@@ -81,6 +81,12 @@
       path = abspaths("resources/parser/definition_reader/erroneous/start_not_lowercase.jpar")
       error_msg = raw"Start symbol must be lowercase" * "\n" *
                   raw"       \"%start NotLowercase\" at " * "$(unexpanduser(path)):5:1"
+      @test_throws error_msg read_parser_definition_file(path)
+    end
+
+    @testset "%start not a valid nonterminal" begin
+      path = abspaths("resources/parser/definition_reader/erroneous/start_not_a_valid_nonterminal.jpar")
+      error_msg = raw"Start symbol not a valid nonterminal"
       @test_throws error_msg read_parser_definition_file(path)
     end
 
@@ -161,7 +167,6 @@
         ),
         symbol_types = Dict(
           :expr => :Int,
-          :NUMBER => :Int,
           :start => :Int,
           :vec => Symbol(raw"Vector{Int}")
         ),

@@ -33,4 +33,3 @@ function generate_lexer(
   println("Generated lexer path: $(output_path)")
   nothing
 end
-

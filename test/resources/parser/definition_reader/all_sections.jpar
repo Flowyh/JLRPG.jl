@@ -18,7 +18,6 @@
 #= Returned types =#
 %type <Int> start
 %type <Int> expr
-%type <Int> NUMBER
 %type <Vector{Int}> vec
 %%
 #= Productions =#
