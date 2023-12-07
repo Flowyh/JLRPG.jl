@@ -1,0 +1,8 @@
+%%
+
+"Test" :{ return "Test"        }:
+[0-9]+ :{ return Number($$)    }:
+[0-9]+ :{ return Redefined($$) }:
+.*     :{ return Error()       }:
+
+%%

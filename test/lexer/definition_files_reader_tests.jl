@@ -33,6 +33,13 @@
       @test_throws error_msg read_lexer_definition_file(path)
     end
 
+    @testset "Redefined action pattern" begin
+      path = abspaths("resources/lexer/definition_reader/erroneous/redefined_action_pattern.jlex")
+      error_msg = raw"Redefined action pattern" * "\n" *
+                  raw"       \"[0-9]+ :{ return Redefined($$) }:\" at " * "$(unexpanduser(path)):5:1"
+      @test_throws error_msg read_lexer_definition_file(path)
+    end
+
     @testset "Invalid character/s in definition file" begin
       path = abspaths("resources/lexer/definition_reader/erroneous/invalid_chars.jlex")
       error_msg = "Invalid character/s in definition file" * "\n" *

@@ -128,6 +128,14 @@ function _read_lexer_definition_file(
           c, "Action outside of actions section";
           erroneous_slice=matched
         )
+
+        if any(action -> action.pattern == m[:pattern], lexer_actions)
+          cursor_error(
+            c, "Redefined action pattern";
+            erroneous_slice=matched
+          )
+        end
+
         push!(lexer_actions, LexerAction(
           m[:pattern],
           strip(m[:body])
