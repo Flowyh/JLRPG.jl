@@ -18,7 +18,7 @@ module JLPG_Parser
   export read_parser_definition_file
 
   include("first_follow.jl")
-  export nullable, first_sets, follow_sets
+  export first_sets, follow_sets
   export first_set_for_string_of_symbols
 
   include("slr.jl")

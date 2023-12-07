@@ -1,4 +1,7 @@
-using JLPG
+using JLPG.JLPG_SimpleLexer
+using JLPG.JLPG_Parser
+using JLPG.JLPG_Utils
+
 using Test
 using Logging
 

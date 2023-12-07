@@ -1,3 +1,8 @@
+"""
+    lr1_kernels(lr1_item_sets::Vector{Vector{ParsingItem}})
+
+Get the kernels of the LR(1) item sets (items without lookahead).
+"""
 function lr1_kernels(
   lr1_item_sets::Vector{Vector{ParsingItem}}
 )::Vector{Vector{ParsingItem}}
@@ -12,7 +17,19 @@ function lr1_kernels(
   return lr1_kernels
 end
 
-# TODO: change sets to mappings (for all same_kernels => length(merged_lr1_item_sets))
+
+"""
+    merge_lr1_kernels(
+      lr1_item_sets::Vector{Vector{ParsingItem}},
+      lr1_gotos::Dict{Int, Dict{Symbol, Int}},
+      lr1_kernels::Vector{Vector{ParsingItem}}
+    )
+
+Merge the LR(1) kernels that are equal.
+
+Returns a tuple of the merged item sets, gotos and mappings from the old item
+sets to the new ones.
+"""
 function merge_lr1_kernels(
   lr1_item_sets::Vector{Vector{ParsingItem}},
   lr1_gotos::Dict{Int, Dict{Symbol, Int}},
@@ -70,6 +87,21 @@ function merge_lr1_kernels(
   return merged_lr1_item_sets, merged_lr1_gotos, merged_mappings
 end
 
+"""
+    LalrParsingTable(augmented_parser::Parser)
+
+Generate the LALR parsing table for the augmented parser.
+
+The augmented parser is the parser with the augmented start production.
+
+This algorithm computes the LR(1) item sets and gotos, then merges the item
+sets that are equal. Finally, it generates the parsing table from the merged
+item sets and gotos (and mappings).
+
+This algorithm is almost the same as the one used for the LR(1) parsing table.
+The procedure of generating the LR(1) table is described in the Dragon Book,
+sections 4.7.2, 4.7.3. The idea of merging the item sets is described in the section 4.7.4.
+"""
 function LalrParsingTable(
   augmented_parser::Parser
 )::ParsingTable
@@ -156,3 +188,16 @@ function LalrParsingTable(
 
   return ParsingTable(action, goto)
 end
+
+#============#
+# PRECOMPILE #
+#============#
+precompile(lr1_kernels, (
+  Vector{Vector{ParsingItem}},
+))
+precompile(merge_lr1_kernels, (
+  Vector{Vector{ParsingItem}},
+  Dict{Int, Dict{Symbol, Int}},
+  Vector{Vector{ParsingItem}},
+))
+precompile(LalrParsingTable, (Parser,))

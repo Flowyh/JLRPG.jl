@@ -48,7 +48,111 @@ end
 # user code
 #
 # Blocks enclosed with %{ and %} are copied to the output file (in the same order).
+# TODO: Comment
+"""
+    read_parser_definition_file(path::String)::Parser
 
+Read parser definition file and construct a `Parser` object.
+
+The syntax for parser definition files follow the same syntax as
+[GNU Bison](https://www.gnu.org/software/bison/) definition files.
+
+# Definition file structure
+Parser definition file consists of three sections:
+  - Definitions section, where lexer tokens, types and parser options are defined.
+  - Productions section, where grammar productions are defined.
+  - Code section, where user code is defined.
+
+Each section is separated by a `%%` delimiter.
+
+# Definitions section
+Definitions section consists of lexer tokens, types and parser options.
+
+## Lexer tokens
+Each lexer token that might be passed to parser during the parsing process must be
+defined in this section. To define a lexer token, use the following syntax:
+```
+%token NAME "ALIAS"
+```
+where `NAME` is the uppercased name of the token and `ALIAS` is a optional string
+literal, which may be used to refer to the token in the parser productions section.
+
+## Types
+Each nonterminal symbol may be assigned a type. To assign a type to a nonterminal,
+use the following syntax:
+```
+%type <type> symbol
+```
+where `type` is the type of the symbol and `symbol` is the lowercase name of the symbol.
+The type may be any valid Julia type, including user-defined types.
+
+If a type is not assigned to a nonterminal, it is assumed to be `Nothing`.
+
+If a type is assigned to a nonterminal, it is assumed that the user will return a value
+of that type from the action associated with the production. To return a value from the
+action, assign it to the `\$\$` variable.
+
+## Parser options
+Parser options may be used to configure the parser. Currently, the following options are
+available:
+  - `tag`: Rename the prefix of all objects generated in the parser. This includes all
+    token definitions, special functions, etc.
+  - `lexer_tag`: Rename the prefix of all objects associated with the lexer that are used
+    in the parser. This includes all token definitions, special functions, etc.
+  - `parser_type`: Specify the type of the parser. Currently, the following types are
+    available:
+      - `SLR`
+      - `LR`
+      - `LALR`
+
+Parser options are defined as follows:
+```
+%option tag="TAG_NAME"
+%option lexer_tag="LEXER_TAG_NAME"
+%option SLR
+%option LR
+%option LALR
+```
+where `TAG_NAME` is the new parser prefix, `LEXER_TAG_NAME` is the new prefix for lexer
+objects.
+
+Renaming the parser tag will also rename the default name of the generated parser file.
+For example if the tag is set to `MyParser`, the generated parser file will be named
+`MyParser.jl`.
+
+# Productions section
+Productions section consists of grammar productions. Each production is defined as follows:
+```
+lhs -> production :{ action }:
+```
+where `lhs` is the left-hand side of the production, `production` is the right-hand side.
+Right-hand side might consist of terminals (uppercased symbols), nonterminals (lowercased
+symbols) or an `%empty` keyword, which represents an empty production. `%empty` should not
+be mixed with other symbols in a single production.
+
+The `action` is an optional Julia code block, which is executed when the production is
+reduced. The `action` may return a value, which will be assigned to the left-hand side of
+the production. To return a value from the action, assign it to the `\$\$` variable:
+```
+lhs -> production :{ \$\$ = value }:
+```
+
+If a given left-hand side has multiple productions, they have to be defined below the first
+production using the following syntax:
+```
+lhs -> production :{ action }:
+     | alt_production :{ action }:
+```
+
+# Code section
+Code section consists of user code. It is copied to the output file as is, in the same
+order as it was defined in the definition file.
+
+Additionally the user may define code blocks enclosed with `%{` and `%}`,
+which will be also copied to the output file.
+Code blocks may be inserted in all of the sections, but they should not be intermixed
+with other definition file constructs (such as production definitions, flags, etc.).
+"""
 function read_parser_definition_file(
   path::String
 )::Parser
@@ -411,3 +515,36 @@ function _read_parser_definition_file(
     ParserOptions(options)
   )
 end
+
+#============#
+# PRECOMPILE #
+#============#
+precompile(read_parser_definition_file, (
+  String,
+))
+precompile(_next_parser_section, (
+  ParserSection,
+))
+precompile(_parser_section_guard, (
+  ParserSection,
+  ParserSection,
+  Cursor,
+  String,
+  Union{Nothing, UnitRange{Int}}
+))
+precompile(islowercased, (
+  AbstractString,
+))
+precompile(isuppercased, (
+  AbstractString,
+))
+precompile(_split_production_string, (
+  Symbol,
+  AbstractString,
+  Dict{Symbol, Symbol},
+  Cursor,
+  Union{Nothing, UnitRange{Int}}
+))
+precompile(_read_parser_definition_file, (
+  Cursor,
+))

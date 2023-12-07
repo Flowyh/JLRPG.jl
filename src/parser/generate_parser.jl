@@ -1,14 +1,16 @@
+"""
+    generate_parser(definition_path::String, output_path::String="__PAR__.jl")
+
+Generate a parser source file from a parser definition file.
+
+The parser definition file should follow the syntax described in both
+`read_parser_definition_file` and `Parser` module documentation.
+"""
 function generate_parser(
   definition_path::String,
   output_path::String="__PAR__.jl"
 )
-  parser = nothing
-  open(definition_path) do definition_file
-    text::String = read(definition_file, String)
-    c::Cursor = Cursor(text; source=definition_path)
-    parser = _read_parser_definition_file(c)
-  end
-
+  parser = read_parser_definition_file(definition_path)
   parser = augment_parser(parser)
 
   if parser.options.parser_type == SLR

@@ -1,3 +1,15 @@
+"""
+    lr1_closure(
+      items::Vector{ParsingItem},
+      productions::Dict{Symbol, Vector{ParserProduction}},
+      nonterminals::Vector{Symbol},
+      firsts::Dict{Symbol, Set{Symbol}},
+    )::Vector{ParsingItem}
+
+Compute the LR(1) closure of a set of items.
+
+The procedure is described in the Dragon Book, 2nd edition, section 4.7.2.
+"""
 function lr1_closure(
   items::Vector{ParsingItem},
   productions::Dict{Symbol, Vector{ParserProduction}},
@@ -44,6 +56,19 @@ function lr1_closure(
   return new_items
 end
 
+"""
+    lr1_goto(
+      items::Vector{ParsingItem},
+      symbol::Symbol,
+      productions::Dict{Symbol, Vector{ParserProduction}},
+      nonterminals::Vector{Symbol},
+      firsts::Dict{Symbol, Set{Symbol}},
+    )::Vector{ParsingItem}
+
+Compute the LR(1) goto of a set of items.
+
+The procedure is described in the Dragon Book, 2nd edition, section 4.7.2.
+"""
 function lr1_goto(
   items::Vector{ParsingItem},
   symbol::Symbol,
@@ -79,6 +104,18 @@ function lr1_goto(
   return lr1_closure(new_items, productions, nonterminals, firsts)
 end
 
+"""
+    lr1_items(
+      augmented_productions::Dict{Symbol, Vector{ParserProduction}},
+      nonterminals::Vector{Symbol},
+      grammar_symbols::Vector{Symbol},
+      firsts::Dict{Symbol, Set{Symbol}}
+    )::Tuple{Vector{Vector{ParsingItem}}, Dict{Int, Dict{Symbol, Int}}}
+
+Compute the LR(1) items and gotos for a given grammar.
+
+The procedure is described in the Dragon Book, 2nd edition, section 4.7.2.
+"""
 function lr1_items(
   augmented_productions::Dict{Symbol, Vector{ParserProduction}},
   nonterminals::Vector{Symbol},
@@ -132,6 +169,15 @@ function lr1_items(
   return lr1_item_sets, lr1_gotos
 end
 
+"""
+    LrParsingTable(
+      augmented_parser::Parser
+    )::ParsingTable
+
+Compute the LR(1) parsing table for a given parser.
+
+The procedure is described in the Dragon Book, 2nd edition, section 4.7.3.
+"""
 function LrParsingTable(
   augmented_parser::Parser
 )::ParsingTable
@@ -206,3 +252,27 @@ function LrParsingTable(
 
   return ParsingTable(action, goto)
 end
+
+#============#
+# PRECOMPILE #
+#============#
+precompile(lr1_closure, (
+  Vector{ParsingItem},
+  Dict{Symbol, Vector{ParserProduction}},
+  Vector{Symbol},
+  Dict{Symbol, Set{Symbol}},
+))
+precompile(lr1_goto, (
+  Vector{ParsingItem},
+  Symbol,
+  Dict{Symbol, Vector{ParserProduction}},
+  Vector{Symbol},
+  Dict{Symbol, Set{Symbol}},
+))
+precompile(lr1_items, (
+  Dict{Symbol, Vector{ParserProduction}},
+  Vector{Symbol},
+  Vector{Symbol},
+  Dict{Symbol, Set{Symbol}},
+))
+precompile(LrParsingTable, (Parser,))

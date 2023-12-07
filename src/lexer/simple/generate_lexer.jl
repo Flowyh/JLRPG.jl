@@ -1,13 +1,20 @@
+"""
+    generate_lexer(definition_path::String, output_path::String="__LEX__.jl")
+
+Generate a lexer source file from a lexer definition file.
+
+The lexer definition file should follow the syntax described in both
+`read_lexer_definition_file` and `SimpleLexer` module documentation.
+
+By default parsers assume that there is a lexer file named `__LEX__.jl` in the
+same directory as the parser file. The user may specify a different path by passing `output_path` argument. If another path is specified, it is required that the user
+manually include the generated lexer file in the parser definition file.
+"""
 function generate_lexer(
   definition_path::String,
   output_path::String="__LEX__.jl"
 )
-  lexer = nothing
-  open(definition_path) do definition_file
-    text::String = read(definition_file, String)
-    c::Cursor = Cursor(text; source=definition_path)
-    lexer = _read_lexer_definition_file(c)
-  end
+  lexer = read_lexer_definition_file(definition_path)
 
   lexer = expand_regex_aliases_in_lexer(lexer)
   returned_tokens = retrieve_tokens_from_lexer(lexer)
@@ -33,3 +40,11 @@ function generate_lexer(
   println("Generated lexer path: $(output_path)")
   nothing
 end
+
+#============#
+# PRECOMPILE #
+#============#
+precompile(generate_lexer, (
+  String,
+  String
+))

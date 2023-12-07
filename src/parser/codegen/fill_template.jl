@@ -9,6 +9,19 @@ using Parameters: @consts
   __PAR__MAIN = read(joinpath(@__DIR__, "template/main_setup.jl"), String)
 end
 
+
+"""
+    fill_parser_template(
+      codeblocks::Vector{String},
+      table::ParsingTable,
+      productions::Dict{Symbol, Vector{ParserProduction}},
+      symbol_types::Dict{Symbol, Symbol}
+    )::String
+
+Fill the lexer [mustache](https://mustache.github.io/) template with the data.
+
+This function is used internally by `generate_parser` function.
+"""
 function fill_parser_template(
   codeblocks::Vector{String},
   table::ParsingTable,
@@ -83,3 +96,20 @@ function parsing_table_to_named_tuples(
 
   return (tupled_action, tupled_goto)
 end
+
+#============#
+# PRECOMPILE #
+#============#
+precompile(fill_parser_template, (
+  Vector{String},
+  ParsingTable,
+  Dict{Symbol, Vector{ParserProduction}},
+  Dict{Symbol, Symbol}
+))
+precompile(productions_to_named_tuples, (
+  Dict{Symbol, Vector{ParserProduction}},
+  Dict{Symbol, Symbol}
+))
+precompile(parsing_table_to_named_tuples, (
+  ParsingTable,
+))

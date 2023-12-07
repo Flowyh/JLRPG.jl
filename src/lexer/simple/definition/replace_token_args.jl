@@ -1,5 +1,22 @@
 using Parameters: @consts
 
+"""
+    replace_token_args_in_actions(
+      lexer::Lexer,
+      defined_tokens::Vector{LexerTokenDefinition}
+    )::Lexer
+
+Convert token definitions from lexer definition file to conform to the code
+generation template.
+
+This function does two things:
+  - Prepends a special lexer tag to each token name. This is done to avoid name
+    collisions with user-defined functions.
+  - Replaces arguments passed to returned tokens with a list of keyword arguments.
+    Argument names should be defined in the `defined_tokens` vector.
+
+For example `return Number(1)` will become `return __LEX__Number(;value=1)`.
+"""
 function replace_token_args_in_actions(
   actions::Vector{LexerAction},
   defined_tokens::Dict{Symbol, Vector}
@@ -17,7 +34,7 @@ function replace_token_args_in_actions(
     tag_str = m[:tag]
     tag = Symbol(tag_str)
 
-    new_tag = "__LEX__" * tag_str
+    new_tag = LEXER_SPECIAL_TAG.pattern * tag_str
     new_return = replace(m.match, tag_str => new_tag)
 
     args = m[:args]
@@ -53,3 +70,15 @@ function replace_token_args_in_lexer(
     lexer.options
   )
 end
+
+#============#
+# PRECOMPILE #
+#============#
+precompile(replace_token_args_in_lexer, (
+  Lexer,
+  Vector{LexerTokenDefinition}
+))
+precompile(replace_token_args_in_actions, (
+  Vector{LexerAction},
+  Dict{Symbol, Vector}
+))

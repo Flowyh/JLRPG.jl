@@ -1,12 +1,15 @@
-function nullable(productions::Vector{ParserProduction})::Bool
-  for production in productions
-    if production.rhs == EMPTY_PRODUCTION
-      return true
-    end
-  end
-  return false
-end
+"""
+    first_sets(
+      terminals::Vector{Symbol},
+      nonterminals::Vector{Symbol},
+      productions::Dict{Symbol, Vector{ParserProduction}}
+    )::Dict{Symbol, Set{Symbol}}
 
+Compute the first sets for the given grammar.
+
+The first sets are computed using the algorithm provided in the Dragon Book,
+2nd edition, pages 220-221.
+"""
 function first_sets(
   terminals::Vector{Symbol},
   nonterminals::Vector{Symbol},
@@ -108,6 +111,14 @@ function _first_set_for_symbol(
   return firsts
 end
 
+"""
+    first_set_for_string_of_symbols(
+      symbols::Vector{Symbol},
+      firsts::Dict{Symbol, Set{Symbol}}
+    )::Set{Symbol}
+
+Determine the first set for a string of symbols using precomputed first sets.
+"""
 function first_set_for_string_of_symbols(
   symbols::Vector{Symbol},
   firsts::Dict{Symbol, Set{Symbol}},
@@ -122,6 +133,20 @@ function first_set_for_string_of_symbols(
   return first_set
 end
 
+"""
+    follow_sets(
+      firsts::Dict{Symbol, Set{Symbol}},
+      terminals::Vector{Symbol},
+      nonterminals::Vector{Symbol},
+      productions::Dict{Symbol, Vector{ParserProduction}},
+      starting::Symbol
+    )::Dict{Symbol, Set{Symbol}}
+
+Compute the follow sets for the given grammar.
+
+The follow sets are computed using the algorithm provided in the Dragon Book,
+2nd edition, pages 221-222.
+"""
 function follow_sets(
   firsts::Dict{Symbol, Set{Symbol}},
   terminals::Vector{Symbol},
@@ -221,3 +246,37 @@ function _follows_from_prodcution(
 
   return follow
 end
+
+#============#
+# PRECOMPILE #
+#============#
+precompile(first_sets, (
+  Vector{Symbol},
+  Vector{Symbol},
+  Dict{Symbol, Vector{ParserProduction}}
+))
+precompile(_first_set_for_symbol, (
+  Symbol,
+  Dict{Symbol, Set{Symbol}},
+  Vector{Symbol},
+  Dict{Symbol, Vector{ParserProduction}},
+  Set{Symbol}
+))
+precompile(first_set_for_string_of_symbols, (
+  Vector{Symbol},
+  Dict{Symbol, Set{Symbol}}
+))
+precompile(follow_sets, (
+  Dict{Symbol, Set{Symbol}},
+  Vector{Symbol},
+  Vector{Symbol},
+  Dict{Symbol, Vector{ParserProduction}},
+  Symbol
+))
+precompile(_follows_from_prodcution, (
+  ParserProduction,
+  Dict{Symbol, Set{Symbol}},
+  Dict{Symbol, Set{Symbol}},
+  Vector{Symbol},
+  Vector{Symbol}
+))

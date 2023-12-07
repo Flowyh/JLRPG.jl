@@ -17,6 +17,16 @@ using Parameters: @consts
   ]]
 end
 
+"""
+    replace_special_variables_in_generated_parser(
+      generated_parser::String
+    )::String
+
+Replace special variables in the generated parser code.
+
+Currently only special variables are `\$\$` and `\$n`, which are replaced with
+`__PAR__action_result` and `__PAR__symbols_slice[n]` respectively.
+"""
 function replace_special_variables_in_generated_parser(
   generated_parser::String
 )::String
@@ -26,6 +36,17 @@ function replace_special_variables_in_generated_parser(
   return generated_parser
 end
 
+"""
+    replace_overloaded_functions_in_generated_parser(
+      generated_parser::String
+    )::String
+
+Replace overloaded functions in the generated parser code.
+
+Scan the generated parser code for overloaded functions and replace the sections
+between `# <<: ovearloaded_func start :>>` and `# <<: ovearloaded_func end :>>`
+with a message that the function is overloaded.
+"""
 function replace_overloaded_functions_in_generated_parser(
   generated_parser::String
 )::String
@@ -49,6 +70,18 @@ function replace_overloaded_functions_in_generated_parser(
   return generated_parser
 end
 
+"""
+    replace_special_tag_in_generated_parser(
+      generated_parser::String,
+      parser_tag::String,
+      lexer_tag::String
+    )::String
+
+Replace special lexer and parser tags in the generated parser code.
+
+This function is used to replace the special prefixes present in all generated objects
+with the user-defined tags.
+"""
 function replace_special_tag_in_generated_parser(
   generated_parser::String,
   parser_tag::String,
@@ -68,3 +101,18 @@ function replace_special_tag_in_generated_parser(
   end
   return generated_parser
 end
+
+#============#
+# PRECOMPILE #
+#============#
+precompile(replace_special_variables_in_generated_parser, (
+  String,
+))
+precompile(replace_overloaded_functions_in_generated_parser, (
+  String,
+))
+precompile(replace_special_tag_in_generated_parser, (
+  String,
+  String,
+  String
+))

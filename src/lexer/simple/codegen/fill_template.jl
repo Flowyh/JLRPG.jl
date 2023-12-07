@@ -9,6 +9,18 @@ using Parameters: @consts
   __LEX__MAIN = read(joinpath(@__DIR__, "template/main_setup.jl"), String)
 end
 
+"""
+    fill_lexer_template(
+      tokens::Vector{LexerTokenDefinition},
+      codeblocks::Vector{String},
+      actions::Vector{LexerAction}
+    )::String
+
+Fill the lexer [mustache](https://mustache.github.io/) template with the given tokens,
+codeblocks and actions.
+
+This function is used internally by `generate_lexer` function.
+"""
 function fill_lexer_template(
   tokens::Vector{LexerTokenDefinition},
   codeblocks::Vector{String},
@@ -45,3 +57,12 @@ let
     return ""
   end
 end
+
+#============#
+# PRECOMPILE #
+#============#
+precompile(fill_lexer_template, (
+  Vector{LexerTokenDefinition},
+  Vector{String},
+  Vector{LexerAction}
+))

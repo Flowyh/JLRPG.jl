@@ -5,6 +5,8 @@ using Parameters: @consts
     raw"$$" => "__LEX__current_match()"
   ]
 
+  # Special tag used to mark lexer functions and variables.
+  # This tag is used to avoid name collisions with user-defined functions.
   LEXER_SPECIAL_TAG = r"__LEX__"
 
   LEXER_SPECIAL_FUNCTIONS_PATTERNS = [LEXER_SPECIAL_TAG * fn for fn in [
@@ -13,6 +15,16 @@ using Parameters: @consts
   ]]
 end
 
+"""
+    replace_special_variables_in_generated_lexer(
+      generated_lexer::String
+    )::String
+
+Replace special variables in the generated lexer code.
+
+Currently the only special variable is `\$\$`, which is replaced with
+`__LEX__current_match()`.
+"""
 function replace_special_variables_in_generated_lexer(
   generated_lexer::String
 )::String
@@ -22,6 +34,17 @@ function replace_special_variables_in_generated_lexer(
   return generated_lexer
 end
 
+"""
+    replace_overloaded_functions_in_generated_lexer(
+      generated_lexer::String
+    )::String
+
+Replace overloaded functions in the generated lexer code.
+
+Scan the generated lexer code for overloaded functions and replace the sections
+between `# <<: ovearloaded_func start :>>` and `# <<: ovearloaded_func end :>>` 
+with a message that the function is overloaded.
+"""
 function replace_overloaded_functions_in_generated_lexer(
   generated_lexer::String
 )::String
@@ -45,6 +68,17 @@ function replace_overloaded_functions_in_generated_lexer(
   return generated_lexer
 end
 
+"""
+    replace_special_tag_in_generated_lexer(
+      generated_lexer::String,
+      tag::String
+    )::String
+
+Replace special tag in the generated lexer code.
+
+This function is used to replace the special prefix present in all generated objects
+with the user-defined tag.
+"""
 function replace_special_tag_in_generated_lexer(
   generated_lexer::String,
   tag::String
@@ -57,3 +91,17 @@ function replace_special_tag_in_generated_lexer(
   end
   return generated_lexer
 end
+
+#============#
+# PRECOMPILE #
+#============#
+precompile(replace_special_variables_in_generated_lexer, (
+  String,
+))
+precompile(replace_overloaded_functions_in_generated_lexer, (
+  String,
+))
+precompile(replace_special_tag_in_generated_lexer, (
+  String, 
+  String
+))

@@ -1,5 +1,6 @@
 using Parameters: @consts
 
+"All possible types of arguments passed to a lexer token"
 @enum ArgumentType typed_named untyped_named typed_unnamed untyped_unnamed
 
 @consts begin
@@ -23,16 +24,30 @@ using Parameters: @consts
   ]
 end
 
-# Each action should return some sort of token
-# Tokens may contain additional values (ints, strings, symbols etc.)
-# For the sake of simplicity, I will allow some sort of argument typing in returned tokens. If no type is specified, the value will be a string.
+"""
+    retrieve_tokens_from_actions(actions::Vector{LexerAction})::Vector{LexerTokenDefinition}
+
+Scan lexer actions for returned tokens and their arguments.
+
+Each lexer action may return some sort of token, which is later passed to the parser. Tokens may contain additional parameters of any type interpretable by Julia.
+All parameters may be named and typed, but it is not required.
+
+## Argument naming rules:
+- If a token has only one parameter and it is not named, it will be named as `value`.
+- If a token has more than one parameter and they are not named, they will be named as `value1`, `value2`, etc.
+- If a custom name is specified, it will be used instead of the default name.
+
+## Argument typing rules:
+- If no type is specified, the value will be a `String`.
+- Otherwise, the value will be treated as a value of the specified type.
+  The user should make sure that a proper value for this type is passed.
+
 # Examples:
-# {NUM} { return Num(5) } -> Num has value of type Int, but it is not specified, so we will use a string instead
-# {NUM} { return Num(::Int=5) } -> Num has value of type Int
-# {ID}  { return ID("hello", "world", ::Int=4)} -> ID has 3 arguments, all of which will be retrieveable by using token.value1, token.value2, token.value3
-# You can also name your arguments:
-# {ID}  { return ID(first::String="hello", second::String="world", num::Int=4)} -> ID has 3 arguments, all of which will be retrieveable by using token.first, token.second, token.num
-# By default, if a token has only one argument, it will be named "value"
+- `{NUM} { return Num(5) }` A type for the first argument is not specified, so it will be treated as a `String`
+- `{NUM} { return Num(::Int=5) }` Num has value of type Int
+- `{ID}  { return ID("hello", "world", ::Int=4)}` ID has 3 arguments, all of which will be retrieveable by using token.value1, token.value2, token.value3
+- `{ID}  { return ID(first::String="hello", second::String="world", num::Int=4)}` ID has 3 arguments, all of which will be retrieveable by using token.first, token.second, token.num
+"""
 function retrieve_tokens_from_actions(actions::Vector{LexerAction})::Vector{LexerTokenDefinition}
   defined_tokens::Dict{Symbol, Vector} = Dict()
   returned_tokens::Vector{LexerTokenDefinition} = []
@@ -95,3 +110,13 @@ end
 function retrieve_tokens_from_lexer(lexer::Lexer)::Vector{LexerTokenDefinition}
   return retrieve_tokens_from_actions(lexer.actions)
 end
+
+#============#
+# PRECOMPILE #
+#============#
+precompile(retrieve_tokens_from_lexer, (
+  Lexer,
+))
+precompile(retrieve_tokens_from_actions, (
+  Vector{LexerAction},
+))

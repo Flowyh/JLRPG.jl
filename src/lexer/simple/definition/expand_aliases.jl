@@ -1,5 +1,6 @@
 using Parameters: @consts
 
+"Possible parts of a pattern in a lexer action."
 @enum PatternPart alias string regex
 
 @consts begin
@@ -14,13 +15,19 @@ using Parameters: @consts
   ]
 end
 
+"""
+    expand_regex_aliases_in_aliases(aliases::Vector{RegexAlias})::Vector{RegexAlias}
+
+Expand lexer regex `aliases` inside the patterns of other `aliases`.
+
+Aliases have to be defined before they are referenced.
+"""
 function expand_regex_aliases_in_aliases(aliases::Vector{RegexAlias})::Vector{RegexAlias}
   # Aliases are expanded in-place of {ALIAS_NAME} in the patterns
   expanded_aliases::Vector{RegexAlias} = []
   defined_aliases::Set{Symbol} = Set()
   visited_aliases::Dict{Symbol, String} = Dict()
 
-  # Order of aliases is important, so for each analyzed alias we will mark it as visited
   for alias in aliases
     name, pattern = alias.name, alias.pattern
     alias_matches = findall(ALIAS_PATTERN, pattern)
@@ -29,7 +36,8 @@ function expand_regex_aliases_in_aliases(aliases::Vector{RegexAlias})::Vector{Re
       for alias_match in alias_matches
         m = match(ALIAS_PATTERN, pattern[alias_match])
         alias_name = Symbol(m[:name])
-        if !haskey(visited_aliases, alias_name) # Alias referenced before it was defined
+        # Alias referenced before it was defined
+        if !haskey(visited_aliases, alias_name)
           error("Invalid definition file, alias for $(alias_name) was referenced before it was defined")
         end
         push!(replacements, pattern[alias_match] => visited_aliases[alias_name])
@@ -48,6 +56,16 @@ function expand_regex_aliases_in_aliases(aliases::Vector{RegexAlias})::Vector{Re
   return expanded_aliases
 end
 
+"""
+    expand_regex_aliases_in_actions(
+      actions::Vector{LexerAction},
+      expanded_aliases::Vector{RegexAlias}
+    )::Vector{LexerAction}
+
+Expand lexer regex `aliases` inside of the patterns of `actions`.
+
+Aliases provided as `expanded_aliases` should contain previously expanded aliases. Literal strings enclosed in double quotes are escaped using `\\Q` and `\\E` sequences.
+"""
 function expand_regex_aliases_in_actions(
   actions::Vector{LexerAction},
   expanded_aliases::Vector{RegexAlias}
@@ -97,6 +115,12 @@ function expand_regex_aliases_in_actions(
   return expanded_actions
 end
 
+
+"""
+    expand_regex_aliases_in_lexer(lexer::Lexer)::Lexer
+
+Expand aliases and actions in `lexer` into proper regexes.
+"""
 function expand_regex_aliases_in_lexer(lexer::Lexer)::Lexer
   expanded_aliases = expand_regex_aliases_in_aliases(lexer.aliases)
   expanded_actions = expand_regex_aliases_in_actions(lexer.actions, expanded_aliases)
@@ -108,3 +132,17 @@ function expand_regex_aliases_in_lexer(lexer::Lexer)::Lexer
     lexer.options
   )
 end
+
+#============#
+# PRECOMPILE #
+#============#
+precompile(expand_regex_aliases_in_lexer, (
+  Lexer,
+))
+precompile(expand_regex_aliases_in_actions, (
+  Vector{LexerAction},
+  Vector{RegexAlias}
+))
+precompile(expand_regex_aliases_in_aliases, (
+  Vector{RegexAlias},
+))

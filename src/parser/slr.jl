@@ -1,3 +1,14 @@
+"""
+    lr0_closure(
+      items::Vector{ParsingItem},
+      productions::Dict{Symbol, Vector{ParserProduction}},
+      nonterminals::Vector{Symbol}
+    )::Vector{ParsingItem}
+
+Compute the LR(0) closure of a set of items.
+
+The procedure is described in the Dragon Book, 2nd edition, section 4.6.2.
+"""
 function lr0_closure(
   items::Vector{ParsingItem},
   productions::Dict{Symbol, Vector{ParserProduction}},
@@ -38,6 +49,18 @@ function lr0_closure(
   return new_items
 end
 
+"""
+    lr0_goto(
+      items::Vector{ParsingItem},
+      symbol::Symbol,
+      productions::Dict{Symbol, Vector{ParserProduction}},
+      nonterminals::Vector{Symbol}
+    )::Vector{ParsingItem}
+
+Compute the LR(0) goto of a set of items.
+
+The procedure is described in the Dragon Book, 2nd edition, section 4.6.2.
+"""
 function lr0_goto(
   items::Vector{ParsingItem},
   symbol::Symbol,
@@ -65,6 +88,17 @@ function lr0_goto(
   return lr0_closure(new_items, productions, nonterminals)
 end
 
+"""
+    lr0_items(
+      augmented_productions::Dict{Symbol, Vector{ParserProduction}},
+      nonterminals::Vector{Symbol},
+      grammar_symbols::Vector{Symbol}
+    )::Tuple{Vector{Vector{ParsingItem}}, Dict{Int, Dict{Symbol, Int}}}
+
+Compute the LR(0) items for the given grammar.
+
+The procedure is described in the Dragon Book, 2nd edition, section 4.6.2.
+"""
 function lr0_items(
   augmented_productions::Dict{Symbol, Vector{ParserProduction}},
   nonterminals::Vector{Symbol},
@@ -116,6 +150,15 @@ function lr0_items(
   return lr0_item_sets, lr0_gotos
 end
 
+"""
+    SlrParsingTable(augmented_parser::Parser)
+
+Generate the SLR parsing table for the augmented parser.
+
+The augmented parser is the parser with the augmented start production.
+
+The procedure is described in the Dragon Book, 2nd edition, section 4.6.4.
+"""
 function SlrParsingTable(
   augmented_parser::Parser
 )::ParsingTable
@@ -198,3 +241,24 @@ function SlrParsingTable(
 
   return ParsingTable(action, goto)
 end
+
+#============#
+# PRECOMPILE #
+#============#
+precompile(lr0_closure, (
+  Vector{ParsingItem},
+  Dict{Symbol, Vector{ParserProduction}},
+  Vector{Symbol},
+))
+precompile(lr0_goto, (
+  Vector{ParsingItem},
+  Symbol,
+  Dict{Symbol, Vector{ParserProduction}},
+  Vector{Symbol},
+))
+precompile(lr0_items, (
+  Dict{Symbol, Vector{ParserProduction}},
+  Vector{Symbol},
+  Vector{Symbol},
+))
+precompile(SlrParsingTable, (Parser,))

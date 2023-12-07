@@ -9,6 +9,27 @@ end
 
 # === Parser definition ===
 
+"""
+Parser production definition.
+
+A parser production is a rule of the form:
+```
+A -> B1 B2 ... Bn
+
+# or if the production is an alternative to previous production
+A -> B1 B2 ... Bn
+   | C1 C2 ... Cm
+```
+
+where A is a nonterminal and B1, B2, ..., Bn (C1, C2, ..., Cn) is a string
+of grammar symbols (terminals or nonterminals).
+
+The action is an optional string of Julia code that is executed when the production is
+reduced. The action can be used to build an AST or to execute arbitrary code.
+
+The return type is the type of the value returned by the action. If the action
+is not defined, the return type is `nothing`.
+"""
 struct ParserProduction <: Comparable
   lhs::Symbol
   rhs::Vector{Symbol}
@@ -36,6 +57,15 @@ ParserTypeFromSymbol::Dict{Symbol, ParserType} = Dict(
   :LALR => LALR,
 )
 
+"""
+Parser options definition.
+
+Currently only `tag`, `parser_tag` and `parser_type` options are supported.
+Option `tag` defines a tag that will be preprended to all objects generated in the parser file.
+Option `lexer_tag` defines a tag that will be preprended to all objects generated associated
+with the lexer in the parser file.
+Option `parser_type` defines the type of the parser to be generated (SLR, LALR or LR).
+"""
 struct ParserOptions <: Comparable
   parser_type::ParserType
   tag::String
@@ -52,6 +82,11 @@ struct ParserOptions <: Comparable
   end
 end
 
+"""
+Parser definition.
+
+Created by `read_parser_definition_file` function.
+"""
 struct Parser <: Comparable
   terminals::Vector{Symbol}
   nonterminals::Vector{Symbol}
@@ -64,6 +99,7 @@ struct Parser <: Comparable
   options::ParserOptions
 end
 
+# Helper kwargs constructor
 function Parser(;
   terminals::Vector{Symbol},
   nonterminals::Vector{Symbol},
@@ -88,12 +124,34 @@ function Parser(;
   )
 end
 
+"""
+    parser_grammar_symbols(parser::Parser)
+
+Concatenate parser nonterminals and terminals into a single vector.
+"""
 function parser_grammar_symbols(
   parser::Parser
 )::Vector{Symbol}
   return vcat(parser.nonterminals, parser.terminals)
 end
+precompile(parser_grammar_symbols, (Parser,))
 
+"""
+    augment_productions(
+      starting::Symbol,
+      starting_return_type::Symbol,
+      productions::Dict{Symbol, Vector{ParserProduction}}
+    )::Dict{Symbol, Vector{ParserProduction}}
+
+Add the augmented start production to the set of productions.
+
+The augmented start production is of the form:
+```
+%start -> starting
+```
+
+where starting is the starting nonterminal of the parser.
+"""
 function augment_productions(
   starting::Symbol,
   starting_return_type::Symbol,
@@ -113,7 +171,16 @@ function augment_productions(
 
   return augmented_productions
 end
+precompile(augment_productions, (Symbol, Symbol, Dict{Symbol, Vector{ParserProduction}}))
 
+"""
+    augment_parser(parser::Parser)::Parser
+
+Augment the parser with the augmented start production.
+
+Add the %start nonterminal to the set of nonterminals and the augmented start production
+to the set of productions.
+"""
 function augment_parser(
   parser::Parser
 )::Parser
@@ -132,9 +199,15 @@ function augment_parser(
     parser.options,
   )
 end
+precompile(augment_parser, (Parser,))
 
 # === Parsing tables ===
 
+"""
+Parsing item definition.
+
+Used for the construction of the parsing table.
+"""
 struct ParsingItem <: Comparable
   lhs::Symbol
   production::Int
@@ -151,6 +224,16 @@ struct ParsingItem <: Comparable
   end
 end
 
+"""
+Parsing table action definition.
+
+There are three types of actions:
+- Shift
+- Reduce
+- Accept
+
+The action is executed when the parser is in a certain state and reads a certain symbol.
+"""
 abstract type ParsingTableAction <: Comparable end
 
 struct Shift <: ParsingTableAction
@@ -165,6 +248,15 @@ end
 struct Accept <: ParsingTableAction end
 struct ParsingError <: ParsingTableAction end
 
+"""
+Parsing table definition.
+
+The parsing table is used by the parser to decide what action to take
+when it is in a certain state and reads a certain symbol.
+
+All parsing table types have the same structure, but they differ
+in its content.
+"""
 struct ParsingTable <: Comparable
   action::Dict{Int, Dict{Symbol, ParsingTableAction}}
   goto::Dict{Int, Dict{Symbol, Int}}
