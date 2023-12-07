@@ -144,6 +144,13 @@ lhs -> production :{ action }:
      | alt_production :{ action }:
 ```
 
+To refer to the values of symbols in the right-hand side of the production, use the
+`\$<number>` syntax, for example:
+```
+lhs -> production :{ \$\$ = \$1 + \$3 }:
+```
+where `\$n` refers to the nth symbol in the right-hand side of the production.
+
 # Code section
 Code section consists of user code. It is copied to the output file as is, in the same
 order as it was defined in the definition file.
@@ -373,7 +380,7 @@ function _read_parser_definition_file(
         end
 
         starting = Symbol(m[:symbol])
-      elseif definition == production
+      elseif definition == production || definition == production_alt
         _parser_section_guard(
           current_section,
           productions,
@@ -381,56 +388,28 @@ function _read_parser_definition_file(
           erroneous_slice=matched
         )
 
-        if !islowercased(m[:lhs])
-          cursor_error(
-            c, "Production left-hand side must be lowercase";
-            erroneous_slice=matched
-          )
+        if definition == production
+          if !islowercased(m[:lhs])
+            cursor_error(
+              c, "Production left-hand side must be lowercase";
+              erroneous_slice=matched
+            )
+          end
+
+          current_production_lhs = Symbol(m[:lhs])
+
+          if haskey(parser_productions, current_production_lhs)
+            cursor_error(
+              c, "Production left-hand side repeated";
+              erroneous_slice=matched
+            )
+          end
+
+          # First production is considered as the starting production, unless specified otherwise
+          if starting === nothing
+            starting = current_production_lhs
+          end
         end
-
-        current_production_lhs = Symbol(m[:lhs])
-
-        if haskey(parser_productions, current_production_lhs)
-          cursor_error(
-            c, "Production left-hand side repeated";
-            erroneous_slice=matched
-          )
-        end
-
-        # First production is considered as the starting production, unless specified otherwise
-        if starting === nothing
-          starting = current_production_lhs
-        end
-
-        _production, _terminals, _nonterminals = _split_production_string(
-          current_production_lhs,
-          m[:production],
-          lexer_token_aliases,
-          c, matched
-        )
-
-        union!(terminals, _terminals)
-        union!(nonterminals, _nonterminals)
-
-        return_type = get(symbol_types, current_production_lhs, :Nothing)
-
-        if !haskey(parser_productions, current_production_lhs)
-          parser_productions[current_production_lhs] = []
-        end
-
-        push!(parser_productions[current_production_lhs], ParserProduction(
-          current_production_lhs,
-          _production,
-          haskey(m, :action) ? strip(m[:action]) : nothing, # TODO: utils get for regexmatches
-          return_type
-        ))
-      elseif definition == production_alt
-        _parser_section_guard(
-          current_section,
-          productions,
-          c, "Production alternative outside of productions section";
-          erroneous_slice=matched
-        )
 
         _production, _terminals, _nonterminals = _split_production_string(
           current_production_lhs,

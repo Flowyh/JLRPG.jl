@@ -120,7 +120,7 @@
 
     @testset "Production alternative outside productions" begin
       path = abspaths("resources/parser/definition_reader/erroneous/production_alt_outside_productions.jpar")
-      error_msg = raw"Production alternative outside of productions section" * "\n" *
+      error_msg = raw"Production outside of productions section" * "\n" *
                   raw"       \"| MISPLACED\" at " * "$(unexpanduser(path)):4:1"
       @test_throws error_msg read_parser_definition_file(path)
     end
