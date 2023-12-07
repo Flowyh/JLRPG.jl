@@ -129,6 +129,10 @@ which will be also copied to the output file.
 Code blocks may be inserted in all of the sections, but they should not be intermixed
 with other definition file constructs (such as action patterns, action bodies, etc.).
 
+# Commenting
+Comments are defined using the `#=` and `=#` delimiters. Comments are single-line only.
+They should not be mixed with other definition file constructs.
+
 # Example
 For valid lexer definition files examples see the `examples` directory.
 """

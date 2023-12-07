@@ -151,6 +151,13 @@ lhs -> production :{ \$\$ = \$1 + \$3 }:
 ```
 where `\$n` refers to the nth symbol in the right-hand side of the production.
 
+The first production of the first nonterminal is considered as the starting production,
+unless a special flag is specified. Use `%start` flag to specify the starting production:
+```
+%start lhs
+```
+where `lhs` is the left-hand side of the starting production.
+
 # Code section
 Code section consists of user code. It is copied to the output file as is, in the same
 order as it was defined in the definition file.
@@ -159,6 +166,13 @@ Additionally the user may define code blocks enclosed with `%{` and `%}`,
 which will be also copied to the output file.
 Code blocks may be inserted in all of the sections, but they should not be intermixed
 with other definition file constructs (such as production definitions, flags, etc.).
+
+# Commenting
+Comments are defined using the `#=` and `=#` delimiters. Comments are single-line only.
+They should not be mixed with other definition file constructs.
+
+# Examples
+For valid parser definition files examples see the `examples` directory.
 """
 function read_parser_definition_file(
   path::String

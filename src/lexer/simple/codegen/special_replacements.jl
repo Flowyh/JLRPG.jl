@@ -11,7 +11,8 @@ using Parameters: @consts
 
   LEXER_SPECIAL_FUNCTIONS_PATTERNS = [LEXER_SPECIAL_TAG * fn for fn in [
     r"at_end",
-    r"main"
+    r"main",
+    r"usage"
   ]]
 end
 
@@ -42,7 +43,7 @@ end
 Replace overloaded functions in the generated lexer code.
 
 Scan the generated lexer code for overloaded functions and replace the sections
-between `# <<: ovearloaded_func start :>>` and `# <<: ovearloaded_func end :>>` 
+between `# <<: ovearloaded_func start :>>` and `# <<: ovearloaded_func end :>>`
 with a message that the function is overloaded.
 """
 function replace_overloaded_functions_in_generated_lexer(
@@ -102,6 +103,6 @@ precompile(replace_overloaded_functions_in_generated_lexer, (
   String,
 ))
 precompile(replace_special_tag_in_generated_lexer, (
-  String, 
+  String,
   String
 ))

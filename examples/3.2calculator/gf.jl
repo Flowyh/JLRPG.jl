@@ -1,4 +1,4 @@
-# Generic type for types that can be added etc.
+# Abstract arithmetic type
 abstract type Operand end
 
 add(a::Operand, b::Operand)::Operand = a + b
@@ -6,7 +6,7 @@ sub(a::Operand, b::Operand)::Operand = a - b
 mul(a::Operand, b::Operand)::Operand = a * b
 div(a::Operand, b::Operand)::Operand = a / b
 
-# Galois field calculator of prime order P
+# Galois field calculator of order P
 struct GF{P} <: Operand
   value::Int
   function GF{P}(value::Int) where {P}
