@@ -18,5 +18,5 @@ makedocs(
 )
 
 deploydocs(
-  repo = "https://github.com/Flowyh/JLPG.jl.git",
+  repo = "github.com/Flowyh/JLPG.jl.git",
 )
