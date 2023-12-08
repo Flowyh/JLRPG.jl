@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Examples · JLPG.jl</title><meta name="title" content="Examples · JLPG.jl"/><meta property="og:title" content="Examples · JLPG.jl"/><meta property="twitter:title" content="Examples · JLPG.jl"/><meta name="description" content="Documentation for JLPG.jl."/><meta property="og:description" content="Documentation for JLPG.jl."/><meta property="twitter:description" content="Documentation for JLPG.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">JLPG.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Getting started</a></li><li><a class="tocitem" href="../lexer/">SimpleLexer definition files</a></li><li><a class="tocitem" href="../parser/">Parser definition files</a></li><li class="is-active"><a class="tocitem" href>Examples</a><ul class="internal"><li><a class="tocitem" href="#[wc](https://linux.die.net/man/1/wc)-like-program"><span>wc-like program</span></a></li><li><a class="tocitem" href="#Generic-calculator"><span>Generic calculator</span></a></li><li><a class="tocitem" href="#Changing-the-program-arguments-of-the-generated-parser"><span>Changing the program arguments of the generated parser</span></a></li><li><a class="tocitem" href="#Simple-AST-for-the-calculator"><span>Simple AST for the calculator</span></a></li></ul></li><li><a class="tocitem" href="../usage/">Usage</a></li><li><span class="tocitem">API</span><ul><li><a class="tocitem" href="../api_simplelexer/">SimpleLexer</a></li><li><a class="tocitem" href="../api_parser/">Parser</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Examples</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Examples</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/Flowyh/JLPG.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/Flowyh/JLPG.jl/blob/main/docs/src/examples.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h1><h2 id="[wc](https://linux.die.net/man/1/wc)-like-program"><a class="docs-heading-anchor" href="#[wc](https://linux.die.net/man/1/wc)-like-program"><a href="https://linux.die.net/man/1/wc">wc</a>-like program</a><a id="[wc](https://linux.die.net/man/1/wc)-like-program-1"></a><a class="docs-heading-anchor-permalink" href="#[wc](https://linux.die.net/man/1/wc)-like-program" title="Permalink"></a></h2><p>This example shows how to generate a lexer for a simple <a href="https://linux.die.net/man/1/wc">wc</a>-like program that counts the number of lines and words in a file.</p><pre><code class="nohighlight hljs">%{
+no_lines::Int = 0
+no_words::Int = 0
+%}
+
+INDENT      [ \t]
+WHITESPACE  [ \t\n]
+
+%%
+
+{INDENT}+                           :{ }:
+\n                                  :{ global no_lines += 1 }:
+[a-zA-Z0-9,.;_-]+                   :{ global no_words += 1 }:
+
+%%
+#= This is an overload of a special function, which is called =#
+#= when the lexer reaches the end of the input.               =#
+function __LEX__at_end()
+  println(&quot;========= OUTPUT =========&quot;)
+  println(&quot;Number of lines: &quot;, no_lines)
+  println(&quot;Number of words: &quot;, no_words)
+  return 0
+end</code></pre><p>To generate the lexer, run the following code:</p><pre><code class="language-julia hljs">using JLPG
+generate_lexer(&quot;example.jlex&quot;)</code></pre><p>A file named <code>__LEX__.jl</code> will be created in the directory from which the command was run.</p><p>Let&#39;s test the lexer on the following input:</p><pre><code class="nohighlight hljs">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus id dui id ante laoreet tempor. Donec sodales orci sagittis dui porttitor, a pellentesque lectus tristique.
+
+Phasellus scelerisque cursus euismod. Sed ut odio ut libero tristique ullamcorper eget et est. Praesent dignissim eu ex at venenatis.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam erat volutpat. Nam vel tortor eleifend, posuere quam quis, sollicitudin nisl.</code></pre><p>Running the generated lexer with the above input will produce the following output:</p><pre><code class="nohighlight hljs">========= OUTPUT =========
+Number of lines: 5
+Number of words: 65</code></pre><p>Which is the same as the output of the <code>wc -wl</code> program:</p><pre><code class="nohighlight hljs">  5  65 test_input</code></pre><h2 id="Generic-calculator"><a class="docs-heading-anchor" href="#Generic-calculator">Generic calculator</a><a id="Generic-calculator-1"></a><a class="docs-heading-anchor-permalink" href="#Generic-calculator" title="Permalink"></a></h2><p>Let&#39;s create a simple calculator that can evaluate expressions like <code>(1 + 2) * 3</code>. The calculator will be able to handle addition, subtraction, multiplication and division. It will also be able to handle parenthesis.</p><p>Instead of hardcoding specific return types for the grammar nonterminals, we will define an abstract <code>Operand</code> type, which will have all the necessary arithemtic operations defined. To implement this type, the user has to overload basic arithmetic operators from the Julia language (<code>Base.:+</code>, <code>Base.:-</code>, etc.).</p><p>First, let&#39;s create a lexer for our calculator:</p><pre><code class="nohighlight hljs">WHITESPACE (\s|\n)
+NUMBER     0|[1-9]+[0-9]*
+
+%%
+
+{WHITESPACE}+            :{ # Ignore }:
+{NUMBER}                 :{
+  val::Int = parse(Int, $$)
+  return Number(::Int=val)
+}:
+&quot;*&quot;                      :{ return Multiply() }:
+&quot;/&quot;                      :{ return Divide()   }:
+&quot;+&quot;                      :{ return Add()      }:
+&quot;-&quot;                      :{ return Subtract() }:
+&quot;(&quot;                      :{ return LParen()   }:
+&quot;)&quot;                      :{ return RParen()   }:
+
+%%</code></pre><p>Then, let&#39;s define the <code>Operand</code> type:</p><pre><code class="language-julia hljs"># Filename: operand.jl
+abstract type Operand end
+
+add(a::Operand, b::Operand)::Operand = a + b
+sub(a::Operand, b::Operand)::Operand = a - b
+mul(a::Operand, b::Operand)::Operand = a * b
+div(a::Operand, b::Operand)::Operand = a / b</code></pre><p>As an example, a simple implementation of the <a href="https://en.wikipedia.org/wiki/Finite_field">Galois field</a> with parametric order <code>p</code> is given below:</p><pre><code class="language-julia hljs"># Filename: galois_field.jl
+# Galois field calculator of order P
+struct GF{P} &lt;: Operand
+  value::Int
+  function GF{P}(value::Int) where {P}
+    return new(mod(value, P))
+  end
+end
+
+(Base.:+)(a::GF{P}, b::GF{P}) where P = GF{P}(a.value + b.value)
+(Base.:-)(a::GF{P}, b::GF{P}) where P = GF{P}(a.value - b.value)
+(Base.:*)(a::GF{P}, b::GF{P}) where P = GF{P}(a.value * b.value)
+(Base.:/)(a::GF{P}, b::GF{P}) where P = GF{P}(a.value * invmod(b.value, P))</code></pre><p>Now, let&#39;s define the parser:</p><pre><code class="nohighlight hljs">%option LALR
+
+%{
+include(&quot;operand.jl&quot;) #= Include the operand file =#
+include(&quot;galois_field.jl&quot;) #= Include the Galois field file =#
+
+FIELD_PRIME::Int = 7
+%}
+
+#= Lexer token definitions =#
+%token MULTIPLY &quot;*&quot;
+%token DIVIDE &quot;/&quot;
+%token ADD &quot;+&quot;
+%token SUBTRACT &quot;-&quot;
+%token LPAREN &quot;(&quot;
+%token RPAREN &quot;)&quot;
+%token NUMBER
+
+#= Returned types =#
+%type &lt;GF{FIELD_PRIME}&gt; e
+%type &lt;GF{FIELD_PRIME}&gt; t
+%type &lt;GF{FIELD_PRIME}&gt; f
+
+%%
+#= Productions =#
+%start s
+s -&gt; e         :{ println($1)                    }:
+e -&gt; e &quot;+&quot; t   :{ $$ = add($1, $3)               }:
+   | e &quot;-&quot; t   :{ $$ = sub($1, $3)               }:
+   | t         :{ $$ = $1                        }:
+t -&gt; t &quot;*&quot; f   :{ $$ = mul($1, $3)               }:
+   | t &quot;/&quot; f   :{ $$ = div($1, $3)               }:
+   | f         :{ $$ = $1                        }:
+f -&gt; NUMBER    :{ $$ = GF{FIELD_PRIME}($1.value) }:
+   | &quot;(&quot; e &quot;)&quot; :{ $$ = $2                        }:
+
+%%</code></pre><p>This grammar ensures that the order of operations is preserved. Currently there is no way to define the precedence of terminals in the grammar file, so the user has to define the precedence manually in the grammar productions.</p><p>To generate the parser, run the following code:</p><pre><code class="language-julia hljs">using JLPG
+generate_parser(&quot;example.jpar&quot;)</code></pre><p>A file named <code>__PAR__.jl</code> will be created in the directory from which the command was run.</p><p>Let&#39;s test the parser on the following input:</p><pre><code class="nohighlight hljs">(2 + 11) * 6</code></pre><p>This should equal <code>1</code>, since <code>78 = 1 (mod 7)</code>. Running the generated parser with the above input will produce the following output:</p><pre><code class="nohighlight hljs">GaloisField{order=7}(1)</code></pre><h2 id="Changing-the-program-arguments-of-the-generated-parser"><a class="docs-heading-anchor" href="#Changing-the-program-arguments-of-the-generated-parser">Changing the program arguments of the generated parser</a><a id="Changing-the-program-arguments-of-the-generated-parser-1"></a><a class="docs-heading-anchor-permalink" href="#Changing-the-program-arguments-of-the-generated-parser" title="Permalink"></a></h2><p>Currently the order of the Galois field calculator is hardcoded in the parser file. To change it, the user has to modify the <code>FIELD_PRIME</code> constant in the parser file and regenerate the parser.</p><p>To avoid this, the <code>__PAR__main()</code> function can be overloaded in the definition file. This function is called when the generated parser is run.</p><p>Let&#39;s modify the previous example to use below functions:</p><pre><code class="language-julia hljs">function __PAR__usage()
+  println(&quot;Usage: $(PROGRAM_FILE) [source file] [order]&quot;)
+end
+
+function __PAR__main()
+  if length(ARGS) != 2
+    return __PAR__usage()
+  elseif ARGS[1] == &quot;-h&quot; || ARGS[1] == &quot;--help&quot;
+    return __PAR__usage()
+  elseif !isfile(ARGS[1])
+    error(&quot;File \&quot;$(ARGS[1])\&quot; does not exist&quot;)
+  else
+    try
+      global FIELD_PRIME = parse(Int, ARGS[2])
+    catch e
+      error(&quot;Invalid order argument, must be an integer, got: \&quot;$(ARGS[2])\&quot;&quot;)
+    end
+
+    txt = &quot;&quot;
+    open(ARGS[1]) do file
+      txt = read(file, String)
+      __LEX__bind_cursor(Cursor(txt; source=ARGS[1]))
+    end
+
+    tokens = nothing
+    try
+      tokens = __LEX__tokenize()
+    catch e
+      e = ErrorException(replace(e.msg, r&quot;\n       &quot; =&gt; &quot;\n&quot;))
+      @error &quot;Error while tokenizing input&quot; exception=(e, catch_backtrace())
+      exit(1)
+    end
+
+    try
+      __PAR__simulate(tokens)
+    catch e
+      if e isa ErrorException
+        e = ErrorException(replace(e.msg, r&quot;\n       &quot; =&gt; &quot;\n&quot;))
+        @error &quot;Error while parsing tokens&quot; exception=(e, catch_backtrace())
+        exit(1)
+      end
+      @error &quot;Error while parsing tokens&quot; exception=(e, catch_backtrace())
+    end
+  end
+
+  return __PAR__at_end()
+end</code></pre><p>Now an additional argument has to be provided to the parser, which is the order of the Galois field. Let&#39;s test the parser on the following input and order <code>21</code>:</p><pre><code class="nohighlight hljs">(2 + 11) * 6</code></pre><p>This should equal <code>15</code>, since <code>78 = 15 (mod 21)</code>.</p><p>Running the generated parser with the above input and order will produce the following output:</p><pre><code class="nohighlight hljs">GaloisField{order=21}(15)</code></pre><h2 id="Simple-AST-for-the-calculator"><a class="docs-heading-anchor" href="#Simple-AST-for-the-calculator">Simple AST for the calculator</a><a id="Simple-AST-for-the-calculator-1"></a><a class="docs-heading-anchor-permalink" href="#Simple-AST-for-the-calculator" title="Permalink"></a></h2><p>The most powerful feature of each LR parser is the ability to create an abstract syntax tree (AST) for the input. This example shows how to create a simple AST for the calculator from the previous example.</p><p>Let&#39;s define basic AST node types and a function that will evaluate the provided arithmetic operations tree:</p><pre><code class="language-julia hljs"># Filename: ast.jl
+abstract type Node end
+
+struct NumNode &lt;: Node
+  value::Operand
+end
+
+struct AddNode &lt;: Node
+  left::Node
+  right::Node
+end
+
+struct SubNode &lt;: Node
+  left::Node
+  right::Node
+end
+
+struct MulNode &lt;: Node
+  left::Node
+  right::Node
+end
+
+struct DivNode &lt;: Node
+  left::Node
+  right::Node
+end
+
+eval(n::Num)::Operand = n.value
+eval(n::Add)::Operand = add(eval(n.left), eval(n.right))
+eval(n::Sub)::Operand = sub(eval(n.left), eval(n.right))
+eval(n::Mul)::Operand = mul(eval(n.left), eval(n.right))
+eval(n::Div)::Operand = div(eval(n.left), eval(n.right))</code></pre><p>The abstract <code>Node</code> type will be used as a return type for the grammar nonterminals. All operators contain references to other <code>Node</code> objects, which allows us to create a tree structure.</p><p>Now, let&#39;s modify the parser from the previous example to return <code>Node</code> objects:</p><pre><code class="nohighlight hljs">%option LALR
+
+%{
+include(&quot;operand.jl&quot;) #= Include the operand file =#
+include(&quot;galois_field.jl&quot;) #= Include the Galois field file =#
+include(&quot;ast.jl&quot;) #= Include the AST file =#
+
+FIELD_PRIME::Int = 7
+%}
+
+#= Lexer token definitions =#
+%token MULTIPLY &quot;*&quot;
+%token DIVIDE &quot;/&quot;
+%token ADD &quot;+&quot;
+%token SUBTRACT &quot;-&quot;
+%token LPAREN &quot;(&quot;
+%token RPAREN &quot;)&quot;
+%token NUMBER
+
+#= Returned types =#
+%type &lt;Node&gt; e
+%type &lt;Node&gt; t
+%type &lt;Node&gt; f
+
+%%
+#= Productions =#
+%start s
+s -&gt; e         :{ println($1); println(eval($1))          }:
+e -&gt; e &quot;+&quot; t   :{ $$ = AddNode($1, $3)                    }:
+   | e &quot;-&quot; t   :{ $$ = SubNode($1, $3)                    }:
+   | t         :{ $$ = $1                                 }:
+t -&gt; t &quot;*&quot; f   :{ $$ = MulNode($1, $3)                    }:
+   | t &quot;/&quot; f   :{ $$ = DivNode($1, $3)                    }:
+   | f         :{ $$ = $1                                 }:
+f -&gt; NUMBER    :{ $$ = NumNode(GF{FIELD_PRIME}($1.value)) }:
+   | &quot;(&quot; e &quot;)&quot; :{ $$ = $2                                 }:
+
+%%</code></pre><p>As you can see, the <code>GF{P}</code> type will still be used, but now a tree-like structure will be created from the input. To see what tree has been created for the given input, an additional print statement has been added to the <code>s</code> production.</p><p>To generate the parser, run the following code:</p><pre><code class="language-julia hljs">using JLPG
+generate_parser(&quot;example.jpar&quot;)</code></pre><p>For the same input as in the previous example, the following output will be produced:</p><pre><code class="nohighlight hljs">MulExpr(AddExpr(Num(GaloisField{order=7}(2)), Num(GaloisField{order=7}(4))), Num(GaloisField{order=7}(6)))
+GaloisField{order=7}(1)</code></pre><p>This is a proper way of creating an AST for this example, since the order of operations and parenthesis are preserved.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../parser/">« Parser definition files</a><a class="docs-footer-nextpage" href="../usage/">Usage »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Friday 8 December 2023 00:07">Friday 8 December 2023</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
