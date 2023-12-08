@@ -3,6 +3,8 @@
 LR parser & lexer generator for Julia.
 
 [![Build Status](https://github.com/Flowyh/JLPG.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Flowyh/JLPG.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://flowyh.github.io/JLPG.jl/stable)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://flowyh.github.io/JLPG.jl/dev)
 
 This package provides a parser and lexer generator for Julia inspired by [GNU Bison](https://www.gnu.org/software/bison/manual/) and [Flex](https://westes.github.io/flex/manual/) respectively. The generated parsers and lexers are written in pure Julia and do not require any external dependencies (aside from the `JLPG.jl` library). To generate a parser or lexer, a definition file has to be written in a bison/flex-like syntax.
 
@@ -104,4 +106,4 @@ $ julia __PAR__.jl input.txt
 ```
 
 For more examples see the `examples` directory.
-Documentation is available at []().
+Documentation is available at [this link](https://flowyh.github.io/JLPG.jl/stable).

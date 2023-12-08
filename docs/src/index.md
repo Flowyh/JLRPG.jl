@@ -1,5 +1,3 @@
-<!-- # JLRPG.jl -->
-
 # JLPG.jl
 
 Lexer & LR parser generator for Julia.
