@@ -14,7 +14,6 @@ makedocs(
       "Parser" => "api_parser.md",
     ]
   ]
-  # modules=[JLPG]
 )
 
 deploydocs(
