@@ -6,7 +6,9 @@ LR parser & lexer generator for Julia.
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://flowyh.github.io/JLPG.jl/stable)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://flowyh.github.io/JLPG.jl/dev)
 
-This package provides a parser and lexer generator for Julia inspired by [GNU Bison](https://www.gnu.org/software/bison/manual/) and [Flex](https://westes.github.io/flex/manual/) respectively. The generated parsers and lexers are written in pure Julia and do not require any external dependencies (aside from the `JLPG.jl` library). To generate a parser or lexer, a definition file has to be written in a bison/flex-like syntax.
+This package provides a parser and lexer generator for Julia inspired by [GNU Bison](https://www.gnu.org/software/bison/manual/) and [Flex](https://westes.github.io/flex/manual/) respectively. Most algorithms used in this package are based on the algorithms described in the [Dragon Book](https://en.wikipedia.org/wiki/Compilers:_Principles,_Techniques,_and_Tools).
+
+Generated parsers and lexers are written in pure Julia and do not require any external dependencies (aside from the `JLPG.jl` library). To generate a parser or lexer, a definition file has to be written in a bison/flex-like syntax (but with Julia code inside!).
 
 The library currently features:
 
@@ -24,7 +26,7 @@ Currently the package is not registered in the Julia package registry.
 
 ## Usage
 
-The package provides two functions `generate_lexer` and `generate_parser` which can be used to generate a lexer or parser respectively. Both functions take a definition file as input and return a Julia source file containing the generated lexer/parser. The generated lexer/parser can then be included in other Julia source files or modules.
+The package provides two functions `generate_lexer` and `generate_parser`, which can be used to generate a lexer or a parser respectively. Both functions take a definition file as input and return a Julia source file containing the generated lexer/parser. The generated lexer/parser can then be included in other Julia source files or modules.
 
 ### Lexer definition files
 
