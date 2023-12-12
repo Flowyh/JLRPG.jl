@@ -1,6 +1,7 @@
 using JLRPG.JLRPG_SimpleLexer
 using JLRPG.JLRPG_Parser
 using JLRPG.JLRPG_Utils
+using JLRPG.JLRPG_Regex
 
 using Test
 using Logging
@@ -11,7 +12,7 @@ include("test_logger.jl")
 debuglogger = TestLogger(stderr)
 global_logger(debuglogger)
 
-OMIT_DIRECTORIES::Set{String} = Set("resources")
+OMIT_DIRECTORIES::Set{String} = Set(["resources"])
 
 @testset "JLRPG.jl" begin
   time = @elapsed for directory in filter(isdir, readdir(@__DIR__))
