@@ -38,11 +38,11 @@ function lr1_closure(
 
         for lookahead in lookaheads
           for id in eachindex(productions[next_symbol])
-              new_item = ParsingItem(next_symbol, id; lookahead=lookahead)
-              if !(new_item in new_items)
-                push!(new_items, new_item)
-                has_changed = true
-              end
+            new_item = ParsingItem(next_symbol, id; lookahead=lookahead)
+            if !(new_item in new_items)
+              push!(new_items, new_item)
+              has_changed = true
+            end
           end
         end
       end

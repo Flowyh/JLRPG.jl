@@ -1,4 +1,4 @@
-using JLPG
+using JLRPG
 
 if isfile("__LEX__.jl")
   include("__LEX__.jl")

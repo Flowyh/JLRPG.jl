@@ -1,14 +1,14 @@
-# JLPG.jl
+# JLRPG.jl
 
 LR parser & lexer generator for Julia.
 
-[![Build Status](https://github.com/Flowyh/JLPG.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Flowyh/JLPG.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://flowyh.github.io/JLPG.jl/stable)
-[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://flowyh.github.io/JLPG.jl/dev)
+[![Build Status](https://github.com/Flowyh/JLRPG.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Flowyh/JLRPG.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://flowyh.github.io/JLRPG.jl/stable)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://flowyh.github.io/JLRPG.jl/dev)
 
 This package provides a parser and lexer generator for Julia inspired by [GNU Bison](https://www.gnu.org/software/bison/manual/) and [Flex](https://westes.github.io/flex/manual/) respectively. Most algorithms used in this package are based on the algorithms described in the [Dragon Book](https://en.wikipedia.org/wiki/Compilers:_Principles,_Techniques,_and_Tools).
 
-Generated parsers and lexers are written in pure Julia and do not require any external dependencies (aside from the `JLPG.jl` library). To generate a parser or lexer, a definition file has to be written in a bison/flex-like syntax (but with Julia code inside!).
+Generated parsers and lexers are written in pure Julia and do not require any external dependencies (aside from the `JLRPG.jl` library). To generate a parser or lexer, a definition file has to be written in a bison/flex-like syntax (but with Julia code inside!).
 
 The library currently features:
 
@@ -20,8 +20,9 @@ The library currently features:
 The package can be installed with the Julia package manager. From the Julia REPL, type `]` to enter the Pkg REPL mode and run:
 
 ```
-pkg> add https://github.com/Flowyh/JLPG.jl
+pkg> add https://github.com/Flowyh/JLRPG.jl
 ```
+
 Currently the package is not registered in the Julia package registry.
 
 ## Usage
@@ -91,7 +92,7 @@ f -> NUMBER    :{ $$ = $1.value }:
 Generate both lexer and parser:
 
 ```julia
-using JLPG
+using JLRPG
 generate_lexer("example.jlex")
 generate_parser("example.jpar")
 ```
@@ -108,4 +109,4 @@ $ julia __PAR__.jl input.txt
 ```
 
 For more examples see the `examples` directory.
-Documentation is available at [this link](https://flowyh.github.io/JLPG.jl/stable).
+Documentation is available at [this link](https://flowyh.github.io/JLRPG.jl/stable).

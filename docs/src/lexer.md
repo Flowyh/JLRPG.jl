@@ -1,6 +1,6 @@
 # SimpleLexer definition files
 
-The first step of creating a proper parser is to define a lexer. JLPG.jl supports generation of simplified lexer files, which rely on Julia's regex engine (PCRE2 standard).
+The first step of creating a proper parser is to define a lexer. JLRPG.jl supports generation of simplified lexer files, which rely on Julia's regex engine (PCRE2 standard).
 
 Customarily, lexer definition files have `.jlex` extension.
 

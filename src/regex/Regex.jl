@@ -1,4 +1,4 @@
-module JLPG_Regex
+module JLRPG_Regex
   include("ast.jl")
   include("pos_functions.jl")
   export RegexNode

@@ -5,7 +5,7 @@
 After the lexer definition file is created, it can be used to generate a lexer. To do so, run the following program:
 
 ```julia
-using JLPG
+using JLRPG
 generate_lexer("path/to/lexer.jlex", "path/to/generated/lexer.jl")
 ```
 
@@ -22,7 +22,7 @@ JULIA_DEBUG=Main julia path/to/generated/lexer.jl [source file]
 To generate a parser, run the following program:
 
 ```julia
-using JLPG
+using JLRPG
 generate_parser("path/to/parser.jpar", "path/to/generated/parser.jl")
 ```
 

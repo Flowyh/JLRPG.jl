@@ -1,8 +1,8 @@
 using Documenter
-using JLPG
+using JLRPG
 
 makedocs(
-  sitename="JLPG.jl",
+  sitename="JLRPG.jl",
   pages = [
     "Getting started" => "index.md",
     "SimpleLexer definition files" => "lexer.md",
@@ -17,5 +17,5 @@ makedocs(
 )
 
 deploydocs(
-  repo = "github.com/Flowyh/JLPG.jl.git",
+  repo = "github.com/Flowyh/JLRPG.jl.git",
 )

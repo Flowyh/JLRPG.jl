@@ -22,11 +22,11 @@ FIELD_PRIME::Int = 7
 
 #= Lexer token definitions =#
 %token MULTIPLY "*"
-%token DIVIDE "/"
-%token ADD "+"
+%token DIVIDE   "/"
+%token ADD      "+"
 %token SUBTRACT "-"
-%token LPAREN "("
-%token RPAREN ")"
+%token LPAREN   "("
+%token RPAREN   ")"
 %token NUMBER
 
 #= Returned types =#

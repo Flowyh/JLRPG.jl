@@ -195,7 +195,7 @@
         ),
         code_blocks = [
           "println(\"Code in definitions :o\")",
-          "function factorial(n::Int)::Int\n  return n * factorial(n - 1)\nend\n\nfunction __PAR__at_end() # Overloaded JLPG function\n  println(\"Code at the end :o\")\n  return 0\nend"
+          "function factorial(n::Int)::Int\n  return n * factorial(n - 1)\nend\n\nfunction __PAR__at_end() # Overloaded JLRPG function\n  println(\"Code at the end :o\")\n  return 0\nend"
         ],
         options = ParserOptions()
       )

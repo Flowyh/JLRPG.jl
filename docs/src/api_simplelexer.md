@@ -1,6 +1,6 @@
 # SimpleLexer API reference
 
 ```@autodocs
-Modules = [JLPG.JLPG_SimpleLexer]
+Modules = [JLRPG.JLRPG_SimpleLexer]
 Order   = [:type, :function]
 ```

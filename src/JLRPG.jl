@@ -1,15 +1,15 @@
-module JLPG
+module JLRPG
   using Reexport
 
   include("utils/Utils.jl")
-  @reexport using .JLPG_Utils
+  @reexport using .JLRPG_Utils
 
   include("regex/Regex.jl")
-  @reexport using .JLPG_Regex
+  @reexport using .JLRPG_Regex
 
   include("lexer/simple/SimpleLexer.jl")
-  @reexport using .JLPG_SimpleLexer
+  @reexport using .JLRPG_SimpleLexer
 
   include("parser/Parser.jl")
-  @reexport using .JLPG_Parser
+  @reexport using .JLRPG_Parser
 end

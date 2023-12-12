@@ -36,8 +36,5 @@ test_input
 # DISCONTINUED UNTIL I FINISH MY BACHELOR DEGREE
 src/dfa
 
-src/regex
-test/regex
-
 src/lexer/*
 !src/lexer/simple

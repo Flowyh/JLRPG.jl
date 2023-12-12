@@ -36,7 +36,7 @@ function factorial(n::Int)::Int
   return n * factorial(n - 1)
 end
 
-function __PAR__at_end() # Overloaded JLPG function
+function __PAR__at_end() # Overloaded JLRPG function
   println("Code at the end :o")
   return 0
 end

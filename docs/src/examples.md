@@ -33,7 +33,7 @@ end
 To generate the lexer, run the following code:
 
 ```julia
-using JLPG
+using JLRPG
 generate_lexer("example.jlex")
 ```
 
@@ -169,7 +169,7 @@ This grammar ensures that the order of operations is preserved. Currently there 
 To generate the parser, run the following code:
 
 ```julia
-using JLPG
+using JLRPG
 generate_parser("example.jpar")
 ```
 
@@ -351,7 +351,7 @@ As you can see, the `GF{P}` type will still be used, but now a tree-like structu
 To generate the parser, run the following code:
 
 ```julia
-using JLPG
+using JLRPG
 generate_parser("example.jpar")
 ```
 

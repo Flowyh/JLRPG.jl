@@ -1,6 +1,6 @@
-using JLPG.JLPG_SimpleLexer
-using JLPG.JLPG_Parser
-using JLPG.JLPG_Utils
+using JLRPG.JLRPG_SimpleLexer
+using JLRPG.JLRPG_Parser
+using JLRPG.JLRPG_Utils
 
 using Test
 using Logging
@@ -11,9 +11,9 @@ include("test_logger.jl")
 debuglogger = TestLogger(stderr)
 global_logger(debuglogger)
 
-OMIT_DIRECTORIES::Set{String} = Set("resources", "regex")
+OMIT_DIRECTORIES::Set{String} = Set("resources")
 
-@testset "JLPG.jl" begin
+@testset "JLRPG.jl" begin
   time = @elapsed for directory in filter(isdir, readdir(@__DIR__))
     if directory in OMIT_DIRECTORIES
       continue
@@ -32,6 +32,6 @@ OMIT_DIRECTORIES::Set{String} = Set("resources", "regex")
       @info ""
     end
   end
-  @info "Finished testing JLPG.jl"
+  @info "Finished testing JLRPG.jl"
   @info "Total time elapsed: $(round(time; digits=3))s"
 end

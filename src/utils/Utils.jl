@@ -1,4 +1,4 @@
-module JLPG_Utils
+module JLRPG_Utils
   using Reexport
 
   include("filepath.jl")

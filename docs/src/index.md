@@ -1,13 +1,13 @@
-# JLPG.jl
+# JLRPG.jl
 
 Lexer & LR parser generator for Julia.
 
 ## Installation
 
-JLPG.jl can be installed using the Julia package manager. From the Julia REPL, type `]` to enter the Pkg REPL mode and run:
+JLRPG.jl can be installed using the Julia package manager. From the Julia REPL, type `]` to enter the Pkg REPL mode and run:
 
 ```
-pkg> add https://github.com/Flowyh/JLPG.jl
+pkg> add https://github.com/Flowyh/JLRPG.jl
 ```
 
 ## Features
@@ -50,7 +50,7 @@ NUMBER     0|[1-9]+[0-9]*
 To generate the lexer, run the following code:
 
 ```julia
-using JLPG
+using JLRPG
 generate_lexer("example.jlex")
 ```
 
@@ -110,7 +110,7 @@ f -> NUMBER    :{ $$ = $1.value }:
 To generate the parser, run the following command:
 
 ```julia
-using JLPG
+using JLRPG
 generate_parser("example.jpar")
 ```
 
@@ -124,4 +124,4 @@ In this example the parser will tokenize the file, analyze it's syntax and print
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/Flowyh/JLPG.jl/blob/main/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/Flowyh/JLRPG.jl/blob/main/LICENSE) file for details.

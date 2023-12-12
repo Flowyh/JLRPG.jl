@@ -1,7 +1,7 @@
-name = "JLPG"
-uuid = "d62874f1-7ad4-4ec3-9165-79520fb67797"
+name = "JLRPG"
+uuid = "fc9c42e7-e6f8-4072-a596-8e85c0b63419"
 authors = ["Maciej Bazela"]
-version = "0.1.0"
+version = "1.0.0"
 
 [deps]
 Mustache = "ffc61752-8dc7-55ee-8c37-f3e9cdd09e70"

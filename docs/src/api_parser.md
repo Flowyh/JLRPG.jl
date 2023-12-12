@@ -1,6 +1,6 @@
 # Parser API reference
 
 ```@autodocs
-Modules = [JLPG.JLPG_Parser]
+Modules = [JLRPG.JLRPG_Parser]
 Order   = [:type, :function]
 ```

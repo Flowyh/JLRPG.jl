@@ -1,4 +1,4 @@
-using JLPG
+using JLRPG
 
 mutable struct __LEX__vars
   c::Union{Nothing, Cursor}

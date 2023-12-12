@@ -1,9 +1,9 @@
-module JLPG_SimpleLexer
-  using ..JLPG_Utils: Comparable
-  using ..JLPG_Utils: function_definition, function_name
-  using ..JLPG_Utils: SPECIAL_FUNCTION_START, SPECIAL_FUNCTION_END,
+module JLRPG_SimpleLexer
+  using ..JLRPG_Utils: Comparable
+  using ..JLRPG_Utils: function_definition, function_name
+  using ..JLRPG_Utils: SPECIAL_FUNCTION_START, SPECIAL_FUNCTION_END,
                       SPECIAL_FUNCTION_OVERLOAD_MSG
-  using ..JLPG_Utils.Cursors
+  using ..JLRPG_Utils.Cursors
 
   include("types.jl")
   export Lexer, RegexAlias, LexerAction, LexerOptions, LexerToken, LexerTokenDefinition

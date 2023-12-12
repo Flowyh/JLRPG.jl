@@ -1,10 +1,10 @@
-module JLPG_Parser
-  using ..JLPG_Utils: Comparable
-  using ..JLPG_Utils: function_definition, function_name
-  using ..JLPG_Utils: SPECIAL_FUNCTION_START, SPECIAL_FUNCTION_END,
+module JLRPG_Parser
+  using ..JLRPG_Utils: Comparable
+  using ..JLRPG_Utils: function_definition, function_name
+  using ..JLRPG_Utils: SPECIAL_FUNCTION_START, SPECIAL_FUNCTION_END,
                       SPECIAL_FUNCTION_OVERLOAD_MSG
-  using ..JLPG_Utils.Cursors
-  using ..JLPG_SimpleLexer: LEXER_SPECIAL_TAG
+  using ..JLRPG_Utils.Cursors
+  using ..JLRPG_SimpleLexer: LEXER_SPECIAL_TAG
 
   include("types.jl")
   export Parser, ParserOptions, ParserProduction
